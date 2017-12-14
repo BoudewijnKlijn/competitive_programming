@@ -86,7 +86,7 @@ for row_id in range(128):
                 output += str(mat[row_id, col_id+1]) + ', '
             output += '\n'
 
-filename = 'output.txt'
+filename = 'outputday14.txt'
 handle = open(filename, 'w')
 handle.write(output)
 
@@ -100,15 +100,13 @@ def f_extend(v_list):
                 f_extend(v_list)
     return v_list
 
-file = 'C:\\Users\\Admin\\Desktop\\Work\\Learning\\Advent\\output.txt'
+file = 'C:\\Users\\Admin\\Desktop\\Work\\Learning\\Advent\\outputday14.txt'
 handle = open(file, 'r')
 
 contents = dict()
 for line in handle:
     words = line.replace(',', '').split()
     contents[int(words[0])] = [int(x) for x in words[2:]]
-
-print(contents)
 
 program = dict()
 regions = 0
@@ -122,7 +120,6 @@ for k, v_list in contents.items():
         for row in v_list:
             program[row] = v_list
 
-print("Answer:", regions)
+print("Answer part 2:", regions)
 
 ### end code from day 12 part 2 ###
-
