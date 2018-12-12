@@ -33,9 +33,10 @@ def calc_variance(contents, column):
 
 def main():
     """
-    If the light are to make a text, they will probably be one a line; more or less the same x coordinate, means little
+    If the lights are to make a text, they will probably be one a line; more or less the same Y-coordinate, means little
     variance.
     """
+
     contents = read_file('input.txt')[:-1]
     parsed = parse(contents)
 
