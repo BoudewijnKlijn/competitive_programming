@@ -168,6 +168,10 @@ def strategy_5():
 
     """
 
+    pass
+
+
+
 # check for double book ids!
 
 # TODO / thoughts
@@ -214,6 +218,33 @@ def strategy_7(problem):
 
 
 
+def strategy_8(problem):
+    """
+    sort libraries on total value that can be achieved within simulation time
+    sort books on value
+    prevent non-unique books
+    """
+    output = list()
+    max_score_library = calc_total_score_per_library(problem)
+
+    books = set()
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(max_score_library, enumerate(problem.libraries)), reverse=True)]
+
+    for library_i, library in enumerate(sorted_libraries):
+        output.append((library.id, []))
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            if book.id in books:
+                continue
+            output[library_i][1].append(book.id)
+            books.add(book.id)
+        if len(output[library_i][1]) == 0:
+            output[library_i][1].append(book.id)  # to prevent empty lines
+    return output
+
+
+
+
 def create_submission_file(output, filename_out='out.txt'):
     with open(filename_out, 'w') as f:
         f.write(f'{len(output)}\n')
@@ -242,6 +273,9 @@ def main():
         # output = strategy_1(loaded)  # 10750360
         output = strategy_7(loaded)  # xxx
         #output = strategy_2(loaded)  # 15156535
+        # output = strategy_2(loaded)  # 15156535
+        # output = strategy_4(loaded)  # xxx
+        output = strategy_6(loaded)  # xxx
 
         create_submission_file(output, file_out)
 
