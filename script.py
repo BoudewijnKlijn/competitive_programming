@@ -25,8 +25,8 @@ class Book:
 
 class Library:
     def __init__(self, id=None, nr_books=None, books=None, signup_time=None, scanned_daily=None):
-        self.id = id
-        self.nr_books = nr_books
+        self.id = int(id)
+        self.nr_books = int(nr_books)
         self.books = books
         self.signup_time = int(signup_time)
         self.scanned_daily = int(scanned_daily)
@@ -35,7 +35,7 @@ class Library:
         return '\n\t<Library \n\t\tid:{} \n\t\tnr_books:{} \n\t\tbooks:{} \n\t\tsignup_time:{} \n\t\tscanned_daily:{}'.format(self.id, self.nr_books, self.books, self.signup_time, self.scanned_daily)
 
 
-def load_file(filename):
+def load_input_file(filename):
     library_id = 0
 
     with open(filename, 'r') as f:
