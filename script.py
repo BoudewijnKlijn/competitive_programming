@@ -13,6 +13,7 @@ class Problem:
     def __repr__(self):
         return '< Problem \n\tBooks:{} \n\tLibraries:{} \n\tScanning days:{}'.format(self.books, self.libraries, self.scanning_days)
 
+
 class Book:
     def __init__(self, id, score):
         self.id = id
@@ -60,23 +61,17 @@ def load_file(filename):
     return problem
 
 
-def create_submission_file(rides_all_cars, filename_out='out.txt'):
-    with open(filename_out, 'w') as f:
-        for i, rides_one_car in enumerate(rides_all_cars):
-            if rides_one_car:
-                f.write(f'{str(len(rides_one_car))} {" ".join([str(r) for r in rides_one_car])}')
-            else:
-                f.write('0')
-
-            if i != len(rides_all_cars) - 1:
-                f.write('\n')
-
-
-def strategy_0():
+def strategy_0(problem):
     """
     dumbest strategy
     start with first library, import books in default order. no smart stuff
     """
+    output = list()
+    for library_i, library in enumerate(problem.libraries):
+        output.append((library_i, []))
+        for book_i, book in enumerate(library.books):
+            output[library_i][1].append(book.id)
+    return output
 
 
 def strategy_1():
@@ -114,10 +109,34 @@ def strategy_4():
 # calculate how many days you need to achieve 80%/90% of library value
 
 
+def create_submission_file(output, filename_out='out.txt'):
+    with open(filename_out, 'w') as f:
+        f.write(f'{len(output)}\n')
+        for i, (library_id, books) in enumerate(output):
+            f.write(f'{library_id} {len(books)}\n')
+            f.write(' '.join([str(book_id) for book_id in books]))
+
+            if i != len(output) - 1:
+                f.write('\n')
+
+
 def main():
-    file = 'data/a_example.txt'
-    loaded = load_file(file)
-    print(loaded)
+    files = ['a_example.txt', 'b_read_on.txt', 'c_incunabula.txt', 'd_tough_choices.txt', 'e_so_many_books.txt',
+             'f_libraries_of_the_world.txt']
+
+    for file in files:
+        # file = 'a_example.txt'
+        file_out = 'out_' + file
+
+        loaded = load_file(file)
+        # print(loaded)
+        # print(loaded.books)
+        # print(loaded.libraries)
+
+        output = strategy_0(loaded)
+
+        create_submission_file(output, file_out)
+
 
 def calc_total_score_per_library(settings, libraries, books):
     """
