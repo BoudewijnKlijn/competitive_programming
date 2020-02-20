@@ -243,7 +243,29 @@ def strategy_8(problem):
     return output
 
 
+def strategy_9(problem):
+    """
+    sort libraries on ascending ratio max possible total score / signup time
+    sort books on value
+    """
+    output = list()
+    #signup_times_library = calc_signup_time_per_library(problem)
+    books = set()
 
+    ratios_library = calc_total_signup_ratio_per_library(problem)
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(ratios_library, enumerate(problem.libraries)), reverse=True)]
+
+    for library_i, library in enumerate(sorted_libraries):
+        output.append((library.id, []))
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            if book.id in books:
+                continue
+            output[library_i][1].append(book.id)
+            books.add(book.id)
+        if len(output[library_i][1]) == 0:
+            output[library_i][1].append(book.id)  # to prevent empty lines
+    return output
 
 def create_submission_file(output, filename_out='out.txt'):
     with open(filename_out, 'w') as f:
@@ -271,16 +293,12 @@ def main():
 
         # output = strategy_0(loaded)  # 10495004
         # output = strategy_1(loaded)  # 10750360
-        output = strategy_7(loaded)  # xxx
+        # output = strategy_9(loaded)  # xxx
         #output = strategy_2(loaded)  # 15156535
         # output = strategy_2(loaded)  # 15156535
         # output = strategy_4(loaded)  # xxx
-        output = strategy_6(loaded)  # xxx
 
         create_submission_file(output, file_out)
-
-        # if idx == 0:
-        #     break
 
 
 def analyse():
