@@ -68,7 +68,7 @@ def strategy_0(problem):
     """
     output = list()
     for library_i, library in enumerate(problem.libraries):
-        output.append((library_i, []))
+        output.append((library.id, []))
         for book_i, book in enumerate(library.books):
             output[library_i][1].append(book.id)
     return output
@@ -81,17 +81,27 @@ def strategy_1(problem):
     """
     output = list()
     for library_i, library in enumerate(problem.libraries):
-        output.append((library_i, []))
+        output.append((library.id, []))
         for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
             output[library_i][1].append(book.id)
     return output
 
 
-def strategy_2():
+def strategy_2(problem):
     """
     sort libraries on total value that can be achieved within simulation time
     sort books on value
     """
+    output = list()
+    max_score_library = calc_total_score_per_library(problem)
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(max_score_library, enumerate(problem.libraries)), reverse=True)]
+
+    for library_i, library in enumerate(sorted_libraries):
+        output.append((library.id, []))
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            output[library_i][1].append(book.id)
+    return output
 
 
 def strategy_3():
@@ -131,7 +141,7 @@ def main():
              'f_libraries_of_the_world.txt']
 
     for file in files:
-        # file = 'a_example.txt'
+
         file_out = 'out_' + file
 
         loaded = load_file(file)
@@ -140,18 +150,38 @@ def main():
         # print(loaded.libraries)
 
         # output = strategy_0(loaded)  # 10495004
-        output = strategy_1(loaded)  # 10750360
+        # output = strategy_1(loaded)  # 10750360
+        output = strategy_2(loaded)  # xxx
 
         create_submission_file(output, file_out)
 
 
-def calc_total_score_per_library(settings, libraries, books):
+def analyse():
+    file = 'a_example.txt'
+    # file = 'b_read_on.txt'
+    loaded = load_file(file)
+    max_score_library = calc_total_score_per_library(loaded)
+
+    print([j for _, j in sorted(zip(max_score_library, loaded.libraries), reverse=True)])
+    # print(max_score_library)
+
+
+def calc_total_score_per_library(problem):
     """
     D = number of days
     D - signup_time
     """
+    D = problem.scanning_days
+    max_score_library = list()
+    for library in problem.libraries:
+        max_possible_scan_time = D - library.signup_time
+        max_possible_books_to_scan = max_possible_scan_time * library.scanned_daily
+        sorted_book_scores = sorted([book.score for book in library.books], reverse=True)
+        max_score_library.append(sum(sorted_book_scores[:max_possible_books_to_scan]))
 
+    return max_score_library
 
 
 if __name__ == '__main__':
     main()
+    # analyse()
