@@ -175,6 +175,45 @@ def strategy_5():
 # calculate how many days you need to achieve 80%/90% of library value
 
 
+
+def strategy_6(problem):
+    """
+    sort libraries on ascending signup time
+    sort books on value
+    """
+    output = list()
+    signup_times_library = calc_signup_time_per_library(problem)
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(signup_times_library, enumerate(problem.libraries)))]
+
+    for library_i, library in enumerate(sorted_libraries):
+        output.append((library.id, []))
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            output[library_i][1].append(book.id)
+    return output
+
+
+
+def strategy_7(problem):
+    """
+    sort libraries on ascending ratio max possible total score / signup time
+    sort books on value
+    """
+    output = list()
+    #signup_times_library = calc_signup_time_per_library(problem)
+
+    ratios_library = calc_total_signup_ratio_per_library(problem)
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(ratios_library, enumerate(problem.libraries)), reverse=True)]
+
+    for library_i, library in enumerate(sorted_libraries):
+        output.append((library.id, []))
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            output[library_i][1].append(book.id)
+    return output
+
+
+
 def create_submission_file(output, filename_out='out.txt'):
     with open(filename_out, 'w') as f:
         f.write(f'{len(output)}\n')
@@ -201,7 +240,7 @@ def main():
 
         # output = strategy_0(loaded)  # 10495004
         # output = strategy_1(loaded)  # 10750360
-        output = strategy_4(loaded)  # xxx
+        output = strategy_7(loaded)  # xxx
         #output = strategy_2(loaded)  # 15156535
 
         create_submission_file(output, file_out)
@@ -235,6 +274,22 @@ def calc_total_score_per_library(problem):
 
     return max_score_library
 
+def calc_signup_time_per_library(problem):
+    """
+    D = number of days
+    D - signup_time
+    """
+    D = problem.scanning_days
+    signup_times = list()
+    for library in problem.libraries:
+        # max_possible_scan_time = D - library.signup_time
+        # max_possible_books_to_scan = max_possible_scan_time * library.scanned_daily
+        # sorted_book_scores = sorted([book.score for book in library.books], reverse=True)
+        # max_score_library.append(sum(sorted_book_scores[:max_possible_books_to_scan]))
+        signup_times.append(library.signup_time)
+
+    return signup_times
+
 def calc_ratio_signup_shipping_per_library(problem):
     D = problem.scanning_days
     ratio_time_library = list()
@@ -248,6 +303,23 @@ def calc_ratio_signup_shipping_per_library(problem):
         ratio_signup_shipping = library.signup_time / total_shipping_time
 
         ratio_time_library.append(ratio_signup_shipping)
+    return ratio_time_library
+
+def calc_total_signup_ratio_per_library(problem):
+    D = problem.scanning_days
+    ratio_time_library = list()
+    for library in problem.libraries:
+        max_possible_scan_time = D - library.signup_time
+        max_possible_books_to_scan = max_possible_scan_time * library.scanned_daily
+        sorted_book_scores = sorted([book.score for book in library.books], reverse=True)
+        max_score = sum(sorted_book_scores[:max_possible_books_to_scan])
+
+        signup_time = library.signup_time
+
+        ratio = max_score / signup_time
+
+        ratio_time_library.append(ratio)
+
     return ratio_time_library
 
 if __name__ == '__main__':
