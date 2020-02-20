@@ -151,7 +151,7 @@ def main():
 
         # output = strategy_0(loaded)  # 10495004
         # output = strategy_1(loaded)  # 10750360
-        output = strategy_2(loaded)  # xxx
+        output = strategy_2(loaded)  # 15156535
 
         create_submission_file(output, file_out)
 
