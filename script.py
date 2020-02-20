@@ -8,7 +8,7 @@ class Problem:
     def __init__(self, books=None, libraries=None, scanning_days=None):
         self.books = books
         self.libraries = libraries
-        self.scanning_days = scanning_days
+        self.scanning_days = int(scanning_days)
 
     def __repr__(self):
         return '< Problem \n\tBooks:{} \n\tLibraries:{} \n\tScanning days:{}'.format(self.books, self.libraries, self.scanning_days)
@@ -25,17 +25,17 @@ class Book:
 
 class Library:
     def __init__(self, id=None, nr_books=None, books=None, signup_time=None, scanned_daily=None):
-        self.id = id
-        self.nr_books = nr_books
+        self.id = int(id)
+        self.nr_books = int(nr_books)
         self.books = books
-        self.signup_time = signup_time
-        self.scanned_daily = scanned_daily
+        self.signup_time = int(signup_time)
+        self.scanned_daily = int(scanned_daily)
 
     def __repr__(self):
         return '\n\t<Library \n\t\tid:{} \n\t\tnr_books:{} \n\t\tbooks:{} \n\t\tsignup_time:{} \n\t\tscanned_daily:{}'.format(self.id, self.nr_books, self.books, self.signup_time, self.scanned_daily)
 
 
-def load_file(filename):
+def load_input_file(filename):
     library_id = 0
 
     with open(filename, 'r') as f:
