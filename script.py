@@ -267,6 +267,81 @@ def strategy_9(problem):
             output[library_i][1].append(book.id)  # to prevent empty lines
     return output
 
+
+def strategy_10(problem):
+    """
+    sort libraries on ascending ratio max possible total score / signup time
+    sort books on value
+    """
+    output = list()
+    books = set()
+
+    ratios_library = calc_total_signup_ratio_per_library(problem)
+
+    remaining_days = problem.scanning_days
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(ratios_library, enumerate(problem.libraries)), reverse=True)]
+
+    for library_i, library in enumerate(sorted_libraries):
+        remaining_days = remaining_days - library.signup_time
+        if remaining_days < 0:
+            break
+
+        output.append((library.id, []))
+        max_possible_books_to_scan = remaining_days * library.scanned_daily
+        added_books = 0
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            if book.id in books:
+                continue
+
+            output[library_i][1].append(book.id)
+            books.add(book.id)
+            added_books += 1
+            if added_books == max_possible_books_to_scan:
+                break
+
+        if len(output[library_i][1]) == 0:
+            output[library_i][1].append(book.id)  # to prevent empty lines
+    return output
+
+
+def strategy_11(problem):
+    """
+    sort libraries on ascending ratio max possible total score / signup time
+    sort books on value
+    """
+    output = list()
+    books = set()
+
+    max_score_library = calc_total_score_per_library(problem)
+
+    remaining_days = problem.scanning_days
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(max_score_library, enumerate(problem.libraries)), reverse=True)]
+
+    for library_i, library in enumerate(sorted_libraries):
+        remaining_days = remaining_days - library.signup_time
+        if remaining_days < 0:
+            break
+
+        output.append((library.id, []))
+        max_possible_books_to_scan = remaining_days * library.scanned_daily
+        added_books = 0
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            if book.id in books:
+                continue
+
+            output[library_i][1].append(book.id)
+            books.add(book.id)
+            added_books += 1
+            if added_books == max_possible_books_to_scan:
+                break
+
+        if len(output[library_i][1]) == 0:
+            output[library_i][1].append(book.id)  # to prevent empty lines
+    return output
+
+
 def create_submission_file(output, filename_out='out.txt'):
     with open(filename_out, 'w') as f:
         f.write(f'{len(output)}\n')
@@ -297,6 +372,7 @@ def main():
         #output = strategy_2(loaded)  # 15156535
         # output = strategy_2(loaded)  # 15156535
         # output = strategy_4(loaded)  # xxx
+        output = strategy_11(loaded)  # xxx
 
         create_submission_file(output, file_out)
 
