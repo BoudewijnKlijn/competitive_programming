@@ -74,11 +74,17 @@ def strategy_0(problem):
     return output
 
 
-def strategy_1():
+def strategy_1(problem):
     """
     just start with the first library.
     sort books on value
     """
+    output = list()
+    for library_i, library in enumerate(problem.libraries):
+        output.append((library_i, []))
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            output[library_i][1].append(book.id)
+    return output
 
 
 def strategy_2():
@@ -133,7 +139,8 @@ def main():
         # print(loaded.books)
         # print(loaded.libraries)
 
-        output = strategy_0(loaded)
+        # output = strategy_0(loaded)  # 10495004
+        output = strategy_1(loaded)  # 10750360
 
         create_submission_file(output, file_out)
 
