@@ -68,7 +68,7 @@ def strategy_0(problem):
     """
     output = list()
     for library_i, library in enumerate(problem.libraries):
-        output.append((library_i, []))
+        output.append((library.id, []))
         for book_i, book in enumerate(library.books):
             output[library_i][1].append(book.id)
     return output
@@ -81,17 +81,27 @@ def strategy_1(problem):
     """
     output = list()
     for library_i, library in enumerate(problem.libraries):
-        output.append((library_i, []))
+        output.append((library.id, []))
         for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
             output[library_i][1].append(book.id)
     return output
 
 
-def strategy_2():
+def strategy_2(problem):
     """
     sort libraries on total value that can be achieved within simulation time
     sort books on value
     """
+    output = list()
+    max_score_library = calc_total_score_per_library(problem)
+
+    sorted_libraries = [library for _, (_, library) in sorted(zip(max_score_library, enumerate(problem.libraries)), reverse=True)]
+
+    for library_i, library in enumerate(sorted_libraries):
+        output.append((library.id, []))
+        for book_i, book in enumerate(sorted(library.books, key=lambda x: x.score, reverse=True)):
+            output[library_i][1].append(book.id)
+    return output
 
 
 def strategy_3():
@@ -140,16 +150,20 @@ def main():
         # print(loaded.libraries)
 
         # output = strategy_0(loaded)  # 10495004
-        output = strategy_1(loaded)  # 10750360
+        # output = strategy_1(loaded)  # 10750360
+        output = strategy_2(loaded)  # xxx
 
         create_submission_file(output, file_out)
 
 
 def analyse():
     file = 'a_example.txt'
+    # file = 'b_read_on.txt'
     loaded = load_file(file)
     max_score_library = calc_total_score_per_library(loaded)
-    print(max_score_library)
+
+    print([j for _, j in sorted(zip(max_score_library, loaded.libraries), reverse=True)])
+    # print(max_score_library)
 
 
 def calc_total_score_per_library(problem):
@@ -169,5 +183,5 @@ def calc_total_score_per_library(problem):
 
 
 if __name__ == '__main__':
-    # main()
-    analyse()
+    main()
+    # analyse()
