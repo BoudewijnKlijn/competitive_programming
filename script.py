@@ -8,7 +8,7 @@ class Problem:
     def __init__(self, books=None, libraries=None, scanning_days=None):
         self.books = books
         self.libraries = libraries
-        self.scanning_days = scanning_days
+        self.scanning_days = int(scanning_days)
 
     def __repr__(self):
         return '< Problem \n\tBooks:{} \n\tLibraries:{} \n\tScanning days:{}'.format(self.books, self.libraries, self.scanning_days)
@@ -28,8 +28,8 @@ class Library:
         self.id = id
         self.nr_books = nr_books
         self.books = books
-        self.signup_time = signup_time
-        self.scanned_daily = scanned_daily
+        self.signup_time = int(signup_time)
+        self.scanned_daily = int(scanned_daily)
 
     def __repr__(self):
         return '\n\t<Library \n\t\tid:{} \n\t\tnr_books:{} \n\t\tbooks:{} \n\t\tsignup_time:{} \n\t\tscanned_daily:{}'.format(self.id, self.nr_books, self.books, self.signup_time, self.scanned_daily)
@@ -131,7 +131,7 @@ def main():
              'f_libraries_of_the_world.txt']
 
     for file in files:
-        # file = 'a_example.txt'
+
         file_out = 'out_' + file
 
         loaded = load_file(file)
@@ -145,13 +145,29 @@ def main():
         create_submission_file(output, file_out)
 
 
-def calc_total_score_per_library(settings, libraries, books):
+def analyse():
+    file = 'a_example.txt'
+    loaded = load_file(file)
+    max_score_library = calc_total_score_per_library(loaded)
+    print(max_score_library)
+
+
+def calc_total_score_per_library(problem):
     """
     D = number of days
     D - signup_time
     """
+    D = problem.scanning_days
+    max_score_library = list()
+    for library in problem.libraries:
+        max_possible_scan_time = D - library.signup_time
+        max_possible_books_to_scan = max_possible_scan_time * library.scanned_daily
+        sorted_book_scores = sorted([book.score for book in library.books], reverse=True)
+        max_score_library.append(sum(sorted_book_scores[:max_possible_books_to_scan]))
 
+    return max_score_library
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    analyse()
