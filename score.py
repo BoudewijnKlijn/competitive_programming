@@ -14,7 +14,7 @@ def score(filename_in='sample_in.txt', filename_out='sample_out.txt'):
 
     settings = None
     book_scores = None
-    
+
     for i, line in enumerate(contents_in.split('\n')):
         new = line.split(' ')
         if i == 0:
