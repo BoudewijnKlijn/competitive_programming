@@ -1,4 +1,5 @@
 import timeit
+import math
 
 
 def load_data():
@@ -15,12 +16,11 @@ def part1(data):
                 return n1 * n2
 
 
-def part1_faster(data):
-    goal = 2020
+def part1_faster(data, goal=2020):
     s = set(data)
     for n1 in data:
         if goal - n1 in s:
-            return n1 * (goal - n1)
+            return n1, goal - n1
 
 
 def part2(data):
@@ -30,6 +30,14 @@ def part2(data):
             for n3 in data[j:]:
                 if n1 + n2 + n3 == goal:
                     return n1 * n2 * n3
+
+
+def part2_cleaner_faster(data, goal=2020):
+    for i, n1 in enumerate(data):
+        new_goal = goal - n1
+        ans = part1_faster(data[i+1:], goal=new_goal)
+        if ans:
+            return ans + (n1,)
 
 
 def part2_faster(data):
@@ -47,10 +55,13 @@ def main():
     print(a1)
 
     a1 = part1_faster(data)
-    print(a1)
+    print(a1, math.prod(a1))
 
     a2 = part2(data)
     print(a2)
+
+    a2 = part2_cleaner_faster(data)
+    print(a2, math.prod(a2))
 
     a2 = part2_faster(data)
     print(a2)
