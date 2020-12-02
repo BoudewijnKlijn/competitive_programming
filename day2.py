@@ -1,15 +1,44 @@
 import timeit
 import math
+import re
 
 
 def load_data():
     with open(input_file, 'r') as f:
-        contents = list(map(int, f.read().strip().split()))
-    return contents
+        contents = f.read()
+
+    data = list()
+    for line in contents.split('\n'):
+        pieces = line.split(' ')
+        if len(pieces) < 2:
+            break
+        low, high = map(int, pieces[0].split('-'))
+        letter = pieces[1][:-1]
+        password = pieces[2]
+        entry = {
+            'low': low,
+            'high': high,
+            'letter': letter,
+            'password': password,
+        }
+        data.append(entry)
+
+    return data
+
+
+def is_valid(entry):
+    pattern = f'[{entry["letter"]}]{{1}}'
+    found = re.findall(pattern, entry['password'])
+    if entry['low'] <= len(found) <= entry['high']:
+        return True
 
 
 def part1(data):
-    pass
+    count_valids = 0
+    for entry in data:
+        if is_valid(entry):
+            count_valids += 1
+    return count_valids
 
 
 def part2(data):
@@ -19,6 +48,7 @@ def part2(data):
 def main():
     a1 = part1(data)
     print(a1)
+    pass
 
 
 
