@@ -33,6 +33,14 @@ def is_valid(entry):
         return True
 
 
+def is_valid_part2(entry):
+    low_correct = entry['password'][entry['low'] - 1] == entry['letter']
+    high_correct = entry['password'][entry['high'] - 1] == entry['letter']
+
+    if low_correct + high_correct == 1:
+        return True
+
+
 def part1(data):
     count_valids = 0
     for entry in data:
@@ -42,14 +50,19 @@ def part1(data):
 
 
 def part2(data):
-    pass
+    count_valids = 0
+    for entry in data:
+        if is_valid_part2(entry):
+            count_valids += 1
+    return count_valids
 
 
 def main():
     a1 = part1(data)
     print(a1)
-    pass
 
+    a2 = part2(data)
+    print(a2)
 
 
 if __name__ == '__main__':
