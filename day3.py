@@ -1,6 +1,4 @@
 import timeit
-import math
-import re
 
 
 def load_data():
@@ -9,12 +7,10 @@ def load_data():
     return data
 
 
-def part1(data):
+def part1(data, move_x=3, move_y=1):
     trip = str()
     x, y = 0, 0
     width = len(data[0])
-    move_x = 3
-    move_y = 1
 
     while y < len(data):
         # get symbol
@@ -29,7 +25,13 @@ def part1(data):
 
 
 def part2(data):
-    pass
+    moves = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]  # (x ,y)
+
+    ans2 = 1
+    for move_x, move_y in moves:
+        n_trees = part1(data, move_x, move_y)
+        ans2 *= n_trees
+    return ans2
 
 
 def main():
