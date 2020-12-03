@@ -5,18 +5,27 @@ import re
 
 def load_data():
     with open(input_file, 'r') as f:
-        contents = f.read()
-
-    data = list()
-    for line in contents.split('\n'):
-        pieces = line.split(' ')
-
-
+        data = f.read().strip().split()
     return data
 
 
 def part1(data):
-    pass
+    trip = str()
+    x, y = 0, 0
+    width = len(data[0])
+    move_x = 3
+    move_y = 1
+
+    while y < len(data):
+        # get symbol
+        symbol = data[y][x % width]
+        trip += symbol
+
+        # move to next
+        y += move_y
+        x += move_x
+
+    return trip.count('#')
 
 
 def part2(data):
