@@ -1,4 +1,5 @@
 import timeit
+import re
 
 
 def load_data():
@@ -12,31 +13,86 @@ def load_data():
             k, v = code.split(':')
             d[k] = v
         passports.append(d)
-    # print(passports)
     return passports
 
 
+def is_valid_p2(key, value):
+    if key == 'byr':
+        try:
+            i = int(value)
+            if 1920 <= i <= 2002:
+                return True
+        except:
+            return False
+
+    if key == 'iyr':
+        try:
+            i = int(value)
+            if 2010 <= i <= 2020:
+                return True
+        except:
+            return False
+
+    if key == 'eyr':
+        try:
+            i = int(value)
+            if 2020 <= i <= 2030:
+                return True
+        except:
+            return False
+
+    if key == 'hgt':
+        if value[-2:] == 'in':
+            try:
+                i = int(value[:-2])
+                if 59 <= i <= 76:
+                    return True
+            except:
+                return False
+        elif value[-2:] == 'cm':
+            try:
+                i = int(value[:-2])
+                if 150 <= i <= 193:
+                    return True
+            except:
+                return False
+
+    if key == 'hcl':
+        pattern = '#[a-f0-9]{6}'
+        g = re.findall(pattern, value)
+        if len(g) == 1:
+            return True
+
+    if key == 'ecl':
+        if value in ['amb','blu','brn','gry','grn','hzl','oth']:
+            return True
+
+    if key == 'pid':
+        pattern = '[0-9]{9}'
+        g = re.findall(pattern, value)
+        if len(g) == 1 and len(value) == 9:
+            return True
+
+
 def part1(data):
-    keys = ['byr','iyr','eyr','hgt','hcl','ecl','pid','cid']
     valids = 0
     for passport in data:
-        print(passport)
-        fields = 0
-        for key in keys:
-            value = passport.get(key)
-            if value or key == 'cid':
-                fields += 1
-        if fields == 8:
+        if (n := len((k := passport.keys()))) == 8 or (n == 7 and 'cid' not in k):
             valids += 1
-
     return valids
-
-        # print(len(passport))
-    pass
 
 
 def part2(data):
-    pass
+    valids = 0
+    for passport in data:
+        if (n := len((k := passport.keys()))) == 8 or (n == 7 and 'cid' not in k):
+            fields = 0
+            for key, value in passport.items():
+                if is_valid_p2(key, value):
+                    fields += 1
+            if fields in [7, 8]:
+                valids += 1
+    return valids
 
 
 def main():
