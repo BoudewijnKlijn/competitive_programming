@@ -3,11 +3,35 @@ import timeit
 
 def load_data():
     with open(input_file, 'r') as f:
-        data = f.read().strip().split()
-    return data
+        data = [x.split() for x in f.read().strip().split('\n\n')]
+
+    passports = list()
+    for passport in data:
+        d = dict()
+        for code in passport:
+            k, v = code.split(':')
+            d[k] = v
+        passports.append(d)
+    # print(passports)
+    return passports
 
 
 def part1(data):
+    keys = ['byr','iyr','eyr','hgt','hcl','ecl','pid','cid']
+    valids = 0
+    for passport in data:
+        print(passport)
+        fields = 0
+        for key in keys:
+            value = passport.get(key)
+            if value or key == 'cid':
+                fields += 1
+        if fields == 8:
+            valids += 1
+
+    return valids
+
+        # print(len(passport))
     pass
 
 
