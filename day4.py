@@ -75,9 +75,12 @@ def is_valid_p2(key, value):
 
 
 def part1(data):
+    keys = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid']  # 'cid'
+
     valids = 0
     for passport in data:
-        if (n := len((k := passport.keys()))) == 8 or (n == 7 and 'cid' not in k):
+        if all([k in passport.keys() for k in keys]):
+        # if (n := len((k := passport.keys()))) == 8 or (n == 7 and 'cid' not in k):
             valids += 1
     return valids
 
