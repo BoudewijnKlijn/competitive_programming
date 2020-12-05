@@ -25,6 +25,17 @@ def part1(data):
     return seat_ids
 
 
+def part1_v2(data):
+    seat_ids = list()
+    for seat in data:
+        seat = seat.translate(str.maketrans('FBLR', '0101'))
+        row = int(seat[:7], 2)
+        col = int(seat[7:], 2)
+        seat_id = row * 8 + col
+        seat_ids.append(seat_id)
+    return seat_ids
+
+
 def part2(seat_ids):
     min_seat, max_seat = min(seat_ids), max(seat_ids)
     alt = range(min_seat, max_seat+1)
@@ -37,6 +48,10 @@ def main():
     a1 = max(seat_ids)
     print(a1)
 
+    seat_ids = part1_v2(data)
+    a1 = max(seat_ids)
+    print(a1)
+
     a2 = part2(seat_ids)
     print(a2)
 
@@ -46,6 +61,6 @@ if __name__ == '__main__':
     data = load_data()
     main()
 
-    # t = timeit.Timer('par1(data)', globals=globals())
-    # n = 10000
-    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    t = timeit.Timer('part1_v2(data)', globals=globals())
+    n = 10000
+    print(sum(t.repeat(repeat=n, number=1)) / n)
