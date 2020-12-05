@@ -10,38 +10,34 @@ def load_data():
 
 def part1(data):
     seat_ids = list()
-
     for seat in data:
-        # seat = 'FFFBBBFRRR'
-        # find row
-        print(seat)
         row_number, col_number = 0, 0
         for i, row_letter in enumerate(seat[:7]):
-            print(row_letter)
             if row_letter == 'B':
                 row_number += 2 ** (7-i-1)
-        print(row_number)
 
         for i, col_letter in enumerate(seat[7:]):
-            print(col_letter)
             if col_letter == 'R':
                 col_number += 2 ** (3-i-1)
-        print(col_number)
 
         seat_id = row_number * 8 + col_number
-        print(seat_id)
         seat_ids.append(seat_id)
-    return max(seat_ids)
+    return seat_ids
 
-def part2(data):
-    pass
+
+def part2(seat_ids):
+    min_seat, max_seat = min(seat_ids), max(seat_ids)
+    alt = range(min_seat, max_seat+1)
+    missing = set(alt) - set(seat_ids)
+    return missing
 
 
 def main():
-    a1 = part1(data)
+    seat_ids = part1(data)
+    a1 = max(seat_ids)
     print(a1)
 
-    a2 = part2(data)
+    a2 = part2(seat_ids)
     print(a2)
 
 
