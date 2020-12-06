@@ -21,7 +21,18 @@ def part1(data):
 
 
 def part2(data):
-    pass
+    a2 = 0
+    for group in data:
+        yes = None
+        for person in group.split():
+            if yes is None:
+                yes = set(person)
+            else:
+                yes = yes.intersection(set(person))
+            print(yes)
+            print(person)
+        a2 += len(yes)
+    return a2
 
 
 def main():
