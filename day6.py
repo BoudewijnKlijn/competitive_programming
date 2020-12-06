@@ -14,8 +14,6 @@ def part1(data):
         yes = set()
         for person in group.split():
             yes.update(person)
-            print(yes)
-            print(person)
         a1 += len(yes)
     return a1
 
@@ -29,8 +27,6 @@ def part2(data):
                 yes = set(person)
             else:
                 yes = yes.intersection(set(person))
-            print(yes)
-            print(person)
         a2 += len(yes)
     return a2
 
