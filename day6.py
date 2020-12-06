@@ -4,12 +4,20 @@ import re
 
 def load_data():
     with open(input_file, 'r') as f:
-        data = f.read().strip().split()
+        data = f.read().strip().split('\n\n')
     return data
 
 
 def part1(data):
-    pass
+    a1 = 0
+    for group in data:
+        yes = set()
+        for person in group.split():
+            yes.update(person)
+            print(yes)
+            print(person)
+        a1 += len(yes)
+    return a1
 
 
 def part2(data):
