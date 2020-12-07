@@ -42,13 +42,8 @@ def get_number_of_bags(needle):
     return total
 
 
-# if len(contents) == 0:
-#     return 1
-# else:
-
-
 def part2():
-    return get_number_of_bags('shiny gold')
+    return 1 * get_number_of_bags('shiny gold')
 
 
 def main():
