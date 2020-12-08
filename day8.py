@@ -16,20 +16,13 @@ def parse_data():
     return parsed
 
 
-# def rule_set(operation, argument):
-#     if operation == 'acc':
-#         return 1
-#     elif operation == 'jmp':
-#         return argument
-#     elif operation == 'nop':
-#         return 1
-
-
-def part1():
+def part1(parsed):
     accumulator = 0
     position = 0
     been = set()
     while position not in been:
+        if position == len(parsed):
+            return accumulator, True
         been.add(position)
         operation, argument = parsed[position]
         if operation == 'acc':
@@ -40,15 +33,28 @@ def part1():
         elif operation == 'nop':
             position += 1
 
-    return accumulator
+    return accumulator, False
 
 
 def part2():
-    pass
+    for i, (operation, argument) in enumerate(parsed):
+        if operation == 'nop':
+            temp_parsed = parsed.copy()
+            temp_parsed[i] = ('jmp', argument)
+            ans, correct = part1(temp_parsed)
+            if correct:
+                return ans
+
+        elif operation == 'jmp':
+            temp_parsed = parsed.copy()
+            temp_parsed[i] = ('nop', argument)
+            ans, correct = part1(temp_parsed)
+            if correct:
+                return ans
 
 
 def main():
-    a1 = part1()
+    a1, _ = part1(parsed)
     print(a1)
 
     a2 = part2()
