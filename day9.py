@@ -16,9 +16,7 @@ def is_in_preamble(preamble, pos, goal):
 
 def part1():
     preamble = 25
-    for i, n in enumerate(data):
-        if i < preamble:
-            continue
+    for i, n in enumerate(data[preamble:], start=preamble):
         if is_in_preamble(preamble, pos=i, goal=n) is None:
             return n, i
 
