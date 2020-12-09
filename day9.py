@@ -14,8 +14,7 @@ def is_in_preamble(preamble, pos, goal):
             return n1, n2
 
 
-def part1():
-    preamble = 25
+def part1(preamble=25):
     for i, n in enumerate(data[preamble:], start=preamble):
         if is_in_preamble(preamble, pos=i, goal=n) is None:
             return n, i
@@ -23,7 +22,7 @@ def part1():
 
 def part2(maxi, needle):
     for begin in range(maxi):
-        for end in range(begin+3, maxi):
+        for end in range(begin+2, maxi):
             if (sum_ := sum(data[begin: end])) > needle:
                 break
 
@@ -60,14 +59,14 @@ if __name__ == '__main__':
     data = load_data()
     main()
 
-    t = timeit.Timer('part1()', globals=globals())
-    n = 10000
-    print(sum(t.repeat(repeat=n, number=1)) / n)
-
-    t = timeit.Timer('part2(maxi=509, needle=27911108)', globals=globals())
-    n = 100
-    print(sum(t.repeat(repeat=n, number=1)) / n)
-
-    t = timeit.Timer('part2_faster(needle=27911108)', globals=globals())
-    n = 10000
-    print(sum(t.repeat(repeat=n, number=1)) / n)
+    # t = timeit.Timer('part1()', globals=globals())
+    # n = 10000
+    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    #
+    # t = timeit.Timer('part2(maxi=509, needle=27911108)', globals=globals())
+    # n = 100
+    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    #
+    # t = timeit.Timer('part2_faster(needle=27911108)', globals=globals())
+    # n = 10000
+    # print(sum(t.repeat(repeat=n, number=1)) / n)
