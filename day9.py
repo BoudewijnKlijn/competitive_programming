@@ -12,9 +12,9 @@ def parse_data():
     pass
 
 
-def is_in_preamble(preamble, pos, goal=2020):
+def is_in_preamble(preamble, pos, goal):
     s = set(data[pos-preamble: pos])
-    for n1 in data:
+    for n1 in s:
         if (n2 := goal - n1) in s and n2 != n1:
             return n1, n2
 
@@ -22,7 +22,10 @@ def is_in_preamble(preamble, pos, goal=2020):
 def contiguous_set(maxi, needle):
     for begin in range(maxi):
         for end in range(begin+3, maxi):
-            if needle == sum(data[begin: end]):
+            if (sum_ := sum(data[begin: end])) > needle:
+                break
+
+            if needle == sum_:
                 return min(data[begin: end]) + max(data[begin: end])
 
 
@@ -31,8 +34,7 @@ def part1():
     for i, n in enumerate(data):
         if i < preamble:
             continue
-
-        if not is_in_preamble(preamble, i, goal=n):
+        if is_in_preamble(preamble, pos=i, goal=n) is None:
             return n, i
 
 
@@ -42,8 +44,7 @@ def part2(weakness, maxi):
 
 def main():
     a1, i = part1()
-    print(a1)
-    # a1, i = 127, 16
+    print(f'{a1=}, {i=}')
 
     a2 = part2(a1, maxi=i)
     print(a2)
@@ -55,6 +56,8 @@ if __name__ == '__main__':
     parsed = parse_data()
     main()
 
-    # t = timeit.Timer('part1(data)', globals=globals())
-    # n = 10000
-    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    t = timeit.Timer('part1()', globals=globals())
+    n = 10000
+    # t = timeit.Timer('part2(weakness=27911108, maxi=509)', globals=globals())
+    # n = 100
+    print(sum(t.repeat(repeat=n, number=1)) / n)
