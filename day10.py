@@ -29,16 +29,22 @@ def parse_data(data):
     return d
 
 
+# cache = dict()
 @lru_cache
 def get_number_of_bags(needle):
+    # if needle in cache:
+    #     return cache[needle]
+    if needle == max(parsed.keys()):
+        # cache[needle] = 1
+        return 1
+
     contents = parsed.get(needle)
     total = 0
-    for needle, count in contents.items():
-        total += count * get_number_of_bags(needle)
-    if needle == max(parsed.keys()):
-        return 1
-    else:
-        return total
+    for needle2, count in contents.items():
+        total += count * get_number_of_bags(needle2)
+
+    # cache[needle] = total
+    return total
 
 
 def part2():
@@ -64,8 +70,8 @@ if __name__ == '__main__':
     # n = 10000
     # print(sum(t.repeat(repeat=n, number=1)) / n)
     #
-    # t = timeit.Timer('part2(maxi=509, needle=27911108)', globals=globals())
-    # n = 100
+    # t = timeit.Timer('part2()', globals=globals())
+    # n = 100000
     # print(sum(t.repeat(repeat=n, number=1)) / n)
     #
     # t = timeit.Timer('part2_faster(needle=27911108)', globals=globals())
