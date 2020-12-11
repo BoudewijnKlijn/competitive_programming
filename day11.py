@@ -9,23 +9,6 @@ def load_data():
     return data
 
 
-def part1():
-    occupied_seats = set()
-    for round in range(1000):  # 1000 is arbitrary. if no answer, increase it
-        occupy_next_round = set()
-        for seat in seats:
-            n_occupied_around = len(adjacent_seats[seat].intersection(occupied_seats))
-            if seat not in occupied_seats and n_occupied_around == 0:
-                occupy_next_round.add(seat)
-            elif seat in occupied_seats and n_occupied_around < 4:
-                occupy_next_round.add(seat)
-
-        if occupied_seats == occupy_next_round:
-            return len(occupied_seats)
-
-        occupied_seats = occupy_next_round.copy()
-
-
 def parse_data():
     # spots
     rows, cols = len(data), len(data[0])
@@ -62,6 +45,23 @@ def parse_data():
     return seats, adjacent_seats, visible_seats
 
 
+def part1():
+    occupied_seats = set()
+    for round in range(1000):  # 1000 is arbitrary. if no answer, increase it
+        occupy_next_round = set()
+        for seat in seats:
+            n_occupied_around = len(adjacent_seats[seat].intersection(occupied_seats))
+            if seat not in occupied_seats and n_occupied_around == 0:
+                occupy_next_round.add(seat)
+            elif seat in occupied_seats and n_occupied_around < 4:
+                occupy_next_round.add(seat)
+
+        if occupied_seats == occupy_next_round:
+            return len(occupied_seats)
+
+        occupied_seats = occupy_next_round.copy()
+
+
 def part2():
     occupied_seats = set()
     for round in range(1000):  # 1000 is arbitrary. if no answer, increase it
@@ -93,6 +93,6 @@ if __name__ == '__main__':
     seats, adjacent_seats, visible_seats = parse_data()
     main()
 
-    # t = timeit.Timer('part1()', globals=globals())
-    # n = 10000
-    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    t = timeit.Timer('part2()', globals=globals())
+    n = 100
+    print(sum(t.repeat(repeat=n, number=1)) / n)
