@@ -75,11 +75,67 @@ def part2():
     return abs(x) + abs(y)
 
 
+action_mapping_complex = {
+    # action: (real, imag)
+    'N': complex(0, 1),
+    'E': complex(1, 0),
+    'S': complex(0, -1),
+    'W': complex(-1, 0),
+}
+
+
+def part1_v2():
+    position = complex(0, 0)
+    facing_delta = complex(1, 0)
+    for instruction in data:
+        action, value = instruction[0], int(instruction[1:])
+        if action in 'NESW':
+            delta = action_mapping_complex[action]
+            position += value * delta
+        elif action in 'LR':
+            if action == 'R':
+                value = 360 - value
+            facing_delta *= complex(0, 1) ** (value // 90)
+        elif action == 'F':
+            delta = facing_delta
+            position += value * delta
+        else:
+            ValueError()
+
+    return abs(position.real) + abs(position.imag)
+
+
+def part2_v2():
+    position = complex(0, 0)
+    delta = complex(10, 1)
+    for instruction in data:
+        action, value = instruction[0], int(instruction[1:])
+        if action in 'NESW':
+            delta += value * action_mapping_complex[action]
+        elif action in 'LR':
+            if action == 'R':
+                value = 360 - value
+            delta *= complex(0, 1) ** (value // 90)
+        elif action == 'F':
+            position += value * delta
+        else:
+            ValueError()
+
+    return abs(position.real) + abs(position.imag)
+
+
+
 def main():
     a1 = part1()
     print(a1)
 
+    a1 = part1_v2()
+    print(a1)
+
     a2 = part2()
+    print(a2)
+
+    a2 = part2_v2()
     print(a2)
 
 
