@@ -47,7 +47,72 @@ def part1():
 
 
 def part2():
-    pass
+    x, y = 0, 0
+    waypoint_x, waypoint_y = 10, 1  # is direction of dx, dy
+    for instruction in data:
+        print(x, y, waypoint_x, waypoint_y)
+        print(instruction)
+        print()
+        action, value = instruction[0], int(instruction[1:])
+        if action in 'NESW':
+            waypoint_dx, waypoint_dy = action_mapping[action]
+            waypoint_x, waypoint_y = waypoint_x + value * waypoint_dx, waypoint_y + value * waypoint_dy
+        elif action == 'L':
+            if value == 180:
+                waypoint_x, waypoint_y = -1 * waypoint_x, -1 * waypoint_y
+            elif value in [90, 270]:
+                # first determine the magnitudes
+                magnitude_x, magnitude_y = abs(waypoint_y), abs(waypoint_x)
+
+                # then determine the sign
+                sign_x, sign_y = 1, 1
+                if value == 90:
+                    if waypoint_y >= 0:
+                        sign_x = -1
+                    if waypoint_x <= 0:
+                        sign_y = -1
+                else:
+                    if waypoint_y <= 0:
+                        sign_x = -1
+                    if waypoint_x >= 0:
+                        sign_y = -1
+
+                waypoint_x, waypoint_y = sign_x * magnitude_x, sign_y * magnitude_y
+            else:
+                NotImplementedError()
+
+        elif action == 'R':
+            if value == 180:
+                waypoint_x, waypoint_y = -1 * waypoint_x, -1 * waypoint_y
+            elif value in [90, 270]:
+                # first determine the magnitudes
+                magnitude_x, magnitude_y = abs(waypoint_y), abs(waypoint_x)
+
+                # then determine the sign
+                sign_x, sign_y = 1, 1
+                if value == 270:
+                    if waypoint_y >= 0:
+                        sign_x = -1
+                    if waypoint_x <= 0:
+                        sign_y = -1
+                else:
+                    if waypoint_y <= 0:
+                        sign_x = -1
+                    if waypoint_x >= 0:
+                        sign_y = -1
+
+                waypoint_x, waypoint_y = sign_x * magnitude_x, sign_y * magnitude_y
+
+            else:
+                NotImplementedError()
+        elif action == 'F':
+            x, y = x + value * waypoint_x, y + value * waypoint_y
+        else:
+            ValueError()
+
+    print(x ,y)
+
+    return abs(x) + abs(y)
 
 
 def main():
