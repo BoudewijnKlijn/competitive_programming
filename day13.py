@@ -23,7 +23,10 @@ def part1():
 
 
 def part2():
-    pass
+    departures = [(t, int(d)) for t, d in enumerate(data[1].split(',')) if d != 'x']
+    for t in range(2000000):
+        if all([(t + t_plus) % bus_id == 0 for t_plus, bus_id in departures]):
+            return t
 
 
 def main():
