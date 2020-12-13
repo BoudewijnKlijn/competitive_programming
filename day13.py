@@ -1,7 +1,7 @@
 import timeit
 from itertools import product
 from collections import defaultdict
-
+import math
 
 def load_data():
     with open(input_file, 'r') as f:
@@ -24,16 +24,54 @@ def part1():
 
 def part2():
     departures = [(t, int(d)) for t, d in enumerate(data[1].split(',')) if d != 'x']
+    print(departures)
     for t in range(2000000):
         if all([(t + t_plus) % bus_id == 0 for t_plus, bus_id in departures]):
             return t
+
+
+def part2_fast():
+    """Slightly faster bruteforce, doesnt work"""
+    departures = [(t, int(d)) for t, d in enumerate(data[1].split(',')) if d != 'x']
+
+    max_d_t, max_d = sorted(departures, key=lambda x: x[1], reverse=True)[0]
+
+    t = 100000000000000 - max_d_t - max_d
+    while True:
+        if (t + max_d_t) % max_d == 0:
+            break
+        t += 1
+
+    while True:
+        if all([(t + t_plus) % bus_id == 0 for t_plus, bus_id in departures]):
+            return t
+        t += max_d
+
+
+def part2_fast_v2():
+    departures = [(t, int(d)) for t, d in enumerate(data[1].split(',')) if d != 'x']
+    times, deps = zip(*departures)
+
+    solved = 1
+    t = departures[0][0] + departures[0][1]
+    increment = math.prod(deps[:solved])
+    while True:
+        if all([(t + t_plus) % bus_id == 0 for t_plus, bus_id in departures[:solved+1]]):
+            solved += 1
+            increment = math.prod(deps[:solved])
+            if solved == len(deps):
+                return t
+        t += increment
 
 
 def main():
     a1 = part1()
     print(a1)
 
-    a2 = part2()
+    # a2 = part2()
+    # print(a2)
+
+    a2 = part2_fast_v2()
     print(a2)
 
 
