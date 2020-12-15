@@ -1,5 +1,5 @@
 import timeit
-import re
+from collections import defaultdict
 
 
 def load_data():
@@ -13,26 +13,73 @@ def parse_data():
 
 
 def part1():
-    for i in range(2020 - len(data)):
-        spoken = data[-1]
-        if spoken not in data[:-1]:
-            data.append(0)
+    data_copy = data.copy()
+    for i in range(2020 - len(data_copy)):
+        spoken = data_copy[-1]
+        if spoken not in data_copy[:-1]:
+            data_copy.append(0)
         else:
-            turns_apart = list(reversed(data[:-1])).index(spoken) + 1
-            data.append(turns_apart)
-    return data[-1]
+            # turns_apart = list(reversed(data_copy[:-1])).index(spoken) + 1
+            turns_apart = data_copy[-2::-1].index(spoken) + 1
+            data_copy.append(turns_apart)
+    return data_copy[-1]
 
 
 def part2():
-    pass
+    """Too slow"""
+    data_copy = data.copy()
+    n_total = 30000000
+    n_spoken = len(data_copy)
+    data_copy += [0] * (n_total - n_spoken)
+    for i in range(n_total):
+        if i < n_spoken:
+            continue
+        spoken = data_copy[i-1]
+        if spoken not in data_copy[:i-1]:
+            data_copy[i] = 0
+        else:
+            turns_apart = data_copy[-2::-1].index(spoken) + 1
+            data_copy[i] = turns_apart
+    return data_copy[-1]
+
+
+def part2_faster():
+    data_copy = data.copy()
+    n_spoken = len(data_copy)
+    last_spoken = {spoken: turn for turn, spoken in enumerate(data_copy[:-1], start=1)}
+    spoken = data_copy[-1]
+
+    n_total = 30000000
+    for turn in range(n_spoken+1, n_total+1):
+        if spoken not in last_spoken:
+            last_spoken[spoken], spoken = turn - 1, 0
+        else:
+            last_spoken[spoken], spoken = turn - 1, turn - 1 - last_spoken[spoken]
+    return spoken
+
+
+# def part2_faster_simpler():
+#     data_copy = data.copy()
+#     n_spoken = len(data_copy)
+#     last_spoken = {spoken: turn for turn, spoken in enumerate(data_copy[:-1], start=1)}
+#     spoken = data_copy[-1]
+#
+#     n_total = 30000000
+#     for turn in range(n_spoken+1, n_total+1):
+#         if spoken not in last_spoken:
+#             last_spoken[spoken], spoken = turn - 1, 0
+#         else:
+#             last_spoken[spoken], spoken = turn - 1, turn - 1 - last_spoken[spoken]
+#     return spoken
+
 
 
 def main():
     a1 = part1()
     print(a1)
 
-    a2 = part2()
-    print(a2)
+    # a2 = part2_faster()
+    # print(a2)
 
 
 if __name__ == '__main__':
@@ -41,6 +88,6 @@ if __name__ == '__main__':
     parsed = parse_data()
     main()
 
-    # t = timeit.Timer('part1(p1=False)', globals=globals())
-    # n = 100
-    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    t = timeit.Timer('part2_faster()', globals=globals())
+    n = 3
+    print(sum(t.repeat(repeat=n, number=1)) / n)
