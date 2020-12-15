@@ -12,9 +12,9 @@ def parse_data():
     pass
 
 
-def part1():
+def part1(n_total=2020):
     data_copy = data.copy()
-    for i in range(2020 - len(data_copy)):
+    for i in range(n_total - len(data_copy)):
         spoken = data_copy[-1]
         if spoken not in data_copy[:-1]:
             data_copy.append(0)
@@ -25,10 +25,9 @@ def part1():
     return data_copy[-1]
 
 
-def part2():
+def part2(n_total=30000000):
     """Too slow"""
     data_copy = data.copy()
-    n_total = 30000000
     n_spoken = len(data_copy)
     data_copy += [0] * (n_total - n_spoken)
     for i in range(n_total):
@@ -43,13 +42,12 @@ def part2():
     return data_copy[-1]
 
 
-def part2_faster():
+def part2_faster(n_total=30000000):
     data_copy = data.copy()
     n_spoken = len(data_copy)
     last_spoken = {spoken: turn for turn, spoken in enumerate(data_copy[:-1], start=1)}
     spoken = data_copy[-1]
 
-    n_total = 30000000
     for turn in range(n_spoken+1, n_total+1):
         if spoken not in last_spoken:
             last_spoken[spoken], spoken = turn - 1, 0
@@ -58,28 +56,32 @@ def part2_faster():
     return spoken
 
 
-# def part2_faster_simpler():
-#     data_copy = data.copy()
-#     n_spoken = len(data_copy)
-#     last_spoken = {spoken: turn for turn, spoken in enumerate(data_copy[:-1], start=1)}
-#     spoken = data_copy[-1]
-#
-#     n_total = 30000000
-#     for turn in range(n_spoken+1, n_total+1):
-#         if spoken not in last_spoken:
-#             last_spoken[spoken], spoken = turn - 1, 0
-#         else:
-#             last_spoken[spoken], spoken = turn - 1, turn - 1 - last_spoken[spoken]
-#     return spoken
+def part2_faster_simpler(n_total=30000000):
+    data_copy = data.copy()
+    n_spoken = len(data_copy)
+    spoken_dict = defaultdict(list)
+    for turn, spoken in enumerate(data_copy, start=1):
+        spoken_dict[spoken].append(turn)
 
+    for turn in range(n_spoken+1, n_total+1):
+        if len((turns := spoken_dict[spoken])) == 1:
+            spoken = 0
+            spoken_dict[spoken].append(turn)
+        else:
+            spoken = turns[-1] - turns[-2]
+            spoken_dict[spoken].append(turn)
+    return spoken
 
 
 def main():
     a1 = part1()
     print(a1)
 
-    # a2 = part2_faster()
-    # print(a2)
+    a2 = part2_faster()
+    print(a2)
+
+    a2 = part2_faster_simpler()
+    print(a2)
 
 
 if __name__ == '__main__':
@@ -88,6 +90,10 @@ if __name__ == '__main__':
     parsed = parse_data()
     main()
 
-    t = timeit.Timer('part2_faster()', globals=globals())
-    n = 3
+    t = timeit.Timer('part2_faster(n_total=2020)', globals=globals())
+    n = 1000
+    print(sum(t.repeat(repeat=n, number=1)) / n)
+
+    t = timeit.Timer('part2_faster_simpler(n_total=2020)', globals=globals())
+    n = 1000
     print(sum(t.repeat(repeat=n, number=1)) / n)
