@@ -2,7 +2,7 @@ import timeit
 import re
 import numpy as np
 from functools import reduce
-
+import math
 
 
 def load_data():
@@ -22,7 +22,7 @@ def parse_data():
         ints = re.findall(r'[\d]+', line)
         assert len(ints) == 4
         ints = map(int, ints)
-        ranges[name] = (set(range(next(ints), next(ints) + 1)), set(range(next(ints), next(ints) + 1)))
+        ranges[name] = set(range(next(ints), next(ints) + 1)).union(set(range(next(ints), next(ints) + 1)))
 
     # your (my) ticket
     my_ticket = list()
@@ -40,46 +40,64 @@ def parse_data():
         nearby_tickets.append(list(map(int, line.split(','))))
         # print(nearby_tickets)
 
-    return ranges, my_ticket, np.array(nearby_tickets)
+    return ranges, np.array(my_ticket), np.array(nearby_tickets)
 
 
 def part1():
     ranges, my_ticket, nearby_tickets = parsed
-    # ranges_combined = set([*map(set.union, (low.union(high) for (low, high) in ranges.values()))])
-    ranges_combined = reduce(lambda x, y: x.union(y), (low.union(high) for (low, high) in ranges.values()))
-    # print(ranges_combined)
-
-    # print(ranges)
-    # print(my_ticket)
-    # print(nearby_tickets)
+    # ranges_combined = reduce(lambda x, y: x.union(y), (low.union(high) for (low, high) in ranges.values()))
+    ranges_combined = reduce(lambda x, y: x.union(y), ranges.values())
 
     invalid_sum = 0
-    for nearby_ticket in nearby_tickets.tolist():
+    delete_rows = set()
+    for i, nearby_ticket in enumerate(nearby_tickets.tolist()):
         for value in nearby_ticket:
             if value not in ranges_combined:
                 invalid_sum += value
+                delete_rows.add(i)
 
-    return invalid_sum
+    return invalid_sum, delete_rows
 
 
+def part2(delete):
+    ranges, my_ticket, nearby_tickets = parsed
 
-# valid = False
-#     for pos in range(len(nearby_tickets[0])):
-#         for name, range_values in ranges.items():
-#             low, high = range_values
-#             if all((i in low for i in nearby_tickets[:, pos])):
-#                 print('valid')
-#                 valid = True
+    # remove invalid tickets
+    nearby_tickets = np.array([nearby_ticket for i, nearby_ticket in enumerate(nearby_tickets) if i not in delete])
+    nearby_tickets = np.vstack((nearby_tickets, my_ticket))
+    # print(nearby_tickets)
+    # print(nearby_tickets[:, 0])
 
-def part2():
-    pass
+    # determine possible names per position
+    all_names = set(ranges.keys())
+    # print(all_names)
+    correct_names = dict()
+    while all_names:
+        for pos in range(len(nearby_tickets[0])):
+            # print(pos)
+            valid_names = set()
+            for name, range_values in ranges.items():
+                if name not in all_names:
+                    continue
+                # low, high = range_values
+                # print(low)
+                # print([i in range_values for i in nearby_tickets[:, pos]])
+                if all([i in range_values for i in nearby_tickets[:, pos]]):
+                    valid_names.add(name)
+                    # print(name)
+
+            if len(valid_names) == 1:
+                all_names -= valid_names
+                correct_names[list(valid_names)[0]] = pos
+
+    return math.prod([int(my_ticket[col]) for name, col in correct_names.items() if 'departure' in name])
 
 
 def main():
-    a1 = part1()
+    a1, delete = part1()
     print(a1)
 
-    a2 = part2()
+    a2 = part2(delete)
     print(a2)
 
 
