@@ -2,6 +2,7 @@ import timeit
 from itertools import product
 from functools import reduce
 
+
 def load_data():
     with open(input_file, 'r') as f:
         data = f.read().strip().split()
