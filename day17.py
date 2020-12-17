@@ -1,6 +1,6 @@
 import timeit
 from itertools import product
-
+from functools import reduce
 
 def load_data():
     with open(input_file, 'r') as f:
@@ -37,23 +37,11 @@ def get_neighbours_hyper(cube):
 def part1():
     active_cubes, _ = parsed
 
-    # min max x, y, z dimensions
-    x_min = 0
-    x_max = len(data)
-    y_min = 0
-    y_max = len(data[0])
-    z_min = 0
-    z_max = 1
-
     for cycle in range(6):
         active_next_round = set()
-        x_min -= 1
-        x_max += 1
-        y_min -= 1
-        y_max += 1
-        z_min -= 1
-        z_max += 1
-        for cube in product(range(x_min, x_max), range(y_min, y_max), range(z_min, z_max)):
+        neighbours_active_cells = reduce(lambda x, y: x.union(y),
+                                         [get_neighbours(active_cube) for active_cube in active_cubes])
+        for cube in neighbours_active_cells:
             n_active_around = len(get_neighbours(cube).intersection(active_cubes))
             if cube in active_cubes and n_active_around in [2, 3]:
                 active_next_round.add(cube)
@@ -68,27 +56,11 @@ def part1():
 def part2():
     _, active_hypercubes = parsed
 
-    # min max x, y, z dimensions
-    x_min = 0
-    x_max = len(data)
-    y_min = 0
-    y_max = len(data[0])
-    z_min = 0
-    z_max = 1
-    w_min = 0
-    w_max = 1
-
     for cycle in range(6):
         active_next_round = set()
-        x_min -= 1
-        x_max += 1
-        y_min -= 1
-        y_max += 1
-        z_min -= 1
-        z_max += 1
-        w_min -= 1
-        w_max += 1
-        for cube in product(range(x_min, x_max), range(y_min, y_max), range(z_min, z_max), range(w_min, w_max)):
+        neighbours_active_cells = reduce(lambda x, y: x.union(y),
+                                         [get_neighbours_hyper(active_cube) for active_cube in active_hypercubes])
+        for cube in neighbours_active_cells:
             n_active_around = len(get_neighbours_hyper(cube).intersection(active_hypercubes))
             if cube in active_hypercubes and n_active_around in [2, 3]:
                 active_next_round.add(cube)
