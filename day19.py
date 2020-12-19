@@ -92,13 +92,40 @@ def part2_regex():
     parsed_rules, messages = parsed
     valid = 0
     for message in messages.split('\n'):
-        for parsed_rule_421, parsed_rule_422, parsed_rule_31 in product(parsed_rules['42'], parsed_rules['42'], parsed_rules['31']):
-            pattern = r'^(' + parsed_rule_421 + ')+(' + parsed_rule_422 + ')+(' + parsed_rule_31 + ')+$'
-            m = re.search(pattern, message)
-            if m is not None:
-                valid += 1
-                break
+        pattern = r'^(' + '|'.join(parsed_rules['42']) + '){2,}(' + '|'.join(parsed_rules['31']) + ')+$'
+        m = re.search(pattern, message)
+        if m is not None:
+            valid += 1
     return valid
+
+
+# def part2_recursion():
+#     """8: 42 | 42 8
+#         11: 42 31 | 42 11 31
+#         0: 8 11
+#
+#     it is a combination 42 (at least 2) and 31 (at least 1)"""
+#
+#     parsed_rules, messages = parsed
+#     valid = 0
+#     for message in messages.split('\n'):
+#         print('new', message)
+#         print(is_valid(message))
+#     exit()
+
+
+# def is_valid(message):
+#     parsed_rules, _ = parsed
+#
+#     if len(message) == 0:
+#         return True
+#
+#     for parsed_42 in parsed_rules['42']:
+#         if str.startswith(message, parsed_42):
+#             print(message, parsed_42)
+#             print(len(parsed_42))
+#             if is_valid(message[len(parsed_42):]):
+#                 return True
 
 
 
@@ -112,6 +139,8 @@ def main():
 
     a2 = part2_regex()
     print(a2)
+
+
 
 
 if __name__ == '__main__':
