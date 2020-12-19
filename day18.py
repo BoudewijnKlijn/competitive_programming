@@ -47,6 +47,22 @@ def part1():
     return total
 
 
+def part1_v2():
+    """Reduce line to line without parentheses first. Find, solve and replace parts between parentheses
+    Cleaner way to find stuff between parentheses."""
+    pattern = re.compile(r'\(([^()]+)\)')
+    pattern2 = re.compile(r'[\d]+|[\*\(\)\+]')
+
+    total = 0
+    for line in data:
+        while '(' in line:
+            start, end = pattern.search(line).span()
+            replacement = solve_left_to_right(pattern2.findall(line[start+1:end-1]))
+            line = line[:start] + str(replacement) + line[end:]
+        total += solve_left_to_right(pattern2.findall(line))
+    return total
+
+
 def add_parentheses(groups):
     n_plusses = groups.count('+')
     for plus_i in range(n_plusses):
@@ -99,7 +115,7 @@ def part2():
 
 
 def main():
-    a1 = part1()
+    a1 = part1_v2()
     print(a1)
 
     a2 = part2()
@@ -112,6 +128,10 @@ if __name__ == '__main__':
     parsed = parse_data()
     main()
 
-    # t = timeit.Timer('part1(p1=False)', globals=globals())
-    # n = 100
-    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    t = timeit.Timer('part1()', globals=globals())
+    n = 100
+    print(sum(t.repeat(repeat=n, number=1)) / n)
+
+    t = timeit.Timer('part1_v2()', globals=globals())
+    n = 100
+    print(sum(t.repeat(repeat=n, number=1)) / n)
