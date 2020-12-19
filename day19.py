@@ -60,14 +60,57 @@ def part1():
 
 
 def part2():
-    pass
+    """abandoned. runs into memory problems quickly"""
+    parsed_rules, messages = parsed
+
+    pattern = re.compile(r'([\d]+): ([\d]+).?([\d]+)?.?\|?.?([\d]+)?.?([\d]+)?')
+    extra_rules = """8: 42 | 42 8\n11: 42 31 | 42 11 31\n0: 8 11"""
+    rules = extra_rules.split('\n')
+    max_extra_loop = 1
+    for _ in range(max_extra_loop):
+        for rule in rules:
+            m = pattern.search(rule)
+
+            if m.group(3) is not None:
+                parsed_rules[m.group(1)].update([x + y for x, y in
+                                                 product(parsed_rules[m.group(2)], parsed_rules[m.group(3)])])
+            else:
+                parsed_rules[m.group(1)].update(parsed_rules[m.group(2)])
+
+            if m.group(4) is not None and m.group(5) is not None:
+                parsed_rules[m.group(1)].update([x + y for x, y in
+                                                 product(parsed_rules[m.group(4)], parsed_rules[m.group(5)])])
+            elif m.group(4) is not None:
+                parsed_rules[m.group(1)].update(parsed_rules[m.group(4)])
+
+
+def part2_regex():
+    """8: 42 | 42 8
+    11: 42 31 | 42 11 31
+    0: 8 11"""
+
+    parsed_rules, messages = parsed
+    valid = 0
+    for message in messages.split('\n'):
+        for parsed_rule_421, parsed_rule_422, parsed_rule_31 in product(parsed_rules['42'], parsed_rules['42'], parsed_rules['31']):
+            pattern = r'^(' + parsed_rule_421 + ')+(' + parsed_rule_422 + ')+(' + parsed_rule_31 + ')+$'
+            m = re.search(pattern, message)
+            if m is not None:
+                valid += 1
+                break
+    return valid
+
+
 
 
 def main():
     a1 = part1()
     print(a1)
 
-    a2 = part2()
+    # a2 = part2()
+    # print(a2)
+
+    a2 = part2_regex()
     print(a2)
 
 
