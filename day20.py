@@ -195,7 +195,10 @@ def part2():
 
                     possible_orientations += 1
 
-            assert possible_orientations == 1
+            try:
+                assert possible_orientations == 1, 'multiple orientations possible'
+            except Exception as e:
+                print(e)
             continue
 
         elif (r, c) == (0, 1) or (r, c) == (1, 0):
@@ -203,53 +206,63 @@ def part2():
 
         # other images are just appended. orientation is fixed by the top-left and adjacent images.
         # first try left
+        left_image, left_orientation, top_image, top_orientation = None, None, None, None
+        new_image = total_image[(r, c)]['name']
+        possible_orientations = 0
         if (r, c-1) in total_image.keys():
             left_image = total_image[(r, c-1)]['name']
             left_orientation = total_image[(r, c - 1)]['orientation']
-            right_image = total_image[(r, c)]['name']
-            possible_orientations = 0
-            for right_orientation in range(8):
-                if get_edge(images.get(left_image), left_orientation, face=1) == \
-                        get_edge(images.get(right_image), right_orientation, face=3):
-
-                    total_image[(r, c)]['orientation'] = right_orientation
-                    possible_orientations += 1
-
-            assert possible_orientations == 1
-
-        else:
-            # if no left, use top
-            top_image = total_image[(r - 1, c)]['name']
+        if (r-1, c) in total_image.keys():
+            top_image = total_image[(r-1, c)]['name']
             top_orientation = total_image[(r - 1, c)]['orientation']
-            bottom_image = total_image[(r, c)]['name']
 
-            possible_orientations = 0
-            for bottom_orientation in range(8):
-                if get_edge(images.get(top_image), top_orientation, face=2) == \
-                        get_edge(images.get(bottom_image), bottom_orientation, face=0):
+        for new_orientation in range(8):
+            if left_image and top_image and \
+                    get_edge(images.get(left_image), left_orientation, face=1) == \
+                    get_edge(images.get(new_image), new_orientation, face=3) and \
+                    get_edge(images.get(top_image), top_orientation, face=2) == \
+                    get_edge(images.get(new_image), new_orientation, face=0):
 
-                    total_image[(r, c)]['orientation'] = bottom_orientation
-                    possible_orientations += 1
+                total_image[(r, c)]['orientation'] = new_orientation
+                possible_orientations += 1
+                # break
+                
+            elif left_image and \
+                    get_edge(images.get(left_image), left_orientation, face=1) == \
+                    get_edge(images.get(new_image), new_orientation, face=3):
 
-            assert possible_orientations == 1
+                total_image[(r, c)]['orientation'] = new_orientation
+                possible_orientations += 1
+                # break
 
-    # print complete image
-    for r, c in product(range(width), range(width)):
-        print(r, c)
-        print_image(change_orientation(images.get(total_image.get((r, c)).get('name')),
-                                       total_image.get((r, c)).get('orientation')))
+            elif top_image and \
+                    get_edge(images.get(top_image), top_orientation, face=2) == \
+                    get_edge(images.get(new_image), new_orientation, face=0):
+
+                total_image[(r, c)]['orientation'] = new_orientation
+                possible_orientations += 1
+                # break
+
+        try:
+            assert possible_orientations == 1, f'multiple orientations possible {possible_orientations}'
+        except Exception as e:
+            print(e)
+            if left_image:
+                print('left')
+                print_image(change_orientation(images.get(left_image), left_orientation))
+            if top_image:
+                print('top')
+                print_image(change_orientation(images.get(top_image), top_orientation))
+
+    # # print all images in correct orientation
+    # for r, c in product(range(width), range(width)):
+    #     print(r, c)
+    #     print_image(change_orientation(images.get(total_image.get((r, c)).get('name')),
+    #                                    total_image.get((r, c)).get('orientation')))
 
 
     # remove borders
-
-
-    # print_image(images[2789])
-    # print('\n\n')
-    # im2 = change_orientation(images[2789], orientation=2)
-    # print_image(im2)
-    # print('\n\n')
-    # im2 = change_orientation(images[2789], orientation=6)
-    # print_image(im2)
+    pass
 
 
 def main():
