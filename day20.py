@@ -89,11 +89,14 @@ def get_edge(image, orientation=0, face=0):
 
 
 def print_image(image):
-    for r in range(10):
-        for c in range(10):
+    image_dim = max(image.keys())
+    for r in range(image_dim[0] + 1):
+        for c in range(image_dim[1] + 1):
             char = image.get((r, c))
             if char:
                 print(char, end='')
+            else:
+                print(' ', end='')
         print('')
 
 
@@ -163,11 +166,8 @@ def get_image_positions():
     return total_image
 
 
-def part2():
+def fix_image_orientation(total_image):
     images, edges, matches, orientation_mapping = parsed
-
-    # start building the image with one corner image. ignore orientation of first one, just find adjacent pieces
-    total_image = get_image_positions()
 
     width = 1
     while width * width < len(images):
@@ -188,7 +188,6 @@ def part2():
                         get_edge(images.get(right_of_top_left_corner_image), orientation_2, face=3) and \
                         get_edge(images.get(top_left_corner_image), orientation_1, face=2) == \
                         get_edge(images.get(below_top_left_corner_image), orientation_3, face=0):
-
                     total_image[(0, 0)]['orientation'] = orientation_1
                     total_image[(0, 1)]['orientation'] = orientation_2
                     total_image[(1, 0)]['orientation'] = orientation_3
@@ -209,11 +208,11 @@ def part2():
         left_image, left_orientation, top_image, top_orientation = None, None, None, None
         new_image = total_image[(r, c)]['name']
         possible_orientations = 0
-        if (r, c-1) in total_image.keys():
-            left_image = total_image[(r, c-1)]['name']
+        if (r, c - 1) in total_image.keys():
+            left_image = total_image[(r, c - 1)]['name']
             left_orientation = total_image[(r, c - 1)]['orientation']
-        if (r-1, c) in total_image.keys():
-            top_image = total_image[(r-1, c)]['name']
+        if (r - 1, c) in total_image.keys():
+            top_image = total_image[(r - 1, c)]['name']
             top_orientation = total_image[(r - 1, c)]['orientation']
 
         for new_orientation in range(8):
@@ -226,7 +225,7 @@ def part2():
                 total_image[(r, c)]['orientation'] = new_orientation
                 possible_orientations += 1
                 # break
-                
+
             elif left_image and \
                     get_edge(images.get(left_image), left_orientation, face=1) == \
                     get_edge(images.get(new_image), new_orientation, face=3):
@@ -254,15 +253,55 @@ def part2():
                 print('top')
                 print_image(change_orientation(images.get(top_image), top_orientation))
 
+    return total_image
+
+
+def create_complete_image(total_image):
+    images, edges, matches, orientation_mapping = parsed
+
+    n_images_wide = 1
+    while n_images_wide * n_images_wide < len(images):
+        n_images_wide += 1
+
+    # create complete image. size will be (single image dimensions - 2) * number of images
+    complete_image = dict()
+    single_img_dim_r, single_img_dim_c = max(images.get(list(images.keys())[0]))
+    complete_img_dim_r = (single_img_dim_r - 1) * n_images_wide
+    complete_img_dim_c = (single_img_dim_c - 1) * n_images_wide
+
+    for complete_img_r, complete_img_c in product(range(complete_img_dim_r), range(complete_img_dim_c)):
+        r = complete_img_r // (single_img_dim_r - 1)
+        c = complete_img_c // (single_img_dim_c - 1)
+        single_img_r = complete_img_r - (single_img_dim_r - 1) * r + 1
+        single_img_c = complete_img_c - (single_img_dim_c - 1) * c + 1
+
+        image = images.get(total_image.get((r, c)).get('name'))
+        orientation = total_image.get((r, c)).get('orientation')
+        image = change_orientation(image=image, orientation=orientation)
+
+        complete_image[(complete_img_r, complete_img_c)] = image[(single_img_r, single_img_c)]
+
+    return complete_image
+
+
+def part2():
+    images, edges, matches, orientation_mapping = parsed
+
+    n_images_wide = 1
+    while n_images_wide * n_images_wide < len(images):
+        n_images_wide += 1
+
+    # start building the image with one corner image. ignore orientation of first one, just find adjacent pieces
+    total_image = get_image_positions()
+    total_image = fix_image_orientation(total_image)
+
     # # print all images in correct orientation
-    # for r, c in product(range(width), range(width)):
+    # for r, c in product(range(n_images_wide), range(n_images_wide)):
     #     print(r, c)
     #     print_image(change_orientation(images.get(total_image.get((r, c)).get('name')),
     #                                    total_image.get((r, c)).get('orientation')))
-
-
-    # remove borders
-    pass
+    complete_image = create_complete_image(total_image=total_image)
+    print_image(complete_image)
 
 
 def main():
