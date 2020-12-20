@@ -46,21 +46,7 @@ def parse_data():
                 if edge1 == edge2:
                     matches[name].add(name2)
 
-    # an image can be in 8 different orientations. create mappings to go from input data to each orientation
-    orientation_mapping = defaultdict(dict)
-    for r_old, c_old in product(range(10), range(10)):
-        # no change
-        orientation_mapping[0][(r_old, c_old)] = (r_old, c_old)
-
-        # rotate right (1x, 2x, 3x)
-        orientation_mapping[1][(r_old, c_old)] = (c_old, 9 - r_old)
-        orientation_mapping[2][(r_old, c_old)] = (9 - r_old, 9 - c_old)
-        orientation_mapping[3][(r_old, c_old)] = (9 - c_old, r_old)
-
-    # flip all rotations vertical (top row becomes bottom row)
-    for i in range(4):
-        for r_old, c_old in product(range(10), range(10)):
-            orientation_mapping[4+i][(r_old, c_old)] = orientation_mapping[i][(9 - r_old, c_old)]
+    orientation_mapping = create_orientation_mappings()
 
     return images, edges, matches, orientation_mapping
 
@@ -73,6 +59,26 @@ def parse_data():
 #         edges.add(new[::-1)
 #     return edges
 #
+
+def create_orientation_mappings(dim=10):
+    # an image can be in 8 different orientations. create mappings to go from input data to each orientation
+    orientation_mapping = defaultdict(dict)
+    for r_old, c_old in product(range(dim), range(dim)):
+        # no change
+        orientation_mapping[0][(r_old, c_old)] = (r_old, c_old)
+
+        # rotate right (1x, 2x, 3x)
+        orientation_mapping[1][(r_old, c_old)] = (c_old, dim - 1 - r_old)
+        orientation_mapping[2][(r_old, c_old)] = (dim - 1- r_old, dim - 1 - c_old)
+        orientation_mapping[3][(r_old, c_old)] = (dim - 1- c_old, r_old)
+
+    # flip all rotations vertical (top row becomes bottom row)
+    for i in range(4):
+        for r_old, c_old in product(range(dim), range(dim)):
+            orientation_mapping[4 + i][(r_old, c_old)] = orientation_mapping[i][(dim - 1 - r_old, c_old)]
+
+    return orientation_mapping
+
 
 def get_edge(image, orientation=0, face=0):
     image = change_orientation(image=image, orientation=orientation)
@@ -100,8 +106,11 @@ def print_image(image):
         print('')
 
 
-def change_orientation(image, orientation):
+def change_orientation(image, orientation, mapping=None):
     images, edges, matches, orientation_mapping = parsed
+    if mapping is not None:
+        orientation_mapping = mapping
+
     new_image = dict()
     for r_old, c_old in image.keys():
         r_new, c_new = orientation_mapping[orientation].get((r_old, c_old))
@@ -204,7 +213,6 @@ def fix_image_orientation(total_image):
             continue
 
         # other images are just appended. orientation is fixed by the top-left and adjacent images.
-        # first try left
         left_image, left_orientation, top_image, top_orientation = None, None, None, None
         new_image = total_image[(r, c)]['name']
         possible_orientations = 0
@@ -301,9 +309,21 @@ def part2():
     #     print_image(change_orientation(images.get(total_image.get((r, c)).get('name')),
     #                                    total_image.get((r, c)).get('orientation')))
     complete_image = create_complete_image(total_image=total_image)
-    print_image(complete_image)
+    # print_image(complete_image)
 
-    # guessing the seamonsts
+    seamonster_offsets = create_seamonster_offsets()
+    dim = max(complete_image.keys())[0] + 1
+    orientation_mappings = create_orientation_mappings(dim=dim)
+    n_seamonsters = 0
+    for orientation in range(8):
+        complete_image2 = change_orientation(complete_image, orientation=orientation, mapping=orientation_mappings)
+        for (r, c), char in complete_image2.items():
+            if char == '#':
+                # assume (r, c) is (0, 0) and verify if all offsets are also #
+                if all([complete_image2.get((r+dr, c+dc)) == '#' for dr, dc in seamonster_offsets]):
+                    n_seamonsters += 1
+
+    # assuming non-overlapping sea monsters gives
     sea_monster = '                  # \n#    ##    ##    ###\n #  #  #  #  #  #   '
     per_sea_monster = sea_monster.count('#')
     count_ = 0
@@ -311,14 +331,17 @@ def part2():
         if v == '#':
             count_ += 1
 
-    # guesses tried: 20
-    for guess in range(20, 40):
-        # print(guess, count_ - guess * per_sea_monster)
-        pass
+    # # guessing
+    # for guess in range(20, 40):
+    #     # print(guess, count_ - guess * per_sea_monster)
+    #     pass
 
-    # finding the sea monsters
-    seamonsters_offsets = create_seamonster_offsets()
-    print(seamonsters_offsets)
+    return count_ - n_seamonsters * per_sea_monster
+
+    # # guessing
+    # for guess in range(20, 40):
+    #     # print(guess, count_ - guess * per_sea_monster)
+    #     pass
 
 
 def create_seamonster_offsets():
