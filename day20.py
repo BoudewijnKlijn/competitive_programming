@@ -46,11 +46,46 @@ def parse_data():
                 if edge1 == edge2:
                     matches[name].add(name2)
 
-    return images, edges, matches
+    # an image can be in 8 different orientations. create mappings to go from input data to each orientation
+    orientation_mapping = defaultdict(dict)
+    for r_old, c_old in product(range(10), range(10)):
+        # no change
+        orientation_mapping[0][(r_old, c_old)] = (r_old, c_old)
+
+        # rotate right (1x, 2x, 3x)
+        orientation_mapping[1][(r_old, c_old)] = (c_old, 9 - r_old)
+        orientation_mapping[2][(r_old, c_old)] = (9 - r_old, 9 - c_old)
+        orientation_mapping[3][(r_old, c_old)] = (9 - c_old, r_old)
+
+    # flip all rotations vertical (top becomes bottom)
+    for i in range(4):
+        for r_old, c_old in product(range(10), range(10)):
+            orientation_mapping[4+i][(r_old, c_old)] = orientation_mapping[i][(9 - r_old, 9 - c_old)]
+
+    return images, edges, matches, orientation_mapping
+
+
+def print_image(image):
+    for r in range(10):
+        for c in range(10):
+            char = image.get((r, c))
+            # print(char)
+            if char:
+                print(char, end='')
+        print('')
+
+
+def rotate_image(image, orientation=5):
+    images, edges, matches, orientation_mapping = parsed
+    new_image = dict()
+    for r_old, c_old in image.keys():
+        r_new, c_new = orientation_mapping[orientation].get((r_old, c_old))
+        new_image[(r_new, c_new)] = image.get((r_old, c_old))
+    return new_image
 
 
 def part1():
-    images, edges, matches = parsed
+    _, _, matches, _ = parsed
 
     ans = 1
     n_matches = list()
@@ -63,7 +98,7 @@ def part1():
 
 
 def part2():
-    images, edges, matches = parsed
+    images, edges, matches, orientation_mapping = parsed
 
     # start building the image with one corner image. ignore orientation of first one, just find adjacent pieces
     for name, match in matches.items():
@@ -94,6 +129,13 @@ def part2():
                 break
 
     assert set([v['name'] for v in total_image.values()]) == set(matches.keys())
+
+    # print(orientation_mapping[1])
+    #
+    # print_image(images[2789])
+    # print('\n\n')
+    # im2 = rotate_image(images[2789])
+    # print_image(im2)
 
 
 def main():
