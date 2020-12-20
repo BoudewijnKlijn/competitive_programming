@@ -57,10 +57,10 @@ def parse_data():
         orientation_mapping[2][(r_old, c_old)] = (9 - r_old, 9 - c_old)
         orientation_mapping[3][(r_old, c_old)] = (9 - c_old, r_old)
 
-    # flip all rotations vertical (top becomes bottom)
+    # flip all rotations vertical (top row becomes bottom row)
     for i in range(4):
         for r_old, c_old in product(range(10), range(10)):
-            orientation_mapping[4+i][(r_old, c_old)] = orientation_mapping[i][(9 - r_old, 9 - c_old)]
+            orientation_mapping[4+i][(r_old, c_old)] = orientation_mapping[i][(9 - r_old, c_old)]
 
     return images, edges, matches, orientation_mapping
 
@@ -69,13 +69,12 @@ def print_image(image):
     for r in range(10):
         for c in range(10):
             char = image.get((r, c))
-            # print(char)
             if char:
                 print(char, end='')
         print('')
 
 
-def rotate_image(image, orientation=5):
+def change_orientation(image, orientation):
     images, edges, matches, orientation_mapping = parsed
     new_image = dict()
     for r_old, c_old in image.keys():
@@ -107,7 +106,6 @@ def part2():
 
     total_image = defaultdict(dict)
     for r, c, in product(range(12), range(12)):
-        # print(r, c)
         if r == 0 and c == 0:
             total_image[(r, c)]['name'] = name
             pass  # todo orientation
@@ -121,21 +119,23 @@ def part2():
                                       total_image.get((ac_r, ac_c))]
 
         for name, match in matches.items():
-            # print(match)
             if len(match) == len(adjacent_coordinates) and all([im in match for im in images_placed_and_adjacent]) \
                     and name not in set([v['name'] for v in total_image.values()]):
+
                 total_image[(r, c)]['name'] = name
                 pass  # todo orientation
                 break
 
     assert set([v['name'] for v in total_image.values()]) == set(matches.keys())
 
-    # print(orientation_mapping[1])
-    #
-    # print_image(images[2789])
-    # print('\n\n')
-    # im2 = rotate_image(images[2789])
-    # print_image(im2)
+
+    print_image(images[2789])
+    print('\n\n')
+    im2 = change_orientation(images[2789], orientation=2)
+    print_image(im2)
+    print('\n\n')
+    im2 = change_orientation(images[2789], orientation=6)
+    print_image(im2)
 
 
 def main():
