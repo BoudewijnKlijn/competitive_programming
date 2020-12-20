@@ -303,6 +303,34 @@ def part2():
     complete_image = create_complete_image(total_image=total_image)
     print_image(complete_image)
 
+    # guessing the seamonsts
+    sea_monster = '                  # \n#    ##    ##    ###\n #  #  #  #  #  #   '
+    per_sea_monster = sea_monster.count('#')
+    count_ = 0
+    for k, v in complete_image.items():
+        if v == '#':
+            count_ += 1
+
+    # guesses tried: 20
+    for guess in range(20, 40):
+        # print(guess, count_ - guess * per_sea_monster)
+        pass
+
+    # finding the sea monsters
+    seamonsters_offsets = create_seamonster_offsets()
+    print(seamonsters_offsets)
+
+
+def create_seamonster_offsets():
+    sea_monster = '                  # \n#    ##    ##    ###\n #  #  #  #  #  #   '
+    offsets = list()
+    for r, line in enumerate(sea_monster.split('\n'), start=-1):
+        for c, char in enumerate(line):
+            if char == '#':
+                offsets.append((r, c))
+    return offsets
+
+
 
 def main():
     a1 = part1()
