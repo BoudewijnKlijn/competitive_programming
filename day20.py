@@ -65,6 +65,29 @@ def parse_data():
     return images, edges, matches, orientation_mapping
 
 
+# def get_edges(image):
+#     edges = set()
+#     for r_or_c, zero_or_9 in product(list('rc'), [0, 9]):
+#         new = ''.join([char for (r, c), char in image.items() if r_or_c == zero_or_9]
+#         edges.add(new)
+#         edges.add(new[::-1)
+#     return edges
+#
+
+def get_edge(image, orientation=0, face=0):
+    image = change_orientation(image=image, orientation=orientation)
+    if face == 0:
+        return ''.join([image.get((0, c)) for c in range(9)])
+    elif face == 1:
+        return ''.join([image.get((r, 9)) for r in range(9)])
+    elif face == 2:
+        return ''.join([image.get((9, c)) for c in range(9)])
+    elif face == 3:
+        return ''.join([image.get((r, 0)) for r in range(9)])
+    else:
+        raise ValueError()
+
+
 def print_image(image):
     for r in range(10):
         for c in range(10):
@@ -96,7 +119,13 @@ def part1():
     return ans
 
 
-def part2():
+def get_adjacent_coordinates(r, c, max_r, max_c):
+    dr = [-1, 0, 1, 0]
+    dc = [0, 1, 0, -1]
+    return [(r + drr, c + dcc) for drr, dcc in zip(dr, dc) if 0 <= r + drr < max_r and 0 <= c + dcc < max_c]
+
+
+def get_image_positions():
     images, edges, matches, orientation_mapping = parsed
 
     # start building the image with one corner image. ignore orientation of first one, just find adjacent pieces
@@ -104,38 +133,123 @@ def part2():
         if len(match) == 2:
             break
 
+    width = 1
+    while width * width < len(images):
+        width += 1
+
     total_image = defaultdict(dict)
-    for r, c, in product(range(12), range(12)):
-        if r == 0 and c == 0:
-            total_image[(r, c)]['name'] = name
+    for r, c, in product(range(width), range(width)):
+        if (r, c) == (0, 0):
+            total_image[(0, 0)]['name'] = name
             pass  # todo orientation
             continue
 
         # find ajacent images in total image
-        dr = [-1, 0, 1, 0]
-        dc = [0, 1, 0, -1]
-        adjacent_coordinates = [(r+drr, c+dcc) for drr, dcc in zip(dr, dc) if 0 <= r+drr <= 11 and 0 <= c+dcc <= 11]
-        images_placed_and_adjacent = [total_image.get((ac_r, ac_c)).get('name') for ac_r, ac_c in adjacent_coordinates if
+        adjacent_coordinates = get_adjacent_coordinates(r, c, width, width)
+        images_placed_and_adjacent = [total_image.get((ac_r, ac_c)).get('name') for ac_r, ac_c in adjacent_coordinates
+                                      if
                                       total_image.get((ac_r, ac_c))]
 
+        # find __one__ adjacent image
         for name, match in matches.items():
             if len(match) == len(adjacent_coordinates) and all([im in match for im in images_placed_and_adjacent]) \
                     and name not in set([v['name'] for v in total_image.values()]):
-
                 total_image[(r, c)]['name'] = name
                 pass  # todo orientation
                 break
 
-    assert set([v['name'] for v in total_image.values()]) == set(matches.keys())
+    assert set([v['name'] for v in total_image.values()]) == set(matches.keys()), 'Not all images are used'
+
+    return total_image
 
 
-    print_image(images[2789])
-    print('\n\n')
-    im2 = change_orientation(images[2789], orientation=2)
-    print_image(im2)
-    print('\n\n')
-    im2 = change_orientation(images[2789], orientation=6)
-    print_image(im2)
+def part2():
+    images, edges, matches, orientation_mapping = parsed
+
+    # start building the image with one corner image. ignore orientation of first one, just find adjacent pieces
+    total_image = get_image_positions()
+
+    width = 1
+    while width * width < len(images):
+        width += 1
+
+    # now fix orientation.
+    for r, c, in product(range(width), range(width)):
+
+        # for the top-left corner, we try all orientations with the one to the right and one to bottom
+        if (r, c) == (0, 0):
+            top_left_corner_image = total_image[(0, 0)]['name']
+            right_of_top_left_corner_image = total_image[(0, 1)]['name']
+            below_top_left_corner_image = total_image[(1, 0)]['name']
+
+            possible_orientations = 0
+            for orientation_1, orientation_2, orientation_3 in product(range(8), range(8), range(8)):
+                if get_edge(images.get(top_left_corner_image), orientation_1, face=1) == \
+                        get_edge(images.get(right_of_top_left_corner_image), orientation_2, face=3) and \
+                        get_edge(images.get(top_left_corner_image), orientation_1, face=2) == \
+                        get_edge(images.get(below_top_left_corner_image), orientation_3, face=0):
+
+                    total_image[(0, 0)]['orientation'] = orientation_1
+                    total_image[(0, 1)]['orientation'] = orientation_2
+                    total_image[(1, 0)]['orientation'] = orientation_3
+
+                    possible_orientations += 1
+
+            assert possible_orientations == 1
+            continue
+
+        elif (r, c) == (0, 1) or (r, c) == (1, 0):
+            continue
+
+        # other images are just appended. orientation is fixed by the top-left and adjacent images.
+        # first try left
+        if (r, c-1) in total_image.keys():
+            left_image = total_image[(r, c-1)]['name']
+            left_orientation = total_image[(r, c - 1)]['orientation']
+            right_image = total_image[(r, c)]['name']
+            possible_orientations = 0
+            for right_orientation in range(8):
+                if get_edge(images.get(left_image), left_orientation, face=1) == \
+                        get_edge(images.get(right_image), right_orientation, face=3):
+
+                    total_image[(r, c)]['orientation'] = right_orientation
+                    possible_orientations += 1
+
+            assert possible_orientations == 1
+
+        else:
+            # if no left, use top
+            top_image = total_image[(r - 1, c)]['name']
+            top_orientation = total_image[(r - 1, c)]['orientation']
+            bottom_image = total_image[(r, c)]['name']
+
+            possible_orientations = 0
+            for bottom_orientation in range(8):
+                if get_edge(images.get(top_image), top_orientation, face=2) == \
+                        get_edge(images.get(bottom_image), bottom_orientation, face=0):
+
+                    total_image[(r, c)]['orientation'] = bottom_orientation
+                    possible_orientations += 1
+
+            assert possible_orientations == 1
+
+    # print complete image
+    for r, c in product(range(width), range(width)):
+        print(r, c)
+        print_image(change_orientation(images.get(total_image.get((r, c)).get('name')),
+                                       total_image.get((r, c)).get('orientation')))
+
+
+    # remove borders
+
+
+    # print_image(images[2789])
+    # print('\n\n')
+    # im2 = change_orientation(images[2789], orientation=2)
+    # print_image(im2)
+    # print('\n\n')
+    # im2 = change_orientation(images[2789], orientation=6)
+    # print_image(im2)
 
 
 def main():
