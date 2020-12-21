@@ -1,7 +1,5 @@
 import timeit
 import re
-from itertools import product
-from collections import defaultdict
 from functools import reduce
 
 
@@ -50,11 +48,10 @@ def part1():
         for ingredient in ingredients:
             if ingredient in ingredients_without_allergens:
                 ans += 1
+
+    print('part2', ','.join(list(zip(*sorted(mapped_allergens.items())))[1]))
+
     return ans
-
-
-
-
 
 
 def part2():
