@@ -1,3 +1,8 @@
+import time
+
+start_time = time.time()
+
+
 def load_data():
     with open(input_file, 'r') as f:
         data = f.read().strip()
@@ -6,6 +11,9 @@ def load_data():
 
 def play_game(cups, rounds):
     circle = dict(zip(cups, cups[1:] + cups[:1]))
+    # since dict keys are from 1 to max, we can as well use a list, where position in list is
+    # the label and the value is the next label
+    circle = [None] + [circle[k] for k in range(1, max(cups)+1)]
     current_label = cups[-1]
     for round_ in range(rounds):
         current_label = circle[current_label]
@@ -44,6 +52,8 @@ def main():
         next_ = circle[next_]
         ans *= next_
     print(f'\n{ans}')
+
+    print(round(time.time() - start_time, 3))
 
 
 if __name__ == '__main__':
