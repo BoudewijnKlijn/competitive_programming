@@ -13,9 +13,10 @@ def play_game(cups, rounds):
     circle = dict(zip(cups, cups[1:] + cups[:1]))
     # since dict keys are from 1 to max, we can as well use a list, where position in list is
     # the label and the value is the next label
-    circle = [None] + [circle[k] for k in range(1, max(cups)+1)]
+    max_ = max(cups)
+    circle = [None] + [circle[k] for k in range(1, max_+1)]
     current_label = cups[-1]
-    for round_ in range(rounds):
+    for _ in range(rounds):
         current_label = circle[current_label]
 
         pick_up = list()
@@ -29,7 +30,7 @@ def play_game(cups, rounds):
         while destination_label in pick_up or destination_label < 1:
             destination_label -= 1
             if destination_label < 1:
-                destination_label = max(cups)
+                destination_label = max_
 
         circle[destination_label], circle[pick_up[-1]] = pick_up[0], circle[destination_label]
 
