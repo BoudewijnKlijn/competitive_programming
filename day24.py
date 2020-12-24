@@ -51,10 +51,6 @@ for dx, dy, dz in product(range(-1, 2), range(-1, 2), range(-1, 2)):
         adjacent_offset.add((dx, dy, dz))
 
 
-def get_adjacent_tiles(x, y, z):
-    return set([(x+dx, y+dy, z+dz) for (dx, dy, dz) in adjacent_offset])
-
-
 def part2():
     adjacent_tiles_dict = dict()
     black_tiles = parsed
@@ -64,14 +60,17 @@ def part2():
         for bt in black_tiles:
             adjacent_tiles = adjacent_tiles_dict.get(bt, None)
             if adjacent_tiles is None:
-                adjacent_tiles = get_adjacent_tiles(*bt)
+                x, y, z = bt
+                adjacent_tiles = set([(x + dx, y + dy, z + dz) for (dx, dy, dz) in adjacent_offset])
                 adjacent_tiles_dict[bt] = adjacent_tiles
             test_tiles.update(adjacent_tiles)
 
         for test_tile in test_tiles:
+
             adjacent_tiles = adjacent_tiles_dict.get(test_tile, None)
             if adjacent_tiles is None:
-                adjacent_tiles = get_adjacent_tiles(*test_tile)
+                x, y, z = test_tile
+                adjacent_tiles = set([(x + dx, y + dy, z + dz) for (dx, dy, dz) in adjacent_offset])
                 adjacent_tiles_dict[test_tile] = adjacent_tiles
 
             n_adjacent_black = len(adjacent_tiles.intersection(black_tiles))
