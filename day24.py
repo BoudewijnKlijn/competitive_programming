@@ -56,15 +56,24 @@ def get_adjacent_tiles(x, y, z):
 
 
 def part2():
+    adjacent_tiles_dict = dict()
     black_tiles = parsed
     for _ in range(100):
         new_black_tiles = set()
         test_tiles = set()
         for bt in black_tiles:
-            test_tiles.update(get_adjacent_tiles(*bt))
+            adjacent_tiles = adjacent_tiles_dict.get(bt, None)
+            if adjacent_tiles is None:
+                adjacent_tiles = get_adjacent_tiles(*bt)
+                adjacent_tiles_dict[bt] = adjacent_tiles
+            test_tiles.update(adjacent_tiles)
 
         for test_tile in test_tiles:
-            adjacent_tiles = get_adjacent_tiles(*test_tile)
+            adjacent_tiles = adjacent_tiles_dict.get(test_tile, None)
+            if adjacent_tiles is None:
+                adjacent_tiles = get_adjacent_tiles(*test_tile)
+                adjacent_tiles_dict[test_tile] = adjacent_tiles
+
             n_adjacent_black = len(adjacent_tiles.intersection(black_tiles))
             if test_tile in black_tiles and n_adjacent_black in [1, 2]:
                 new_black_tiles.add(test_tile)
@@ -90,6 +99,6 @@ if __name__ == '__main__':
     parsed = parse_data()
     main()
 
-    # t = timeit.Timer('part2()', globals=globals())
-    # n = 10
-    # print(sum(t.repeat(repeat=n, number=1)) / n)
+    t = timeit.Timer('part2()', globals=globals())
+    n = 10
+    print(sum(t.repeat(repeat=n, number=1)) / n)
