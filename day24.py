@@ -1,6 +1,5 @@
 import timeit
 from itertools import product
-from functools import lru_cache
 
 
 def load_data():
@@ -46,17 +45,12 @@ mapping = {
 }
 
 
-def part1():
-    pass
-
-
 adjacent_offset = set()
 for dx, dy, dz in product(range(-1, 2), range(-1, 2), range(-1, 2)):
-    if sum([dx, dy, dz]) == 0 and (dx,dy,dz) != (0, 0, 0):
+    if sum([dx, dy, dz]) == 0 and (dx, dy, dz) != (0, 0, 0):
         adjacent_offset.add((dx, dy, dz))
 
 
-@lru_cache()
 def get_adjacent_tiles(x, y, z):
     return set([(x+dx, y+dy, z+dz) for (dx, dy, dz) in adjacent_offset])
 
