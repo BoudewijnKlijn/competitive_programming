@@ -1,5 +1,6 @@
 import timeit
 from itertools import product
+from collections import defaultdict
 
 
 def load_data():
@@ -56,25 +57,30 @@ def part2():
     black_tiles = parsed
     for _ in range(100):
         new_black_tiles = set()
-        test_tiles = set()
-        for bt in black_tiles:
-            if (adjacent_tiles := adjacent_tiles_dict.get(bt, None)) is None:
-                x, y, z = bt
-                adjacent_tiles = set([(x + dx, y + dy, z + dz) for (dx, dy, dz) in adjacent_offset])
-                adjacent_tiles_dict[bt] = adjacent_tiles
-            test_tiles.update(adjacent_tiles)
 
-        for test_tile in test_tiles:
-            if (adjacent_tiles := adjacent_tiles_dict.get(test_tile, None)) is None:
-                x, y, z = test_tile
+        # we only need to know how many adjacent black tiles a tile has. so we can loop over all black tiles and
+        # increase the counter for all adjacent tiles
+        n_adjacent_black_tiles = defaultdict(int)
+        n_adjacent_white_tiles = defaultdict(int)
+        for black_tile in black_tiles:
+            if (adjacent_tiles := adjacent_tiles_dict.get(black_tile, None)) is None:
+                x, y, z = black_tile
                 adjacent_tiles = set([(x + dx, y + dy, z + dz) for (dx, dy, dz) in adjacent_offset])
-                adjacent_tiles_dict[test_tile] = adjacent_tiles
+                adjacent_tiles_dict[black_tile] = adjacent_tiles
 
-            n_adjacent_black = len(adjacent_tiles.intersection(black_tiles))
-            if test_tile in black_tiles and n_adjacent_black in [1, 2]:
-                new_black_tiles.add(test_tile)
-            elif test_tile not in black_tiles and n_adjacent_black == 2:
-                new_black_tiles.add(test_tile)
+            for adjacent_tile in adjacent_tiles:
+                if adjacent_tile in black_tiles:
+                    n_adjacent_black_tiles[adjacent_tile] += 1
+                else:
+                    n_adjacent_white_tiles[adjacent_tile] += 1
+
+        for tile, n_adjacent_black in n_adjacent_black_tiles.items():
+            if n_adjacent_black in [1, 2]:
+                new_black_tiles.add(tile)
+
+        for tile, n_adjacent_black in n_adjacent_white_tiles.items():
+            if n_adjacent_black == 2:
+                new_black_tiles.add(tile)
 
         black_tiles = new_black_tiles
 
