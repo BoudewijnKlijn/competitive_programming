@@ -1,4 +1,6 @@
 import timeit
+from itertools import product
+from functools import lru_cache
 
 
 def load_data():
@@ -18,7 +20,19 @@ def parse_data():
                 char += line.pop(0)
             new_line.append(char)
         lines.append(new_line)
-    return lines
+
+    black_tiles = set()
+    for line in lines:
+        x, y, z = (0, 0, 0)
+        for move in line:
+            dx, dy, dz = mapping.get(move)
+            x, y, z = x + dx, y + dy, z + dz
+
+        if (x, y, z) not in black_tiles:
+            black_tiles.add((x, y, z))
+        else:
+            black_tiles.remove((x, y, z))
+    return black_tiles
 
 
 mapping = {
@@ -33,30 +47,43 @@ mapping = {
 
 
 def part1():
-
-    lines = parsed
-    black_tiles = set()
-    for line in lines:
-        x, y, z = (0, 0, 0)
-        for move in line:
-            dx, dy, dz = mapping.get(move)
-            x, y, z = x+dx, y+dy, z+dz
-        if (x, y, z) not in black_tiles:
-            black_tiles.add((x, y, z))
-        else:
-            black_tiles.remove((x, y, z))
-    return len(black_tiles)
-
-
-
-
-
-def part2():
     pass
 
 
+adjacent_offset = set()
+for dx, dy, dz in product(range(-1, 2), range(-1, 2), range(-1, 2)):
+    if sum([dx, dy, dz]) == 0 and (dx,dy,dz) != (0, 0, 0):
+        adjacent_offset.add((dx, dy, dz))
+
+
+@lru_cache()
+def get_adjacent_tiles(x, y, z):
+    return set([(x+dx, y+dy, z+dz) for (dx, dy, dz) in adjacent_offset])
+
+
+def part2():
+    black_tiles = parsed
+    for _ in range(100):
+        new_black_tiles = set()
+        test_tiles = set()
+        for bt in black_tiles:
+            test_tiles.update(get_adjacent_tiles(*bt))
+
+        for test_tile in test_tiles:
+            adjacent_tiles = get_adjacent_tiles(*test_tile)
+            n_adjacent_black = len(adjacent_tiles.intersection(black_tiles))
+            if test_tile in black_tiles and n_adjacent_black in [1, 2]:
+                new_black_tiles.add(test_tile)
+            elif test_tile not in black_tiles and n_adjacent_black == 2:
+                new_black_tiles.add(test_tile)
+
+        black_tiles = new_black_tiles
+
+    return len(black_tiles)
+
+
 def main():
-    a1 = part1()
+    a1 = len(parsed)
     print(a1)
 
     a2 = part2()
@@ -69,6 +96,6 @@ if __name__ == '__main__':
     parsed = parse_data()
     main()
 
-    # t = timeit.Timer('part2_regex()', globals=globals())
+    # t = timeit.Timer('part2()', globals=globals())
     # n = 10
     # print(sum(t.repeat(repeat=n, number=1)) / n)
