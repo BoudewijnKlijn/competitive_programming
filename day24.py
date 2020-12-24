@@ -58,17 +58,14 @@ def part2():
         new_black_tiles = set()
         test_tiles = set()
         for bt in black_tiles:
-            adjacent_tiles = adjacent_tiles_dict.get(bt, None)
-            if adjacent_tiles is None:
+            if (adjacent_tiles := adjacent_tiles_dict.get(bt, None)) is None:
                 x, y, z = bt
                 adjacent_tiles = set([(x + dx, y + dy, z + dz) for (dx, dy, dz) in adjacent_offset])
                 adjacent_tiles_dict[bt] = adjacent_tiles
             test_tiles.update(adjacent_tiles)
 
         for test_tile in test_tiles:
-
-            adjacent_tiles = adjacent_tiles_dict.get(test_tile, None)
-            if adjacent_tiles is None:
+            if (adjacent_tiles := adjacent_tiles_dict.get(test_tile, None)) is None:
                 x, y, z = test_tile
                 adjacent_tiles = set([(x + dx, y + dy, z + dz) for (dx, dy, dz) in adjacent_offset])
                 adjacent_tiles_dict[test_tile] = adjacent_tiles
