@@ -63,7 +63,7 @@ def part2():
         n_adjacent_black_tiles = defaultdict(int)
         n_adjacent_white_tiles = defaultdict(int)
         for black_tile in black_tiles:
-            if (adjacent_tiles := adjacent_tiles_dict.get(black_tile, None)) is None:
+            if (adjacent_tiles := adjacent_tiles_dict.get(black_tile)) is None:
                 x, y, z = black_tile
                 adjacent_tiles = set([(x + dx, y + dy, z + dz) for (dx, dy, dz) in adjacent_offset])
                 adjacent_tiles_dict[black_tile] = adjacent_tiles
@@ -102,5 +102,5 @@ if __name__ == '__main__':
     main()
 
     t = timeit.Timer('part2()', globals=globals())
-    n = 10
+    n = 30
     print(sum(t.repeat(repeat=n, number=1)) / n)
