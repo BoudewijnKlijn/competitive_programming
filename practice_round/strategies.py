@@ -1,21 +1,24 @@
-def strategy_0(problem):
+from assignment import Pizza, Assignment, read_assignment
+
+
+def strategy_0(assignment):
     """Eerst 4 pizzas naar alle teams van 4. Daarna 3 naar teams van 3, en dan 2 naar teams van 2."""
 
-    pizzas = list(range(100))
+    pizzas = assignment.pizzas
 
     orders = list()
 
-    for _ in range(problem.T4):
+    for _ in range(assignment.n_teams_four):
         new_order = pizzas[:4]
         pizzas = pizzas[4:]
         orders.append(new_order)
 
-    for _ in range(problem.T3):
+    for _ in range(assignment.n_teams_three):
         new_order = pizzas[:3]
         pizzas = pizzas[3:]
         orders.append(new_order)
 
-    for _ in range(problem.T2):
+    for _ in range(assignment.n_teams_two):
         new_order = pizzas[:2]
         pizzas = pizzas[2:]
         orders.append(new_order)
@@ -48,3 +51,10 @@ def strategy_1(problem):
 
     return orders
 
+
+if __name__ == '__main__':
+    assignment = read_assignment("a_example")
+
+    print(assignment.n_teams_four)
+
+    print(strategy_0(assignment))

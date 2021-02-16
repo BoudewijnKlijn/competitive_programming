@@ -5,7 +5,8 @@ class Pizza:
     n_ingredients = None
     ingredients = []
 
-    def __init__(self, n_ingredients, ingredients):
+    def __init__(self, pizza_id, n_ingredients, ingredients):
+        self.id = pizza_id,
         self.n_ingredients = n_ingredients
         self.ingredients = ingredients
 
@@ -35,9 +36,10 @@ def read_assignment(filename):
     n_teams_four = int(first_line_input[3])
     pizzas = []
 
-    for pizza_line in lines[1:]:
+    for i, pizza_line in enumerate(lines[1:], start=0):
         pizza_line_input = pizza_line.replace("\n", "").split(" ")
-        pizzas.append(Pizza(n_ingredients=pizza_line_input[0],
+        pizzas.append(Pizza(pizza_id=i,
+                            n_ingredients=pizza_line_input[0],
                             ingredients=pizza_line_input[1:])
         )
 
@@ -57,6 +59,7 @@ if __name__ == '__main__':
     print("Printing pizzas:")
     for pizza in assignment.pizzas:
         print("------------------")
+        print(pizza.id)
         print(pizza.n_ingredients)
         print(pizza.ingredients)
     print("#################")
