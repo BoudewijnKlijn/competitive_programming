@@ -1,18 +1,14 @@
-
-
 class Pizza:
-
     n_ingredients = None
     ingredients = []
 
     def __init__(self, pizza_id, n_ingredients, ingredients):
-        self.id = pizza_id,
+        self.id = pizza_id
         self.n_ingredients = n_ingredients
         self.ingredients = ingredients
 
 
 class Assignment:
-
     pizzas = []
     n_teams_two = None
     n_teams_three = None
@@ -23,6 +19,9 @@ class Assignment:
         self.n_teams_two = n_teams_two
         self.n_teams_three = n_teams_three
         self.n_teams_four = n_teams_four
+
+    def __str__(self):
+        print(f'{self.pizzas=} {self.n_teams_four=} {self.n_teams_three=} {self.n_teams_two=}')
 
 
 def read_assignment(filename):
@@ -41,7 +40,7 @@ def read_assignment(filename):
         pizzas.append(Pizza(pizza_id=i,
                             n_ingredients=pizza_line_input[0],
                             ingredients=pizza_line_input[1:])
-        )
+                      )
 
     assert n_pizzas == len(pizzas), "Not all pizzas were created."
 

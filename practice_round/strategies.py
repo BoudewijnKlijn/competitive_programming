@@ -1,27 +1,37 @@
 from assignment import Pizza, Assignment, read_assignment
+from vqd.score import score
 
 
 def strategy_0(assignment):
     """Eerst 4 pizzas naar alle teams van 4. Daarna 3 naar teams van 3, en dan 2 naar teams van 2."""
 
-    pizzas = assignment.pizzas
+    pizzas = [pizza.id for pizza in assignment.pizzas]
 
     orders = list()
 
-    for _ in range(assignment.n_teams_four):
+    teams_4 = assignment.n_teams_four
+
+    while len(pizzas) >= 4 and teams_4 > 0:
         new_order = pizzas[:4]
         pizzas = pizzas[4:]
-        orders.append(new_order)
+        orders.append((4, new_order))
+        teams_4 -= 1
 
-    for _ in range(assignment.n_teams_three):
+    teams_3 = assignment.n_teams_three
+
+    while len(pizzas) >= 3 and teams_3 > 0:
         new_order = pizzas[:3]
         pizzas = pizzas[3:]
-        orders.append(new_order)
+        orders.append((3, new_order))
+        teams_3 -= 1
 
-    for _ in range(assignment.n_teams_two):
+    teams_2 = assignment.n_teams_three
+
+    while len(pizzas) >= 2 and teams_2 > 0:
         new_order = pizzas[:2]
         pizzas = pizzas[2:]
-        orders.append(new_order)
+        orders.append((2, new_order))
+        teams_2 -= 1
 
     return orders
 
@@ -53,8 +63,18 @@ def strategy_1(problem):
 
 
 if __name__ == '__main__':
-    assignment = read_assignment("a_example")
+    assignment = read_assignment("b_little_bit_of_everything.in")
 
     print(assignment.n_teams_four)
 
-    print(strategy_0(assignment))
+    output = strategy_0(assignment)
+    print(output)
+
+    with open('temp.out', 'w') as file:
+
+        file.write(f'{len(output)}\n')
+
+        for entry in output:
+            file.write(f'{entry[0]} {" ".join([str(x) for x in entry[1]])}\n')
+
+    print(score("b_little_bit_of_everything.in", 'temp.out'))

@@ -1,17 +1,17 @@
-from abc import ABC, abstractmethod
+from vqd.PizzaStrategy import PizzaStrategy
 
 
 class PizzaInput:
     pass
 
+
 class PizzaResult:
     pass
 
-class PizzaStrategy(ABC):
 
-    @abstractmethod
-    def apply(self, input_data: PizzaInput)->PizzaResult:
-        pass
+class MyOptimizer(PizzaStrategy):
+    pass
+
 
 class PizzaOptimizer:
     def __init__(self, strategy: PizzaStrategy):
