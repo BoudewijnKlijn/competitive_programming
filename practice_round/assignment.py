@@ -4,6 +4,9 @@ class Pizza:
         self.n_ingredients = n_ingredients
         self.ingredients = set(ingredients)
 
+    def __repr__(self):
+        return f'{self.id=} {self.n_ingredients=} {self.ingredients=}\n'
+
 
 class Assignment:
     def __init__(self, pizzas, n_teams_two, n_teams_three, n_teams_four):
@@ -30,7 +33,7 @@ def read_assignment(filename):
     for i, pizza_line in enumerate(lines[1:], start=0):
         pizza_line_input = pizza_line.replace("\n", "").split(" ")
         pizzas.append(Pizza(pizza_id=i,
-                            n_ingredients=pizza_line_input[0],
+                            n_ingredients=int(pizza_line_input[0]),
                             ingredients=pizza_line_input[1:])
                       )
 
