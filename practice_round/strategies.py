@@ -81,6 +81,51 @@ def strategy_1(problem, state):
     return orders
 
 
+def strategy_2(problem, state):
+    """Eerst pizzas naar alle teams van 4. Daarna naar teams van 3, en dan naar teams van 2.
+    Sorteer pizzas eerst op aantal ingredienten om."""
+
+    # assignment.pizzas.sort(key=lambda x: x.n_ingredients, reverse=False)
+
+    np.random.seed(state)
+
+    copy_pizza = assignment.pizzas.copy()
+
+    np.random.shuffle(copy_pizza)
+
+    pizzas = [pizza.id for pizza in copy_pizza]
+
+    orders = list()
+
+    teams_4 = assignment.n_teams_four
+
+    spare_pizzas = []
+
+    while len(pizzas) >= 4 and teams_4 > 0:
+        new_order = pizzas[:4]
+        pizzas = pizzas[4:]
+        orders.append((4, new_order))
+        teams_4 -= 1
+
+    teams_3 = assignment.n_teams_three
+
+    while len(pizzas) >= 3 and teams_3 > 0:
+        new_order = pizzas[:3]
+        pizzas = pizzas[3:]
+        orders.append((3, new_order))
+        teams_3 -= 1
+
+    teams_2 = assignment.n_teams_three
+
+    while len(pizzas) >= 2 and teams_2 > 0:
+        new_order = pizzas[:2]
+        pizzas = pizzas[2:]
+        orders.append((2, new_order))
+        teams_2 -= 1
+
+    return orders
+
+
 if __name__ == '__main__':
     assignment = read_assignment("b_little_bit_of_everything.in")
 

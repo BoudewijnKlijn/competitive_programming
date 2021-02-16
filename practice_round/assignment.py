@@ -1,19 +1,11 @@
 class Pizza:
-    n_ingredients = None
-    ingredients = []
-
     def __init__(self, pizza_id, n_ingredients, ingredients):
         self.id = pizza_id
         self.n_ingredients = n_ingredients
-        self.ingredients = ingredients
+        self.ingredients = set(ingredients)
 
 
 class Assignment:
-    pizzas = []
-    n_teams_two = None
-    n_teams_three = None
-    n_teams_four = None
-
     def __init__(self, pizzas, n_teams_two, n_teams_three, n_teams_four):
         self.pizzas = pizzas
         self.n_teams_two = n_teams_two
