@@ -3,6 +3,9 @@ import numpy as np
 from assignment import Pizza, Assignment, read_assignment
 from vqd.score import score
 
+from itertools import combinations
+from functools import lru_cache
+
 
 def strategy_0(assignment):
     """Eerst 4 pizzas naar alle teams van 4. Daarna 3 naar teams van 3, en dan 2 naar teams van 2."""
@@ -175,7 +178,7 @@ def strategy_2(problem):
         orders.append((3, [pizza.id for pizza in new_order]))
         teams_3 -= 1
 
-    teams_2 = assignment.n_teams_three
+    teams_2 = assignment.n_teams_two
     while len(pizzas) >= 2 and teams_2 > 0:
         new_order = make_order(2)
         orders.append((2, [pizza.id for pizza in new_order]))
@@ -209,6 +212,90 @@ def calc_pizza_score(already_included_ingredients: set, pizza):
     return n_extra_unique - n_overlapping_ingredients
 
 
+def strategy_3(problem):
+    """Make optimal order. Once optimal serve it to a team and don't add anymore pizzas."""
+
+    pizzas = assignment.pizzas.copy()
+    orders = list()
+
+    goal_order_score = 10
+
+    teams_2 = assignment.n_teams_two
+    teams_3 = assignment.n_teams_three
+    teams_4 = assignment.n_teams_four
+
+    while (teams_2 > 0 and len(pizzas) >= 2) or \
+            (teams_3 > 0 and len(pizzas) >= 3) or \
+            (teams_4 > 0 and len(pizzas) >= 4):
+
+        pizza_added = True
+        while teams_2 > 0 and pizza_added:
+            print(len(pizzas), f'{teams_2=}')
+            pizza_added = False
+            remaining_pizza_ids = [pizza.id for pizza in pizzas]
+            potential_orders = combinations(remaining_pizza_ids, 2)
+
+            for potential_order in potential_orders:
+                if calc_order_score_adjusted(potential_order) == goal_order_score:
+                    orders.append((len(potential_order), list(potential_order)))
+                    pizzas = [pizza for pizza in pizzas if pizza.id not in potential_order]
+                    pizza_added = True
+                    teams_2 -= 1
+                    break
+
+        pizza_added = True
+        while teams_3 > 0 and pizza_added:
+            print(len(pizzas), f'{teams_3=}')
+            pizza_added = False
+            remaining_pizza_ids = [pizza.id for pizza in pizzas]
+            potential_orders = combinations(remaining_pizza_ids, 3)
+
+            for potential_order in potential_orders:
+                if calc_order_score_adjusted(potential_order) == goal_order_score:
+                    orders.append((len(potential_order), list(potential_order)))
+                    pizzas = [pizza for pizza in pizzas if pizza.id not in potential_order]
+                    pizza_added = True
+                    teams_3 -= 1
+                    break
+
+        # too many possibilities with combinations of 4, so we skip the close optimal ones (10 and 9)
+        pizza_added = True
+        while goal_order_score < 9 and teams_4 > 0 and pizza_added:
+            print(len(pizzas), f'{teams_4=}')
+            pizza_added = False
+            remaining_pizza_ids = [pizza.id for pizza in pizzas]
+            potential_orders = combinations(remaining_pizza_ids, 4)
+
+            for potential_order in potential_orders:
+                if calc_order_score_adjusted(potential_order) == goal_order_score:
+                    orders.append((len(potential_order), list(potential_order)))
+                    pizzas = [pizza for pizza in pizzas if pizza.id not in potential_order]
+                    pizza_added = True
+                    teams_4 -= 1
+                    break
+
+        goal_order_score -= 1
+
+    return orders
+
+
+@lru_cache(maxsize=None)
+def calc_order_score_adjusted(pizza_ids_in_order):
+    """Score of an order is the number of unique ingredients. Adjusted score subtracts the overlapping ingredients."""
+
+    pizzas_in_order = [assignment.pizzas[pizza_id] for pizza_id in pizza_ids_in_order]
+    n_total_ingredients = sum([pizza.n_ingredients for pizza in pizzas_in_order])
+
+    unique_ingredients = set()
+    for pizza in pizzas_in_order:
+        unique_ingredients.update(pizza.ingredients)
+    n_unique_ingredients = len(unique_ingredients)
+
+    n_overlapping_ingredients = n_total_ingredients - n_unique_ingredients
+
+    return n_unique_ingredients - n_overlapping_ingredients
+
+
 def create_out_file(output, file_out='temp.out'):
     with open(file_out, 'w') as file:
 
@@ -228,7 +315,8 @@ if __name__ == '__main__':
     # output = strategy_0_1(assignment)
     # output = strategy_1(assignment)
     # output = strategy_1_2(assignment)
-    output = strategy_2(assignment)
+    # output = strategy_2(assignment)
+    output = strategy_3(assignment)
 
     create_out_file(output)
 
