@@ -230,7 +230,7 @@ def strategy_3(problem):
 
         pizza_added = True
         while teams_2 > 0 and pizza_added:
-            print(len(pizzas), f'{teams_2=}')
+            print(len(pizzas), f'{teams_2=} {goal_order_score=}')
             pizza_added = False
             remaining_pizza_ids = [pizza.id for pizza in pizzas]
             potential_orders = combinations(remaining_pizza_ids, 2)
@@ -245,7 +245,7 @@ def strategy_3(problem):
 
         pizza_added = True
         while teams_3 > 0 and pizza_added:
-            print(len(pizzas), f'{teams_3=}')
+            print(len(pizzas), f'{teams_3=} {goal_order_score=}')
             pizza_added = False
             remaining_pizza_ids = [pizza.id for pizza in pizzas]
             potential_orders = combinations(remaining_pizza_ids, 3)
@@ -261,7 +261,7 @@ def strategy_3(problem):
         # too many possibilities with combinations of 4, so we skip the close optimal ones (10 and 9)
         pizza_added = True
         while goal_order_score < 9 and teams_4 > 0 and pizza_added:
-            print(len(pizzas), f'{teams_4=}')
+            print(len(pizzas), f'{teams_4=} {goal_order_score=}')
             pizza_added = False
             remaining_pizza_ids = [pizza.id for pizza in pizzas]
             potential_orders = combinations(remaining_pizza_ids, 4)
