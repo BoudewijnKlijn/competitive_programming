@@ -23,7 +23,7 @@ def strat0_valid(assignment, pizzas=None, team_sizes=None):
     orders = list()
 
     if team_sizes is None:
-        team_sizes = default_pizza_order(assignment)
+        team_sizes = default_team_order(assignment)
 
     if pizzas is None:
         pizzas = default_pizza_order(assignment)
@@ -45,12 +45,13 @@ def strat1_shuffle(assignment, seed=0):
     return strat0_valid(assignment=assignment, pizzas=pizzas)
 
 
-def strat2_multiple_shuffle(assignment, n_shuffles):
-    best_score = 0
+def strat2_multiple_shuffle(assignment, n_shuffles=10):
+    best_score = None
     best_solution = None
     for seed in range(n_shuffles):
         candidate_solution = strat1_shuffle(assignment=assignment, seed=seed)
-        if (candidate_score := calculate_score('b_little_bit_of_everything.in', None, candidate_solution)) > best_score:
+        candidate_score = calculate_score(assignment.file_in, None, candidate_solution)
+        if best_score is None or candidate_score > best_score:
             best_score = candidate_score
             best_solution = candidate_solution
     return best_solution
@@ -65,12 +66,13 @@ def strat3_shuffle_both(assignment, seed=0):
     return strat0_valid(assignment=assignment, pizzas=pizzas, team_sizes=team_sizes)
 
 
-def strat4_multiple_shuffle_both(assignment, n_shuffles):
+def strat4_multiple_shuffle_both(assignment, n_shuffles=10):
     best_score = 0
     best_solution = None
     for seed in range(n_shuffles):
         candidate_solution = strat3_shuffle_both(assignment=assignment, seed=seed)
-        if (candidate_score := calculate_score('b_little_bit_of_everything.in', None, candidate_solution)) > best_score:
+        candidate_score = calculate_score(assignment.file_in, None, candidate_solution)
+        if best_score is None or candidate_score > best_score:
             best_score = candidate_score
             best_solution = candidate_solution
     return best_solution
@@ -374,12 +376,43 @@ def create_out_file(output, file_out='temp.out'):
             file.write(f'{entry[0]} {" ".join([str(x) for x in entry[1]])}\n')
 
 
+def try_strategies_for_multiple_inputs():
+    files_in = [
+        'a_example',
+        'b_little_bit_of_everything.in',
+        'c_many_ingredients.in',
+        'd_many_pizzas.in',
+        'e_many_teams.in',
+    ]
+
+    strategies = [
+        strat0_valid,
+        strat1_shuffle,
+        strat2_multiple_shuffle,
+        strat3_shuffle_both,
+        strat4_multiple_shuffle_both,
+    ]
+
+    for i, file_in in enumerate(files_in):
+        assignment = read_assignment(file_in)
+        best_output, best_score = None, None
+        for j, strategy in enumerate(strategies):
+            output = strategy(assignment)
+            score = calculate_score(file_in, None, output)
+            print(f'{file_in=}, {strategy.__name__=}, {score=}')
+            if best_score is None or score > best_score:
+                best_score = score
+                best_output = output
+        create_out_file(best_output, file_out=f'{file_in}_{str(best_score)}')
+
+
 if __name__ == '__main__':
-    assignment = read_assignment("b_little_bit_of_everything.in")
+    try_strategies_for_multiple_inputs()
+
+    # assignment = read_assignment("b_little_bit_of_everything.in")
 
     # print(assignment.n_teams_four)
 
-    output = []
     # output = strategy_0(assignment)
     # output = strategy_0_1(assignment)
     # output = strategy_1(assignment)
@@ -392,9 +425,9 @@ if __name__ == '__main__':
     # output = strat1_shuffle(assignment)
     # output = strat2_multiple_shuffle(assignment, n_shuffles=1000)
     # output = strat3_shuffle_both(assignment)
-    output = strat4_multiple_shuffle_both(assignment, n_shuffles=10000)
+    # output = strat4_multiple_shuffle_both(assignment, n_shuffles=10000)
 
-    create_out_file(output)
-
-    the_score = calculate_score('b_little_bit_of_everything.in', 'temp.out')
-    print(f'{the_score=}')
+    # create_out_file(output)
+    #
+    # the_score = calculate_score('b_little_bit_of_everything.in', 'temp.out')
+    # print(f'{the_score=}')

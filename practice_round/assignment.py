@@ -9,12 +9,13 @@ class Pizza:
 
 
 class Assignment:
-    def __init__(self, n_pizzas, pizzas, n_teams_two, n_teams_three, n_teams_four):
+    def __init__(self, n_pizzas, pizzas, n_teams_two, n_teams_three, n_teams_four, file_in):
         self.n_pizzas = n_pizzas
         self.pizzas = pizzas
         self.n_teams_two = n_teams_two
         self.n_teams_three = n_teams_three
         self.n_teams_four = n_teams_four
+        self.file_in = file_in
 
     def __repr__(self):
         return f'{self.n_pizzas=} {self.n_teams_four=} {self.n_teams_three=} {self.n_teams_two=}'
@@ -45,7 +46,8 @@ def read_assignment(filename):
         pizzas=pizzas,
         n_teams_two=n_teams_two,
         n_teams_three=n_teams_three,
-        n_teams_four=n_teams_four
+        n_teams_four=n_teams_four,
+        file_in=filename
     )
 
 

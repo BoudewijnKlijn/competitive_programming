@@ -9,10 +9,10 @@ def calculate_score(in_file=None, out_file=None, out_data=None):
             pizzas.append(ingredients)
 
     total_score = 0
-    if out_data is None:
-        out_data = open(out_file).readlines()
+    if out_data is not None:
+        out_data = [len(out_data)] + [f'{entry[0]} {" ".join([str(x) for x in entry[1]])}' for entry in out_data]
     else:
-        out_data = [f'{entry[0]} {" ".join([str(x) for x in entry[1]])}' for entry in out_data]
+        out_data = open(out_file).readlines()
 
     for idx, line in enumerate(out_data):
         if idx == 0:
