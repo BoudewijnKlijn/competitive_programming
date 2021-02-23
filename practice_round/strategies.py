@@ -1,10 +1,79 @@
 import numpy as np
 
 from assignment import Pizza, Assignment, read_assignment
-from vqd.score import score
+from vqd.score import calculate_score
 
 from itertools import combinations
 from functools import lru_cache
+
+
+def default_team_order(assignment):
+    return [4] * assignment.n_teams_four + [3] * assignment.n_teams_three + [2] * assignment.n_teams_two
+
+
+def reverse_team_order(assignment):
+    return reversed(default_team_order(assignment))
+
+
+def default_pizza_order(assignment):
+    return assignment.pizzas.copy()
+
+
+def strat0_valid(assignment, pizzas=None, team_sizes=None):
+    orders = list()
+
+    if team_sizes is None:
+        team_sizes = default_pizza_order(assignment)
+
+    if pizzas is None:
+        pizzas = default_pizza_order(assignment)
+
+    for team_size in team_sizes:
+        if team_size > len(pizzas):
+            break
+        new_order = (team_size, [pizza.id for pizza in pizzas[:team_size]])
+        pizzas = pizzas[team_size:]
+        orders.append(new_order)
+
+    return orders
+
+
+def strat1_shuffle(assignment, seed=0):
+    np.random.seed(seed)
+    pizzas = assignment.pizzas.copy()
+    np.random.shuffle(pizzas)
+    return strat0_valid(assignment=assignment, pizzas=pizzas)
+
+
+def strat2_multiple_shuffle(assignment, n_shuffles):
+    best_score = 0
+    best_solution = None
+    for seed in range(n_shuffles):
+        candidate_solution = strat1_shuffle(assignment=assignment, seed=seed)
+        if (candidate_score := calculate_score('b_little_bit_of_everything.in', None, candidate_solution)) > best_score:
+            best_score = candidate_score
+            best_solution = candidate_solution
+    return best_solution
+
+
+def strat3_shuffle_both(assignment, seed=0):
+    np.random.seed(seed)
+    pizzas = assignment.pizzas.copy()
+    team_sizes = default_team_order(assignment)
+    np.random.shuffle(pizzas)
+    np.random.shuffle(team_sizes)
+    return strat0_valid(assignment=assignment, pizzas=pizzas, team_sizes=team_sizes)
+
+
+def strat4_multiple_shuffle_both(assignment, n_shuffles):
+    best_score = 0
+    best_solution = None
+    for seed in range(n_shuffles):
+        candidate_solution = strat3_shuffle_both(assignment=assignment, seed=seed)
+        if (candidate_score := calculate_score('b_little_bit_of_everything.in', None, candidate_solution)) > best_score:
+            best_score = candidate_score
+            best_solution = candidate_solution
+    return best_solution
 
 
 def strategy_0(assignment):
@@ -135,7 +204,7 @@ def strategy_1_2(problem):
 
             for entry in output:
                 file.write(f'{entry[0]} {" ".join([str(x) for x in entry[1]])}\n')
-        the_score = score('b_little_bit_of_everything.in', 'temp.out')
+        the_score = calculate_score('b_little_bit_of_everything.in', 'temp.out')
         scores.append((seed, the_score))
         print(f"{seed}: {the_score}")
 
@@ -316,9 +385,16 @@ if __name__ == '__main__':
     # output = strategy_1(assignment)
     # output = strategy_1_2(assignment)
     # output = strategy_2(assignment)
-    output = strategy_3(assignment)
+    # output = strategy_3(assignment)
+
+    # output = strat0_valid(assignment)
+    # output = strat0_valid(assignment)
+    # output = strat1_shuffle(assignment)
+    # output = strat2_multiple_shuffle(assignment, n_shuffles=1000)
+    # output = strat3_shuffle_both(assignment)
+    output = strat4_multiple_shuffle_both(assignment, n_shuffles=10000)
 
     create_out_file(output)
 
-    the_score = score('b_little_bit_of_everything.in', 'temp.out')
+    the_score = calculate_score('b_little_bit_of_everything.in', 'temp.out')
     print(f'{the_score=}')
