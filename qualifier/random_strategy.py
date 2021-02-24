@@ -18,7 +18,7 @@ class RandomStrategy(Strategy):
         for _ in range(self.tries):
             seed = self.random.randint(0, 1_000_000)
 
-            strategy = self._strategy()
+            strategy = self._strategy(seed=seed)
             result = strategy.solve(input)
             score = calculate_score(result)
             if score > best_score:
