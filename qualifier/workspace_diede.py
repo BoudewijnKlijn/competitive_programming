@@ -26,5 +26,5 @@ if __name__ == '__main__':
 
         case_name = os.path.splitext(file_name)[0]
 
-        file_name = f'marco_{score}_{case_name}.out'
+        file_name = f'{case_name}_{score:09}_diede.out'
         output.save(file_name)

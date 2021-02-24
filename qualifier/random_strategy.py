@@ -25,6 +25,7 @@ class RandomStrategy(Strategy):
                 best_score = score
                 best_seed = seed
                 best_result = result
+                result.save(f'intermediate_random_result_{score:09}.out')
 
         print(f""" Best seed: {best_seed}
         Best score: {best_score}
