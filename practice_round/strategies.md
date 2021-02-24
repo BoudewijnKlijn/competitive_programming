@@ -24,3 +24,7 @@ Simultaan vooruit combineren van 10 ofzo en de beste houden
 
 Func voor teams
 Func voor order pizzas
+
+maak random orders. gooi de slechtste (x of x% weg). bewaar de beste (overig). herhaal met resterende data.
+
+splits data in brokken. bepaal optimale oplossing voor gegeven data. (kan gebruikt worden voor kleinere dataset, bijvoorbeeld laatst 5-10% van input set.) combineer daarna met oplossing voor andere subsets. let op data combineren wel kan! (kan mogelijk niet door constraints) 
