@@ -1,4 +1,3 @@
-
 class Street:
 
     def __init__(self, begin, end, name, time):
@@ -46,7 +45,7 @@ class InputData:
         self.bonus = int(first_line_elements[4])
 
         # Read streets, and create intersections
-        self.streets = []
+        self.streets = dict()
         self.intersections = [Intersection(i) for i in range(self.n_intersections)]
 
         street_lines = lines[1:1 + self.n_streets]
@@ -60,7 +59,7 @@ class InputData:
                 name=line_elements[2],
                 time=int(line_elements[3]))
 
-            self.streets.append(street)
+            self.streets[street.name] = street
             self.intersections[begin_intersection].add_outgoing_street(street)
             self.intersections[end_intersection].add_incoming_street(street)
 
@@ -73,12 +72,8 @@ class InputData:
             line_elements = car_line.replace("\n", "").split(" ")
             self.cars.append(Car(
                 n_streets=int(line_elements[0]),
-                path=line_elements[1:]
+                path=[self.streets[street_name] for street_name in line_elements[1:]]
             ))
-
-
-
-
 
     # def get_data(self):
     #     return self.data
