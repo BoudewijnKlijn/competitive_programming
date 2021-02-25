@@ -48,7 +48,7 @@ class AtleastOneCar(Strategy):
         for intersection in input.intersections:
             trafic_lights = []
             for street in intersection.incoming_streets:
-                if street in streets_with_cars:
+                if street.name in streets_with_cars:
                     trafic_lights.append((street.name, 1))
             if len(trafic_lights):
                 schedule = Schedule(intersection.index, trafic_lights)
