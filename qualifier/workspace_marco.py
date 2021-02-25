@@ -38,13 +38,54 @@ class RandomPeriods(Strategy):
         return OutputData(schedules)
 
 
+class AtleastOneCar(Strategy):
+    def solve(self, input):
+
+        all_streets = [car.path for car in input.cars]
+        streets_with_cars = {item for sublist in all_streets for item in sublist}
+
+        schedules = []
+        for intersection in input.intersections:
+            trafic_lights = []
+            for street in intersection.incoming_streets:
+                if street.name in streets_with_cars:
+                    trafic_lights.append((street.name, 1))
+            if len(trafic_lights):
+                schedule = Schedule(intersection.index, trafic_lights)
+                schedules.append(schedule)
+
+        return OutputData(schedules)
+
+
+class CarsFirst(Strategy):
+    def solve(self, input: InputData) -> OutputData:
+        instersections = dict()
+
+        cars = input.cars
+        sorted(cars, key=lambda x: len(x.path))
+
+        for car in cars:
+            for street in car.path:
+                if street.end not in instersections:
+                    instersections[street.end] = [street.name]
+                else:
+                    if street.name not in instersections[street.end]:
+                        instersections[street.end] = instersections[street.end] + [street.name]
+
+        schedules = []
+        for intersection, streets in instersections.items():
+            schedule = Schedule(intersection, [(street, 1) for street in streets])
+            schedules.append(schedule)
+        return OutputData(schedules)
+
+
 if __name__ == '__main__':
 
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomPeriods(1993)  # RandomPeriods(strategy=RandomPeriods)
+        my_strategy = CarsFirst(1993)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
