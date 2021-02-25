@@ -14,6 +14,9 @@ class Car:
         self.path = path  # List of street names
         assert len(self.path) == self.n_streets
 
+    def get_total_time(self):
+        return sum(street.time for street in self.path)
+
 
 class Intersection:
 
