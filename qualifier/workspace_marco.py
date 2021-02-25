@@ -10,10 +10,15 @@ from qualifier.util import save_output
 THIS_PATH = os.path.realpath(__file__)
 
 
-class MyStrategy(Strategy):
+class RandomPeriods(Strategy):
 
     def solve(self, input):
-        return OutputData(input.data)
+        schedule
+
+        for intersection in input.intersections:
+            nr_of_input_streets = 3
+
+        return OutputData(input.intersections.counts(), )
 
 
 if __name__ == '__main__':
@@ -22,7 +27,7 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomStrategy(strategy=MyStrategy)
+        my_strategy = RandomStrategy(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
