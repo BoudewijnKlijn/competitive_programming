@@ -34,7 +34,20 @@ class RandomPeriods(Strategy):
         for intersection in input.intersections:
             trafic_lights = []
             for street in intersection.incoming_streets:
-                trafic_lights.append((street.name, self.random.randint(1, 3)))
+                trafic_lights.append((street.name, self.random.randint(1, 2)))
+            schedule = Schedule(intersection.index, trafic_lights)
+            schedules.append(schedule)
+
+        return OutputData(schedules)
+
+
+class RandomPeriodsx(Strategy):
+    def solve(self, input):
+        schedules = []
+        for intersection in input.intersections:
+            trafic_lights = []
+            for street in intersection.incoming_streets:
+                trafic_lights.append((street.name, self.random.randint(1, max(1, input.duration // 100))))
             schedule = Schedule(intersection.index, trafic_lights)
             schedules.append(schedule)
 
@@ -97,13 +110,13 @@ class BusyFirst(Strategy):
         def seconds(street):
             if counted[street] <= mean_value - std_value * 0:
                 return 1
-            if counted[street] <= mean_value + std_value * .25:
-                return 2
             if counted[street] <= mean_value + std_value * .5:
+                return 2
+            if counted[street] <= mean_value + std_value * .1:
                 return 3
-            if counted[street] <= mean_value + std_value * 1:
-                return 4
             if counted[street] <= mean_value + std_value * 2:
+                return 4
+            if counted[street] <= mean_value + std_value * 4:
                 return 5
             else:
                 return 6
@@ -135,10 +148,11 @@ class Eliot(Strategy):
 
         for street, count in priority.items():
             if street.end not in instersections:
-                instersections[street.end] = [(street.name, min(6, count))]
+                instersections[street.end] = [(street.name, min(input.duration, count))]
             else:
                 if street.name not in instersections[street.end]:
-                    instersections[street.end] = instersections[street.end] + [(street.name, min(6, count))]
+                    instersections[street.end] = instersections[street.end] + [
+                        (street.name, min(input.duration, count))]
 
         schedules = []
         for intersection, streets in instersections.items():
@@ -169,13 +183,79 @@ class CarsFirstBusyFirst(Strategy):
         return OutputData(schedules)
 
 
+class BusyFirstV2(Strategy):
+    def solve(self, input: InputData) -> OutputData:
+        all_streets = [car.path for car in input.cars]
+        all_streets = [item for sublist in all_streets for item in sublist]
+        counted = Counter(all_streets)
+        priority = {k: v for k, v in sorted(counted.items(), key=lambda item: item[1], reverse=True)}
+        values = list(priority.values())
+        mean_value = np.mean(values)
+        std_value = np.std(values)
+
+        streets_with_cars = {street.name for street in all_streets}
+
+        step_size = max(1, input.duration // input.n_cars)
+
+        def step(multiplier):
+            return min(input.duration, step_size * multiplier)
+
+        def seconds(street):
+            return int(max(1, step((counted[street] - mean_value) // std_value)))
+
+        schedules = []
+        for intersection in input.intersections:
+            trafic_lights = []
+            for street in intersection.incoming_streets:
+                if street.name in streets_with_cars:
+                    trafic_lights.append((street.name, seconds(street)))
+            if len(trafic_lights):
+                schedule = Schedule(intersection.index, trafic_lights)
+                schedules.append(schedule)
+
+        return OutputData(schedules)
+
+
+class BusyFirstV3(Strategy):
+    def solve(self, input: InputData) -> OutputData:
+        all_streets = [car.path for car in input.cars]
+        all_streets = [item for sublist in all_streets for item in sublist]
+        counted = Counter(all_streets)
+        priority = {k: v for k, v in sorted(counted.items(), key=lambda item: item[1], reverse=True)}
+        values = list(priority.values())
+        mean_value = np.mean(values)
+        std_value = np.std(values)
+
+        streets_with_cars = {street.name for street in all_streets}
+
+        def in_bounds(value):
+            return max(1, min(input.duration, value))
+
+        def seconds(street):
+            return in_bounds(counted[street] // (street.time * 10))
+
+        schedules = []
+        for intersection in input.intersections:
+            trafic_lights = []
+            for street in intersection.incoming_streets:
+                if street.name in streets_with_cars and counted[street] > 1:
+                    trafic_lights.append((street.name, seconds(street)))
+
+            if len([trafic_light for trafic_light in trafic_lights if trafic_light[1] > 0]):
+                schedule = Schedule(intersection.index,
+                                    [trafic_light for trafic_light in trafic_lights if trafic_light[1] > 0])
+                schedules.append(schedule)
+
+        return OutputData(schedules)
+
+
 if __name__ == '__main__':
 
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = Eliot(1993)  # RandomPeriods(strategy=RandomPeriods)
+        my_strategy = RandomPeriods(56756)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
