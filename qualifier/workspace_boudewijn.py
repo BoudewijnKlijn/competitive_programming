@@ -17,7 +17,7 @@ class MyStrategy(Strategy):
 
 if __name__ == '__main__':
 
-    directory = os.path.join(THIS_PATH, '../inputs')
+    directory = os.path.join('inputs')
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
