@@ -57,7 +57,7 @@ def calculate_score(input: InputData, solution: OutputData) -> int:
             car_location = car2location[car]
 
             # Car is already done
-            if car_location.sec_on_street < 1:
+            if car_location.sec_on_street < 0:
                 score += 1
             if car_location.sec_on_street == car_location.duration_current_street:
                 next_street = car_location.remaining_itinerary[0]
@@ -133,9 +133,6 @@ def get_initial_locations(input: InputData) -> Dict[Car, CarLocation]:
 
     return locations
 
-
-def get_end_intersection(street):
-    pass
 
 
 sample_input = InputData(
