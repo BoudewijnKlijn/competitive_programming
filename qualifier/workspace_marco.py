@@ -45,7 +45,7 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomPeriods(99)  # RandomPeriods(strategy=RandomPeriods)
+        my_strategy = RandomPeriods(199)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
