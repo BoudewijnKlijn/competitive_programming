@@ -95,16 +95,18 @@ class BusyFirst(Strategy):
         streets_with_cars = {street.name for street in all_streets}
 
         def seconds(street):
-            if counted[street] <= mean_value - std_value * 2:
-                return 0
-            if counted[street] <= mean_value:
+            if counted[street] <= mean_value - std_value * 0:
                 return 1
-            if counted[street] <= mean_value + std_value:
+            if counted[street] <= mean_value + std_value * .25:
                 return 2
-            if counted[street] <= mean_value + std_value * 3:
+            if counted[street] <= mean_value + std_value * .5:
                 return 3
-            else:
+            if counted[street] <= mean_value + std_value * 1:
                 return 4
+            if counted[street] <= mean_value + std_value * 2:
+                return 5
+            else:
+                return 6
 
             print('should not happen')
             return 1
@@ -119,6 +121,29 @@ class BusyFirst(Strategy):
                 schedule = Schedule(intersection.index, trafic_lights)
                 schedules.append(schedule)
 
+        return OutputData(schedules)
+
+
+class Eliot(Strategy):
+    def solve(self, input: InputData) -> OutputData:
+        all_streets = [car.path for car in input.cars]
+        all_streets = [item for sublist in all_streets for item in sublist]
+        counted = Counter(all_streets)
+        priority = {k: v for k, v in sorted(counted.items(), key=lambda item: item[1], reverse=True)}
+
+        instersections = dict()
+
+        for street, count in priority.items():
+            if street.end not in instersections:
+                instersections[street.end] = [(street.name, min(6, count))]
+            else:
+                if street.name not in instersections[street.end]:
+                    instersections[street.end] = instersections[street.end] + [(street.name, min(6, count))]
+
+        schedules = []
+        for intersection, streets in instersections.items():
+            schedule = Schedule(intersection, [(street[0], street[1]) for street in streets])
+            schedules.append(schedule)
         return OutputData(schedules)
 
 
@@ -150,10 +175,10 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = BusyFirst(1993)  # RandomPeriods(strategy=RandomPeriods)
+        my_strategy = Eliot(1993)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
-        score = calculate_score(input_data, output)
+        score = 0  # score = calculate_score(input_data, output)
 
         save_output(output, file_name, score, 'marco')
