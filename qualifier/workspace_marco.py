@@ -95,8 +95,8 @@ class BusyFirst(Strategy):
         streets_with_cars = {street.name for street in all_streets}
 
         def seconds(street):
-            if counted[street] <= mean_value - std_value:
-                return 1
+            if counted[street] <= mean_value - std_value * 2:
+                return 0
             if counted[street] <= mean_value:
                 return 1
             if counted[street] <= mean_value + std_value:
@@ -154,6 +154,6 @@ if __name__ == '__main__':
 
         output = my_strategy.solve(input_data)
 
-        score = calculate_score(output)
+        score = calculate_score(input_data, output)
 
         save_output(output, file_name, score, 'marco')

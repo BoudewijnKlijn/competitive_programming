@@ -6,14 +6,14 @@ from qualifier.schedule import Schedule
 
 class CarLocation:
     def __init__(
-        self,
-        current_start_intersection: int,
-        current_end_intersection: int,
-        current_street: str,
-        sec_on_street: int,
-        duration_current_street: int,
-        remaining_itinerary: List[str],
-        moving: bool = False,
+            self,
+            current_start_intersection: int,
+            current_end_intersection: int,
+            current_street: str,
+            sec_on_street: int,
+            duration_current_street: int,
+            remaining_itinerary: List[str],
+            moving: bool = False,
     ):
         self.current_start_intersection = current_start_intersection
         self.current_end_intersection = current_end_intersection
@@ -109,7 +109,6 @@ def calculate_score(input: InputData, solution: OutputData) -> int:
 def get_initial_locations(input: InputData) -> Dict[Car, CarLocation]:
     locations = dict()
     for car in input.cars:
-
         first_street = car.path[0]
         start_intersection = first_street.begin
 
@@ -134,16 +133,16 @@ def get_initial_locations(input: InputData) -> Dict[Car, CarLocation]:
     return locations
 
 
+if __name__ == "__main__":
+    sample_input = InputData(
+        "/Users/mathijs/Documents/code/2021-google-hash-code/qualifier/inputs/a.txt"
+    )
 
-sample_input = InputData(
-    "/Users/mathijs/Documents/code/2021-google-hash-code/qualifier/inputs/a.txt"
-)
-
-schedules = [
-    Schedule(intersection=1, street_duration_tuples=[("rue-d-athenes", 2)]),
-    Schedule(intersection=0, street_duration_tuples=[("rue-de-londres", 2)]),
-    Schedule(intersection=2, street_duration_tuples=[("rue-de-moscou", 1)])
-]
-sample_output = OutputData(schedules=schedules)
-s = calculate_score(sample_input, sample_output)
-print(s)
+    schedules = [
+        Schedule(intersection=1, street_duration_tuples=[("rue-d-athenes", 2)]),
+        Schedule(intersection=0, street_duration_tuples=[("rue-de-londres", 2)]),
+        Schedule(intersection=2, street_duration_tuples=[("rue-de-moscou", 1)])
+    ]
+    sample_output = OutputData(schedules=schedules)
+    s = calculate_score(sample_input, sample_output)
+    print(s)
