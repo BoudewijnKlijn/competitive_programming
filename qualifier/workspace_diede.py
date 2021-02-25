@@ -7,9 +7,6 @@ from qualifier.strategy import Strategy
 from qualifier.util import save_output
 
 
-
-
-
 class MyStrategy(Strategy):
 
     def solve(self, input):
@@ -22,12 +19,10 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
+        my_strategy = MyStrategy()
 
-        print("hoi")
-        # my_strategy = MyStrategy()
-        #
-        # output = my_strategy.solve(input_data)
-        #
-        # score = calculate_score(output)
-        #
-        # save_output(output, file_name, score, 'diede')
+        output = my_strategy.solve(input_data)
+
+        score = calculate_score(output)
+
+        save_output(output, file_name, score, 'diede')

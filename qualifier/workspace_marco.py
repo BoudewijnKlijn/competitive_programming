@@ -10,16 +10,29 @@ from qualifier.util import save_output
 THIS_PATH = os.path.realpath(__file__)
 
 
-class RandomPeriods(Strategy):
+class FixedPeriods(Strategy):
 
     def solve(self, input):
-
         schedules = []
-        for intersection in range(input.n_intersections):
+        for intersection in input.intersections:
             trafic_lights = []
-            for street in input.streets:
+            for street in intersection.outgoing_streets:
                 if street.end == intersection:
                     trafic_lights.append((street.name, 1))
+            schedule = Schedule(intersection, trafic_lights)
+            schedules.append(schedule)
+
+        return OutputData(schedules)
+
+
+class RandomPeriods(Strategy):
+    def solve(self, input):
+        schedules = []
+        for intersection in input.intersections:
+            trafic_lights = []
+            for street in intersection.outgoing_streets:
+                if street.end == intersection:
+                    trafic_lights.append((street.name, self.random.randint(1, 3)))
             schedule = Schedule(intersection, trafic_lights)
             schedules.append(schedule)
 
@@ -32,7 +45,7 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomPeriods(27)  # RandomPeriods(strategy=RandomPeriods)
+        my_strategy = RandomPeriods(199)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 

@@ -16,6 +16,20 @@ class Car:
         assert len(self.path) == self.n_streets
 
 
+class Intersection:
+
+    def __init__(self, index):
+        self.index = index  # The index of this intersection
+        self.incoming_streets = set()
+        self.outgoing_streets = set()
+
+    def add_incoming_street(self, street):
+        self.incoming_streets.add(street)
+
+    def add_outgoing_street(self, street):
+        self.outgoing_streets.add(street)
+
+
 class InputData:
 
     def __init__(self, filename: str):
@@ -31,17 +45,25 @@ class InputData:
         # bonus = the bonus points per car who reaches its destination within duration of simulation
         self.bonus = int(first_line_elements[4])
 
-        # Read streets
+        # Read streets, and create intersections
         self.streets = []
+        self.intersections = [Intersection(i) for i in range(self.n_intersections)]
+
         street_lines = lines[1:1 + self.n_streets]
         for street_line in street_lines:
             line_elements = street_line.split(" ")
-            self.streets.append(Street(
-                begin=int(line_elements[0]),
-                end=int(line_elements[1]),
+            begin_intersection = int(line_elements[0])
+            end_intersection = int(line_elements[1])
+            street = Street(
+                begin=begin_intersection,
+                end=end_intersection,
                 name=line_elements[2],
-                time=int(line_elements[3])),
-            )
+                time=int(line_elements[3]))
+
+            self.streets.append(street)
+            self.intersections[begin_intersection].add_outgoing_street(street)
+            self.intersections[end_intersection].add_incoming_street(street)
+
         assert len(self.streets) == self.n_streets
 
         # Read cars
@@ -53,6 +75,9 @@ class InputData:
                 n_streets=int(line_elements[0]),
                 path=line_elements[1:]
             ))
+
+
+
 
 
     # def get_data(self):
