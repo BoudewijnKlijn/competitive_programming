@@ -6,8 +6,6 @@ from qualifier.output_data import OutputData
 from qualifier.strategy import Strategy
 from qualifier.util import save_output
 
-THIS_PATH = os.path.realpath(__file__)
-
 
 class MyStrategy(Strategy):
 
@@ -17,7 +15,7 @@ class MyStrategy(Strategy):
 
 if __name__ == '__main__':
 
-    directory = os.path.join(THIS_PATH, '../inputs')
+    directory = os.path.join('inputs')
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
