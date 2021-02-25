@@ -30,7 +30,7 @@ class RandomPeriods(Strategy):
         schedules = []
         for intersection in input.intersections:
             trafic_lights = []
-            for street in intersection.outgoing_streets:
+            for street in intersection.incoming_streets:
                 trafic_lights.append((street.name, self.random.randint(1, 3)))
             schedule = Schedule(intersection.index, trafic_lights)
             schedules.append(schedule)
