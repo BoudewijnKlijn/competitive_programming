@@ -6,4 +6,4 @@ class Schedule:
     def __str__(self):
         text = f'{self.intersection}\n{self.street_duration_tuples.count()}\n'
         for street in self.street_duration_tuples:
-            text += f'{street[0]} {street[1]}'
+            text += f'{street[0]} {street[1]}\n'
