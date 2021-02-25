@@ -3,8 +3,8 @@ import os
 from qualifier.calculate_score import calculate_score
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
+from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy
-from qualifier.random_strategy import RandomStrategy
 from qualifier.util import save_output
 
 THIS_PATH = os.path.realpath(__file__)
@@ -13,12 +13,17 @@ THIS_PATH = os.path.realpath(__file__)
 class RandomPeriods(Strategy):
 
     def solve(self, input):
-        schedule
 
-        for intersection in input.intersections:
-            nr_of_input_streets = 3
+        schedules = []
+        for intersection in range(input.n_intersections):
+            trafic_lights = []
+            for street in input.streets:
+                if street.end == intersection:
+                    trafic_lights.append((street.name, 1))
+            schedule = Schedule(intersection, trafic_lights)
+            schedules.append(schedule)
 
-        return OutputData(input.intersections.counts(), )
+        return OutputData(schedules)
 
 
 if __name__ == '__main__':
@@ -27,7 +32,7 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomStrategy(strategy=RandomPeriods)
+        my_strategy = RandomPeriods(27)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
