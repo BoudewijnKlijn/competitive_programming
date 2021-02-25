@@ -37,7 +37,7 @@ class InputData:
             lines = file.readlines()
 
         # Read properties of problem
-        first_line_elements = lines[0].split(" ")
+        first_line_elements = lines[0].replace("\n", "").split(" ")
         self.duration = int(first_line_elements[0])  # Duration of the simulation
         self.n_intersections = int(first_line_elements[1])
         self.n_streets = int(first_line_elements[2])
@@ -51,7 +51,7 @@ class InputData:
 
         street_lines = lines[1:1 + self.n_streets]
         for street_line in street_lines:
-            line_elements = street_line.split(" ")
+            line_elements = street_line.replace("\n", "").split(" ")
             begin_intersection = int(line_elements[0])
             end_intersection = int(line_elements[1])
             street = Street(
@@ -70,7 +70,7 @@ class InputData:
         self.cars = []
         car_lines = lines[1 + self.n_streets:]
         for car_line in car_lines:
-            line_elements = car_line.split(" ")
+            line_elements = car_line.replace("\n", "").split(" ")
             self.cars.append(Car(
                 n_streets=int(line_elements[0]),
                 path=line_elements[1:]
