@@ -31,9 +31,8 @@ class RandomPeriods(Strategy):
         for intersection in input.intersections:
             trafic_lights = []
             for street in intersection.outgoing_streets:
-                if street.end == intersection:
-                    trafic_lights.append((street.name, self.random.randint(1, 3)))
-            schedule = Schedule(intersection, trafic_lights)
+                trafic_lights.append((street.name, self.random.randint(1, 3)))
+            schedule = Schedule(intersection.index, trafic_lights)
             schedules.append(schedule)
 
         return OutputData(schedules)
@@ -45,7 +44,7 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomPeriods(199)  # RandomPeriods(strategy=RandomPeriods)
+        my_strategy = RandomPeriods(1993)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
