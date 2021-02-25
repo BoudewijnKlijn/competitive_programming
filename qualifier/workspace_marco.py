@@ -95,13 +95,15 @@ class BusyFirst(Strategy):
         streets_with_cars = {street.name for street in all_streets}
 
         def seconds(street):
-            if counted[street] < mean_value - std_value:
+            if counted[street] <= mean_value - std_value:
                 return 1
             if counted[street] <= mean_value:
                 return 1
-            if counted[street] > mean_value:
+            if counted[street] <= mean_value + std_value:
+                return 2
+            if counted[street] <= mean_value + std_value * 3:
                 return 3
-            if counted[street] > mean_value + std_value:
+            else:
                 return 4
 
             print('should not happen')
@@ -117,6 +119,28 @@ class BusyFirst(Strategy):
                 schedule = Schedule(intersection.index, trafic_lights)
                 schedules.append(schedule)
 
+        return OutputData(schedules)
+
+
+class CarsFirstBusyFirst(Strategy):
+    def solve(self, input: InputData) -> OutputData:
+        instersections = dict()
+
+        cars = input.cars
+        sorted(cars, key=lambda car_: sum([street_.time for street_ in car_.path]))
+
+        for car in cars:
+            for street in car.path:
+                if street.end not in instersections:
+                    instersections[street.end] = [street.name]
+                else:
+                    if street.name not in instersections[street.end]:
+                        instersections[street.end] = instersections[street.end] + [street.name]
+
+        schedules = []
+        for intersection, streets in instersections.items():
+            schedule = Schedule(intersection, [(street, 1) for street in streets])
+            schedules.append(schedule)
         return OutputData(schedules)
 
 
