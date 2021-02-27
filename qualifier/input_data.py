@@ -52,7 +52,7 @@ class InputData:
 
         # Read streets, and create intersections
         self.streets = OrderedDict()
-        self.intersections = [Intersection(i) for i in range(self.n_intersections)]
+        self.intersections = tuple([Intersection(i) for i in range(self.n_intersections)])
 
         street_lines = lines[1:1 + self.n_streets]
         for street_line in street_lines:
@@ -72,14 +72,13 @@ class InputData:
         assert len(self.streets) == self.n_streets
 
         # Read cars
-        self.cars = []
+        cars = []
         car_lines = lines[1 + self.n_streets:]
         for car_line in car_lines:
             line_elements = car_line.replace("\n", "").split(" ")
-            self.cars.append(Car(
+            cars.append(Car(
                 n_streets=int(line_elements[0]),
                 path=[self.streets[street_name] for street_name in line_elements[1:]]
             ))
 
-    # def get_data(self):
-    #     return self.data
+        self.cars = tuple(cars)

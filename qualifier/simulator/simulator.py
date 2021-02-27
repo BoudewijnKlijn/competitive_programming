@@ -8,10 +8,10 @@ from qualifier.simulator.simulator_street import SimulatorStreet
 
 
 class Simulator:
-    def __init__(self, input_data: InputData, output_data: OutputData, verbose=False):
+    def __init__(self, input_data: InputData, output_data: OutputData, verbose: int = 0):
         """
 
-        :type verbose: object
+        :type verbose: 0 = nothing, 1=progress bar, 2= debug output
         """
         self.output_data = output_data
         self.input_data = input_data
@@ -44,7 +44,7 @@ class Simulator:
                 self.intersections.pop(intersection.intersection_number)
 
     def log(self, message: str):
-        if self.verbose:
+        if self.verbose >= 2:
             print(message)
 
     def _score(self, cars):
@@ -54,8 +54,12 @@ class Simulator:
             self.score += score
 
     def run(self) -> int:
-        for _ in tqdm(range(self.input_data.duration)):
-            self._execute_timestep()
+        if self.verbose == 1:
+            for _ in tqdm(range(self.input_data.duration)):
+                self._execute_timestep()
+        else:
+            for _ in range(self.input_data.duration):
+                self._execute_timestep()
 
         # I'm not checking yet if they arrive at their destination in their last move...
         # may need to move them a full 1 step when they move from an intersection on to the next road

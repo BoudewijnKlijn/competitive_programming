@@ -1,11 +1,15 @@
 import os
+from datetime import datetime
+import random
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
-from qualifier.random_strategy import RandomStrategy
 from qualifier.schedule import Schedule
 from qualifier.simulator.simulator import Simulator
+from qualifier.strategies.evolution_strategy import EvolutionStrategy
+from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
+from qualifier.submit import zip_submission
 from qualifier.util import save_output
 
 from collections import Counter
@@ -36,26 +40,6 @@ class RandomPeriods(Strategy):
             for street in intersection.incoming_streets:
                 trafic_lights.append((street.name, self.random.randint(1, 3)))
             schedule = Schedule(intersection.index, trafic_lights)
-            schedules.append(schedule)
-
-        return OutputData(schedules)
-
-
-class SmartRandom(Strategy):
-
-    def solve(self, input_data):
-        all_streets = [car.path for car in input_data.cars]
-        streets_with_cars = {item for sublist in all_streets for item in sublist}
-
-        schedules = []
-        for intersection in input_data.intersections:
-            traffic_lights = []
-            incoming_streets = list(intersection.incoming_streets)
-            self.random.shuffle(incoming_streets)
-            for street in incoming_streets:
-                if street in streets_with_cars:
-                    traffic_lights.append((street.name, self.random.randint(1, 3)))
-            schedule = Schedule(intersection.index, traffic_lights)
             schedules.append(schedule)
 
         return OutputData(schedules)
@@ -269,41 +253,44 @@ class BusyFirstV3(Strategy):
         return OutputData(schedules)
 
 
-class EvolutionStrategy(Strategy):
-    def solve(self, input_data: InputData):
-        solution_parent = RandomPeriods(27).solve(input_data)
-
-
 if __name__ == '__main__':
 
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
         if file_name in [
-            # 'a.txt', # instant
-            # 'b.txt',  # 26s
-            # 'c.txt',  # 17s
-            # 'd.txt',  # 2m09s
-            # 'e.txt', # instant
-            # 'f.txt',  # 4s
+            # 'a.txt',  # instant
+            'b.txt',  # 26s
+            'c.txt',  # 17s
+            'd.txt',  # 2m09s
+            'e.txt',  # instant
+            'f.txt',  # 4s
         ]:
             continue
+
+        start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
         # my_strategy = RandomStrategy(SmartRandom, tries=5)
-        my_strategy = SmartRandom()
+        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=1)
+        my_strategy = EvolutionStrategy(seed=27,
+                                        generations=10,
+                                        children_per_parent=10,
+                                        survivor_count=20
+                                        )
 
         output = my_strategy.solve(input_data)
 
-        simulator = Simulator(input_data, output, verbose=False)
+        simulator = Simulator(input_data, output, verbose=0)
         score = simulator.run()
+        duration = datetime.now() - start_time
 
-        print(f"""*** {file_name} ***
-Score:        {score} 
---------------------------------        
-Bonus value: {input_data.bonus}
-cars: {input_data.n_cars}
-duration: {input_data.duration}
-theo max: {input_data.n_cars * input_data.bonus} + {input_data.n_cars * input_data.duration} =  {input_data.n_cars * (input_data.duration + input_data.bonus)}
+        print(f"""
+---------- {file_name} ---------- ({duration.seconds} seconds)
+Score:  {score} 
+                                   Bonus value: {input_data.bonus} cars: {input_data.n_cars} duration: {input_data.duration} *theoretic max: {input_data.n_cars * input_data.bonus} + {input_data.n_cars * input_data.duration} =  {input_data.n_cars * (input_data.duration + input_data.bonus)}
+----------------------------------------------------------     
 """)
 
         save_output(output, file_name, score, 'marco')
+
+    zip_submission()
