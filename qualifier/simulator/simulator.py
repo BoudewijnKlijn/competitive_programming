@@ -1,138 +1,14 @@
-from collections import deque
-from typing import List
-
-from qualifier.input_data import InputData, Intersection, Street
+from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
-from qualifier.schedule import Schedule
 from tqdm import tqdm
 
-
-class RangeDict(dict):
-    def __getitem__(self, item):
-        if not isinstance(item, range):
-            for key in self:
-                if item in key:
-                    return self[key]
-            raise KeyError(item)
-        else:
-            return super().__getitem__(item)
-
-
-class SimulatorSchedule:
-    def __init__(self):
-        self.street_names = []
-        self.street_schedule = []
-
-    def append(self, street_name, seconds):
-        self.street_names.append(street_name)
-        index = len(self.street_names) - 1
-        self.street_schedule += [index] * seconds
-
-    def __getitem__(self, item):
-        return self.street_names[self.street_schedule[item]]
-
-
-class SimulatorCar:
-    def __init__(self, path: List[Street]):
-        self.path = path
-        self.name = f'{path[0].name} to {path[-1].name}'
-
-    def __str__(self):
-        return self.name
-
-
-class SimulatorStreet:
-    def __init__(self, exit_intersection: int, length: int, name: str):
-        self.length = length
-        self.exit_intersection = exit_intersection
-        self.has_green = False
-        self.cars = deque()
-        self.name = name
-
-    def add_car(self, car, at_traffic_light=False):
-        car.path = car.path[1:]  # remove current street
-
-        if at_traffic_light:
-            self.cars.append((car, 0))
-        else:
-            self.cars.append((car, self.length))  # car's can move 1 step when they move on to it.
-
-    def set_green_light(self, green: bool):
-        self.has_green = green
-
-    def execute_timestep(self) -> (List[SimulatorCar], SimulatorCar):
-        # move all cars 1 step closer to the traffic light
-        for i, car in enumerate(self.cars):
-            self.cars[i] = (car[0], max(0, car[1] - 1))
-
-        destination_reached = []
-        for car in self.cars:
-            if car[1] == 0 and len(car[0].path) == 0:
-                destination_reached.append(car)
-        for car in destination_reached:
-            self.cars.remove(car)
-
-        if self.has_green:
-            if self.cars and self.cars[0][1] == 0:
-                leaving_car = self.cars.popleft()[0]
-            else:
-                leaving_car = None
-            return destination_reached, leaving_car
-        else:
-            return destination_reached, None
-
-    def __str__(self):
-        return self.name
-
-
-class SimulatorIntersection:
-    def __init__(self, intersection: Intersection, streets: List[SimulatorStreet]):
-        self.intersection = intersection
-        self.schedule = None
-        self.schedule = None
-        self.streets = []
-        self.schedule_duration = None
-        self.actual_streets = {street.name: street for street in streets}
-        self.green = None
-
-    # def add_schedule(self, schedule: Schedule):
-    #       self.schedule = RangeDict()
-    #     start = 0
-    #     end = 0
-    #     for street, duration in schedule.street_duration_tuples:
-    #         if duration > 0:
-    #             end = start + duration
-    #             self.schedule[range(start, end)] = street
-    #             start = end
-    #             self.streets.append(street)
-    #         else:
-    #             self.streets.append(street)  # permanent red lights
-    #
-    #     self.schedule_duration = end
-    def add_schedule(self, schedule: Schedule):
-        self.schedule = SimulatorSchedule()
-        for street, duration in schedule.street_duration_tuples:
-            self.schedule.append(street, duration)
-
-        self.schedule_duration = len(self.schedule.street_schedule)
-
-    def is_green(self, street, time):
-        return street == self.schedule[time % self.schedule_duration]
-
-    def get_green(self, time):
-        return self.schedule[time % self.schedule_duration]
-
-    def execute_timestep(self, time):
-        green = self.get_green(time)
-
-        if self.green:
-            self.actual_streets[self.green].set_green_light(False)
-        self.actual_streets[green].set_green_light(True)
-        self.green = green
+from qualifier.simulator.simulator_car import SimulatorCar
+from qualifier.simulator.simulator_intersection import SimulatorIntersection
+from qualifier.simulator.simulator_street import SimulatorStreet
 
 
 class Simulator:
-    def __init__(self, input_data: InputData, output_data: OutputData, verbose=True):
+    def __init__(self, input_data: InputData, output_data: OutputData, verbose=False):
         """
 
         :type verbose: object
@@ -156,11 +32,16 @@ class Simulator:
 
         for car in input_data.cars:
             starting_street = car.path[0]
-            simulator_car = SimulatorCar(car.path)
+            simulator_car = SimulatorCar([self.streets[street.name] for street in car.path])
             self.streets[starting_street.name].add_car(simulator_car, at_traffic_light=True)
 
         for schedule in output_data.schedules:
             self.intersections[schedule.intersection].add_schedule(schedule)
+
+        # clean intersections with only red lights
+        for intersection in list(self.intersections.values()):
+            if len(intersection.schedule) == 0:
+                self.intersections.pop(intersection.intersection_number)
 
     def log(self, message: str):
         if self.verbose:
@@ -211,4 +92,4 @@ class Simulator:
         for car in moving:
             self.log(f'(time: {self.time}) {car}:\n\t\tmoving onto {car.path[0].name}')
             street = car.path[0]
-            self.streets[street.name].add_car(car)
+            street.add_car(car)
