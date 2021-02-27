@@ -1,9 +1,9 @@
 import os
 
-from qualifier.calculate_score import calculate_score
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
+from qualifier.simulator.simulator import Simulator
 from qualifier.strategy import Strategy
 from qualifier.util import save_output
 
@@ -19,10 +19,9 @@ class FixedPeriods(Strategy):
         schedules = []
         for intersection in input.intersections:
             trafic_lights = []
-            for street in intersection.outgoing_streets:
-                if street.end == intersection:
-                    trafic_lights.append((street.name, 1))
-            schedule = Schedule(intersection, trafic_lights)
+            for street in intersection.incoming_streets:
+                trafic_lights.append((street.name, 1))
+            schedule = Schedule(intersection.index, trafic_lights)
             schedules.append(schedule)
 
         return OutputData(schedules)
@@ -255,10 +254,18 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomPeriods(56756)  # RandomPeriods(strategy=RandomPeriods)
+        my_strategy = FixedPeriods(56756)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
-        score = 0  # score = calculate_score(input_data, output)
+        simulator = Simulator(input_data, output, verbose=False)
+        score = simulator.run()
+        print(f"""Score: {score} 
+--------------------------------        
+Bonus value: {input_data.bonus}
+cars: {input_data.n_cars}
+duration: {input_data.duration}
+theo max: {input_data.n_cars * (input_data.duration + input_data.bonus)}
+""")
 
         save_output(output, file_name, score, 'marco')
