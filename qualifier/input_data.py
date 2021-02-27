@@ -1,3 +1,6 @@
+from collections import OrderedDict
+
+
 class Street:
 
     def __init__(self, begin, end, name, time):
@@ -48,7 +51,7 @@ class InputData:
         self.bonus = int(first_line_elements[4])
 
         # Read streets, and create intersections
-        self.streets = dict()
+        self.streets = OrderedDict()
         self.intersections = [Intersection(i) for i in range(self.n_intersections)]
 
         street_lines = lines[1:1 + self.n_streets]

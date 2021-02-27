@@ -252,15 +252,26 @@ if __name__ == '__main__':
 
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
+        if file_name in [
+            # 'a.txt',
+            'b.txt',
+            'c.txt',
+            'd.txt',
+            'e.txt',
+            'f.txt',
+        ]:
+            continue
         input_data = InputData(os.path.join(directory, file_name))
 
         my_strategy = FixedPeriods(56756)  # RandomPeriods(strategy=RandomPeriods)
 
         output = my_strategy.solve(input_data)
 
-        simulator = Simulator(input_data, output, verbose=False)
+        simulator = Simulator(input_data, output, verbose=True)
         score = simulator.run()
-        print(f"""Score: {score} 
+
+        print(f"""*** {file_name} ***
+Score:        {score} 
 --------------------------------        
 Bonus value: {input_data.bonus}
 cars: {input_data.n_cars}
