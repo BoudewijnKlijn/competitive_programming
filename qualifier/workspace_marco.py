@@ -258,11 +258,11 @@ if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
         if file_name in [
-            # 'a.txt',  # instant
+            'a.txt',  # instant
             'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
-            'e.txt',  # instant
+            # 'e.txt',  # instant
             'f.txt',  # 4s
         ]:
             continue
@@ -272,9 +272,9 @@ if __name__ == '__main__':
 
         # my_strategy = RandomStrategy(SmartRandom, tries=5)
         # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=1)
-        my_strategy = EvolutionStrategy(seed=99,
+        my_strategy = EvolutionStrategy(seed=27,
                                         generations=10,
-                                        children_per_parent=10,
+                                        children_per_parent=4,
                                         survivor_count=20
                                         )
 

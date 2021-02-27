@@ -116,7 +116,14 @@ class EvolutionStrategy(Strategy):
                 child_of_bob_and_alice = self._mutate(child_of_bob_and_alice)
                 children.append(child_of_bob_and_alice)
 
-        # score children and let the best x survive
+        # score children 
+
+        # this we can paralelize with a few tweaks once we are happy with the bug free! algo...
+        # from multiprocessing import Pool
+        # # simulator = Simulator()
+        # with Pool(5) as p:
+        #     print(p.map(simulator.run, children))
+
         new_solutions = []
         for child in children:
             new_solutions.append(
