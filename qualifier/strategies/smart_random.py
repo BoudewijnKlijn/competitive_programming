@@ -24,4 +24,4 @@ class SmartRandom(Strategy):
             schedule = Schedule(intersection.index, traffic_lights)
             schedules.append(schedule)
 
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))

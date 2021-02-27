@@ -1,4 +1,3 @@
-from collections import namedtuple
 from typing import List, Tuple
 
 from qualifier.input_data import InputData
@@ -10,17 +9,15 @@ from qualifier.strategy import Strategy
 
 
 class Solution:
-    def __init__(self, output: OutputData, score: int):
+    def __init__(self, schedules: Tuple[Schedule], score: int):
         self.score = score
-        self.output = output
+        self.schedules = schedules
         self.score_id = id(score)
-        self.output_id = id(output)
-        self.schedules_id = id(self.output.schedules)
+        self.schedules_id = id(self.schedules)
 
     def valid(self):
         return self.score_id == id(self.score) and \
-               self.output_id == id(self.output) and \
-               self.schedules_id == id(self.output.schedules)
+               self.schedules_id == id(self.schedules)
 
 
 class EvolutionStrategy(Strategy):
@@ -37,7 +34,7 @@ class EvolutionStrategy(Strategy):
         for _ in range(2):
             random_solution = SmartRandom(self.random.randint(0, 100), max_duration=3).solve(input_data)
             score = Simulator(input_data=self.input_data, output_data=random_solution).run()
-            parents.append(Solution(random_solution, score))
+            parents.append(Solution(random_solution.schedules, score))
 
         current_generation = parents
         for genration in range(self.generations):
@@ -51,31 +48,31 @@ class EvolutionStrategy(Strategy):
             current_generation += new_generation
             current_generation.sort(key=lambda solution: solution.score, reverse=True)
             current_generation = current_generation[:self.survivor_count]
-            print(f'scores: {[x.score for x in current_generation]}')
+            # print(f'scores: {[x.score for x in current_generation]}')
 
         # for sol in current_generation:
         #     print(Simulator(input_data=self.input_data, output_data=sol.output).run())
 
         if not current_generation[0].valid():
             raise ValueError('Somebody mutated me!')
-        else:
-            print(f'Valid: {current_generation[0].score} {type(current_generation[0].output.schedules)}')
+        # else:
+        #     print(f'Valid: {current_generation[0].score} {type(current_generation[0].schedules)}')
 
-        return current_generation[0].output
+        return OutputData(current_generation[0].schedules)
 
     def _rnd_index(self, a_list):
         return self.random.randint(0, len(a_list) - 1)
 
-    def _mutate(self, schedules: Tuple[Schedule]):
+    def _mutate(self, schedules: List[Schedule]) -> Tuple[Schedule]:
 
         schedules = list(schedules)  # I have a bug somewhere... this is inefficient...
 
         def add_duration(intersection, street, value):
-            old_schedule = schedules[intersection].street_duration_tuples[street]
-            new_value = old_schedule[1] + value
+            schedules[intersection] = schedules[intersection].copy()
+            old_street = schedules[intersection].street_duration_tuples[street]
+            new_value = old_street[1] + value
             new_value = min(self.input_data.duration, max(1, new_value))
-            new_schedule = (old_schedule[0], new_value)
-            schedules[intersection].street_duration_tuples[street] = new_schedule
+            schedules[intersection].street_duration_tuples[street] = (old_street[0], new_value)
 
         trait = self.random.randint(0, 2)
         if trait == 0:
@@ -105,19 +102,19 @@ class EvolutionStrategy(Strategy):
 
         # random select intersections of each to create children
         for parent_alice, parent_bob in couples:
-            alice = list(parent_alice.output.schedules)  # searching for the bug
+            alice = list(parent_alice.schedules)  # searching for the bug
 
             gene_count = len(alice)
             gene_indexes = list(range(gene_count))
             for _ in range(children_per_parent):
-                child_of_bob_and_alice = list(parent_bob.output.schedules)  # makes a copy of the tuple
+                child_of_bob_and_alice = list(parent_bob.schedules)  # makes a copy of the tuple
                 alice_genes = self.random.sample(gene_indexes, gene_count // 2)
                 for gene in alice_genes:
                     child_of_bob_and_alice[gene] = alice[gene]
 
-                # add x mutations to each child
-                child_of_bob_and_alice = self._mutate(tuple(child_of_bob_and_alice))
-                children.append(OutputData(child_of_bob_and_alice))
+                # add 1 mutations to each child
+                child_of_bob_and_alice = self._mutate(child_of_bob_and_alice)
+                children.append(child_of_bob_and_alice)
 
         # score children and let the best x survive
         new_solutions = []
@@ -125,8 +122,8 @@ class EvolutionStrategy(Strategy):
             new_solutions.append(
                 Solution(
                     child,
-                    Simulator(input_data=self.input_data, output_data=child).run()))
+                    Simulator(input_data=self.input_data, output_data=OutputData(child)).run()))
 
-        for sol in new_solutions:
-            print(Simulator(input_data=self.input_data, output_data=sol.output).run())
+        # for sol in new_solutions:
+        #     print(Simulator(input_data=self.input_data, output_data=OutputData(sol.schedules)).run())
         return new_solutions

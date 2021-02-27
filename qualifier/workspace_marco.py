@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
         # my_strategy = RandomStrategy(SmartRandom, tries=5)
         # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=1)
-        my_strategy = EvolutionStrategy(seed=27,
+        my_strategy = EvolutionStrategy(seed=99,
                                         generations=10,
                                         children_per_parent=10,
                                         survivor_count=20

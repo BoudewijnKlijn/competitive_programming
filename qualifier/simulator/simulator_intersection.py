@@ -1,6 +1,5 @@
 from typing import List
 
-from qualifier.input_data import Intersection
 from qualifier.schedule import Schedule
 from qualifier.simulator.simulator_street import SimulatorStreet
 
