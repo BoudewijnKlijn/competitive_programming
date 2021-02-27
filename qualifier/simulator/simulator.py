@@ -35,6 +35,8 @@ class Simulator:
             simulator_car = SimulatorCar([self.streets[street.name] for street in car.path])
             self.streets[starting_street.name].add_car(simulator_car, at_traffic_light=True)
 
+        # if we didnt do the clean we could move this to the run... save some init time when using genetic algo's
+        # where we want to rerun on the same dataset over and over...
         for schedule in output_data.schedules:
             self.intersections[schedule.intersection].add_schedule(schedule)
 
