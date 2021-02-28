@@ -250,7 +250,7 @@ class BusyFirstV3(Strategy):
                                     [trafic_light for trafic_light in trafic_lights if trafic_light[1] > 0])
                 schedules.append(schedule)
 
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 if __name__ == '__main__':
@@ -258,30 +258,35 @@ if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
         if file_name in [
-            # 'a.txt',  # instant
+            'a.txt',  # instant
             'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
             'e.txt',  # instant
-            'f.txt',  # 4s
+            # 'f.txt',  # 4s
         ]:
             continue
 
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        # my_strategy = RandomStrategy(SmartRandom, tries=5)
-        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=1)
+        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3)
+
         my_strategy = EvolutionStrategy(seed=27,
                                         generations=10,
-                                        children_per_parent=4,
-                                        survivor_count=20
+                                        children_per_couple=10,
+                                        survivor_count=20,
+
+                                        # bit arbitrary but scale it with the problem size
+                                        extra_mutations=input_data.n_intersections // 5,
+
+                                        verbose=2
                                         )
 
         output = my_strategy.solve(input_data)
 
-        simulator = Simulator(input_data, output, verbose=0)
-        score = simulator.run()
+        simulator = Simulator(input_data, verbose=0)
+        score = simulator.run(output)
         duration = datetime.now() - start_time
 
         print(f"""

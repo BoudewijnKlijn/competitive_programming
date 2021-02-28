@@ -8,42 +8,49 @@ from qualifier.simulator.simulator_street import SimulatorStreet
 
 
 class Simulator:
-    def __init__(self, input_data: InputData, output_data: OutputData, verbose: int = 0):
+    def __init__(self, input_data: InputData, verbose: int = 0):
         """
 
         :type verbose: 0 = nothing, 1=progress bar, 2= debug output
         """
-        self.output_data = output_data
-        self.input_data = input_data
-        self.verbose = verbose
 
-        self.streets = dict()
+        self.verbose = verbose
+        self.bonus = input_data.bonus
+        self.duration = input_data.duration
+
+        self.streets = None
         self.intersections = dict()
 
         self.score = 0
         self.time = -1
 
-        for street_name, street in input_data.streets.items():
-            self.streets[street_name] = SimulatorStreet(street.end, street.time, street.name)
+        streets_dict = dict()
 
-        for intersection in self.input_data.intersections:
-            streets = [street for street in self.streets.values() if street.exit_intersection == intersection.index]
+        for street_name, street in input_data.streets.items():
+            streets_dict[street_name] = SimulatorStreet(street.end, street.time, street.name)
+
+        self.streets = streets_dict.values()
+
+        for intersection in input_data.intersections:
+            streets = [street for street in self.streets if street.exit_intersection == intersection.index]
             self.intersections[intersection.index] = SimulatorIntersection(intersection.index, streets)
 
         for car in input_data.cars:
             starting_street = car.path[0]
-            simulator_car = SimulatorCar([self.streets[street.name] for street in car.path])
-            self.streets[starting_street.name].add_car(simulator_car, at_traffic_light=True)
+            simulator_car = SimulatorCar([streets_dict[street.name] for street in car.path])
+            streets_dict[starting_street.name].add_car(simulator_car, at_traffic_light=True)
 
-        # if we didnt do the clean we could move this to the run... save some init time when using genetic algo's
-        # where we want to rerun on the same dataset over and over...
+    def setup_run(self, output_data: OutputData):
         for schedule in output_data.schedules:
-            self.intersections[schedule.intersection].add_schedule(schedule)
+            self.intersections[schedule.intersection].add_schedule(
+                schedule)  # I dont need a dict here I could just scan...
 
-        # clean intersections with only red lights
-        for intersection in list(self.intersections.values()):
-            if len(intersection.schedule) == 0:
-                self.intersections.pop(intersection.intersection_number)
+        # want to do this but how to restore the originals?
+        # for now I have a check if intersct.schedule_duration == 0 do nothing
+        # # clean intersections with only red lights
+        # for intersection in list(self.intersections.values()):
+        #     if len(intersection.schedule) == 0:
+        #         self.intersections.pop(intersection.intersection_number)
 
     def log(self, message: str):
         if self.verbose >= 2:
@@ -51,22 +58,24 @@ class Simulator:
 
     def _score(self, cars):
         for car in cars:
-            score = self.input_data.bonus + self.input_data.duration - self.time  # WARNING MIGHT BE OFF BY 1
+            score = self.bonus + self.duration - self.time
             self.log(f'(time: {self.time}) {str(car[0])} reached destination +{score}')
             self.score += score
 
-    def run(self) -> int:
+    def run(self, output_data: OutputData) -> int:
+        self.setup_run(output_data)
+
         if self.verbose == 1:
-            for _ in tqdm(range(self.input_data.duration)):
+            for _ in tqdm(range(self.duration)):
                 self._execute_timestep()
         else:
-            for _ in range(self.input_data.duration):
+            for _ in range(self.duration):
                 self._execute_timestep()
 
         # I'm not checking yet if they arrive at their destination in their last move...
         # may need to move them a full 1 step when they move from an intersection on to the next road
         self.time += 1  # quite a few hacks here...
-        for _, street in self.streets.items():
+        for street in self.streets:
             if len(street.cars) == 0:
                 continue
 
@@ -80,12 +89,13 @@ class Simulator:
 
         # update lights of each intersection
         for _, intersection in self.intersections.items():
-            intersection.execute_timestep(self.time)
+            if intersection.schedule_duration != 0:  # currently we are not yet filtering intersections with no schedule
+                intersection.execute_timestep(self.time)
 
         moving = []
 
         # update cars and streets
-        for _, street in self.streets.items():
+        for street in self.streets:
             if len(street.cars) == 0:
                 continue
 
