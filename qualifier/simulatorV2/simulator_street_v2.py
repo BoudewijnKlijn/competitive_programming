@@ -39,7 +39,7 @@ class SimulatorStreetV2:
         if self.schedule_duration == 0:
             return destination_reached, None
 
-        has_green = self.green_start >= time % self.schedule_duration < self.green_end
+        has_green = self.green_start <= time % self.schedule_duration < self.green_end
         if has_green:
             if self.cars and self.cars[0][1] == 0:
                 leaving_car = self.cars.popleft()[0]

@@ -18,9 +18,12 @@ class SimulatorIntersectionV2:
         end = 0
         duration_data = []
         for index, (street, duration) in enumerate(schedule.street_duration_tuples):
+            if duration == 0:
+                continue
+
             end = start + duration
-            start = end
             duration_data.append((street, start, end))
+            start = end
 
         total_duration = end
         for data in duration_data:

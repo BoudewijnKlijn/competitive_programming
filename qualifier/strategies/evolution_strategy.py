@@ -106,7 +106,7 @@ Extra mutations: {extra_mutations}""")
             old_street = schedules[intersection].street_duration_tuples[street]
             new_value = old_street[1] + value
             new_value = min(self.input_data.duration,
-                            max(1, new_value))  # max(0 untested but should work... might help in F)
+                            max(0, new_value))  # max(0 untested but should work... might help in F)
             as_list = list(schedules[intersection].street_duration_tuples)
             as_list[street] = (old_street[0], new_value)
             schedules[intersection].street_duration_tuples = tuple(as_list)
