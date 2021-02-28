@@ -16,6 +16,7 @@ class Solution:
         self.schedules_id = id(self.schedules)
 
     def valid(self):
+        """ check if not modified """
         return self.score_id == id(self.score) and \
                self.schedules_id == id(self.schedules)
 
@@ -48,15 +49,12 @@ class EvolutionStrategy(Strategy):
             current_generation += new_generation
             current_generation.sort(key=lambda solution: solution.score, reverse=True)
             current_generation = current_generation[:self.survivor_count]
-            # print(f'scores: {[x.score for x in current_generation]}')
-
-        # for sol in current_generation:
-        #     print(Simulator(input_data=self.input_data, output_data=sol.output).run())
+            print(f'scores: {[x.score for x in current_generation]}')
 
         if not current_generation[0].valid():
             raise ValueError('Somebody mutated me!')
-        # else:
-        #     print(f'Valid: {current_generation[0].score} {type(current_generation[0].schedules)}')
+        else:
+            print(f'Valid: {current_generation[0].score} {type(current_generation[0].schedules)}')
 
         return OutputData(current_generation[0].schedules)
 
@@ -92,6 +90,10 @@ class EvolutionStrategy(Strategy):
 
         return tuple(schedules)
 
+    @staticmethod
+    def _clone_schedules(schedules: Tuple[Schedule]):
+        return tuple([schedule.copy() for schedule in schedules])
+
     def create_generation(self, current_generation, children_per_parent):
         children = []
 
@@ -102,12 +104,12 @@ class EvolutionStrategy(Strategy):
 
         # random select intersections of each to create children
         for parent_alice, parent_bob in couples:
-            alice = list(parent_alice.schedules)  # searching for the bug
+            alice = self._clone_schedules(parent_alice.schedules)  # searching for the bug
 
             gene_count = len(alice)
             gene_indexes = list(range(gene_count))
             for _ in range(children_per_parent):
-                child_of_bob_and_alice = list(parent_bob.schedules)  # makes a copy of the tuple
+                child_of_bob_and_alice = list(self._clone_schedules(parent_bob.schedules))  # makes a copy of the tuple
                 alice_genes = self.random.sample(gene_indexes, gene_count // 2)
                 for gene in alice_genes:
                     child_of_bob_and_alice[gene] = alice[gene]
