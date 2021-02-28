@@ -276,21 +276,21 @@ if __name__ == '__main__':
 
         my_strategy = EvolutionStrategy(seed=random.randint(0, 1_000_000),
                                         # debug
-                                        generations=3,
-                                        children_per_couple=6,
-                                        survivor_count=6,
+                                        # generations=3,
+                                        # children_per_couple=6,
+                                        # survivor_count=6,
 
                                         # normal
-                                        # generations=10,
-                                        # children_per_couple=10,
-                                        # survivor_count=20,
+                                        generations=10,
+                                        children_per_couple=10,
+                                        survivor_count=20,
 
                                         # bit arbitrary but scale it with the problem size
                                         extra_mutations=input_data.n_intersections // 5,
 
                                         verbose=2,
                                         simulator_class=SimulatorV3,
-                                        jobs=4
+                                        jobs=8
                                         )
 
         output = my_strategy.solve(input_data)
