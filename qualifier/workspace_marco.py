@@ -272,34 +272,34 @@ if __name__ == '__main__':
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3, ratio_permanent_red=0.01)
+        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=10, ratio_permanent_red=0.01)
 
-        # my_strategy = EvolutionStrategy(seed=random.randint(0, 1_000_000),
-        #                                 # debug
-        #                                 # generations=2,
-        #                                 # children_per_couple=2,
-        #                                 # survivor_count=2,
-        #
-        #                                 # normal
-        #                                 generations=10,
-        #                                 children_per_couple=8,
-        #                                 survivor_count=10,
-        #
-        #                                 # bit arbitrary but scale it with the problem size
-        #                                 extra_mutations=input_data.n_intersections // 5,
-        #
-        #                                 verbose=2,
-        #                                 simulator_class=SimulatorV2,
-        #                                 jobs=6
-        #                                 )
+        my_strategy = EvolutionStrategy(
+            input_data=input_data,
+            seed=random.randint(0, 1_000_000),
+            # debug
+            # generations=2,
+            # children_per_couple=2,
+            # survivor_count=2,
+
+            # normal
+            generations=5,
+            children_per_couple=8,
+            survivor_count=10,
+
+            # bit arbitrary but scale it with the problem size
+            extra_mutations=input_data.n_intersections // 5,
+
+            verbose=2,
+            simulator_class=SimulatorV2,
+            jobs=6
+        )
 
         output = my_strategy.solve(input_data)
 
-        score_v2 = SimulatorV2(input_data, verbose=0).run(output)
-        print(f'v2 score: {score_v2}')
-        print('--- org sim ---')
-        simulator = Simulator(input_data, verbose=0)
-        score = simulator.run(output)
+        score = SimulatorV2(input_data, verbose=0).run(output)
+
+        # print(f'Org sim score: {Simulator(input_data, verbose=0).run(output)}')
 
         duration = datetime.now() - start_time
 

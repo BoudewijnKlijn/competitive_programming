@@ -1,3 +1,4 @@
+import multiprocessing
 from copy import deepcopy
 from datetime import datetime
 from typing import List, Tuple, Callable
@@ -25,10 +26,28 @@ class Solution:
         raise Exception('Use deepcopy')
 
 
+# so so ugly...
+SIMULATORS = dict()
+
+
+def _worker_initializer(simulator: Callable, input_data):
+    global SIMULATORS  # dirty little trick
+
+    worker_name = multiprocessing.current_process().name
+    SIMULATORS[worker_name] = simulator(input_data=input_data)
+
+
+def _worker_func(work):
+    global SIMULATORS
+    worker_name = multiprocessing.current_process().name
+    return SIMULATORS[worker_name].run(work)
+
+
 class EvolutionStrategy(Strategy):
     name = 'EvolutionStrategy'
 
     def __init__(self,
+                 input_data: InputData,
                  generations: int,
                  children_per_couple: int,
                  survivor_count: int,
@@ -37,29 +56,39 @@ class EvolutionStrategy(Strategy):
                  seed=27,
                  verbose=0,
                  jobs=1):
+
         super().__init__(seed=seed)
+
+        self.input_data = input_data
         self.jobs = jobs
         self.extra_mutations = extra_mutations
         self.survivor_count = survivor_count
         self.children_per_parent = children_per_couple
         self.generations = generations
-        self.input_data = None
         self.verbose = verbose
         self.simulator_class = simulator_class
 
-        self.pool = Pool(self.jobs)
+        self.pool = None
+
+        # create one for the algo as well.. switch to a worker once we got a handle on this...
+        self.simulator = self.simulator_class(input_data=input_data)
+
         if verbose > 0:
             print(f"""Evolution strategy
 Extra mutations: {extra_mutations}""")
+
+        if self.jobs > 0:
+            self.pool = Pool(self.jobs, initializer=_worker_initializer, initargs=(simulator_class, input_data))
 
     def solve(self, input_data: InputData):
 
         self.input_data = input_data
         parents = []
         for _ in range(self.survivor_count):
-            random_solution = SmartRandom(self.random.randint(0, 100), max_duration=3, ratio_permanent_red=0.01).solve(
+            random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
+                                          ratio_permanent_red=0.01).solve(
                 input_data)
-            score = self.simulator_class(input_data=self.input_data).run(random_solution)
+            score = self.simulator.run(random_solution)
             parents.append(Solution(random_solution.schedules, score))
 
         # working with a best score because we still have an issue with mutability.
@@ -164,7 +193,7 @@ Extra mutations: {extra_mutations}""")
                 # mutability ends here by converting it to a tuple of tuples....
                 children.append(tuple(child_of_bob_and_alice))
 
-        # score children 
+        # score children
 
         if self.jobs == 1:
             new_solutions = []
@@ -172,12 +201,11 @@ Extra mutations: {extra_mutations}""")
                 new_solutions.append(
                     Solution(
                         child,
-                        self.simulator_class(input_data=self.input_data).run(OutputData(child))))
+                        self.simulator.run(OutputData(child))))
         else:
-            simulator = self.simulator_class(input_data=self.input_data)
             outputs = [OutputData(child) for child in children]
 
-            scores = self.pool.map(simulator.run, outputs)
+            scores = self.pool.map(_worker_func, outputs)
             new_solutions = [Solution(child, score) for child, score in zip(children, scores)]
 
         return new_solutions

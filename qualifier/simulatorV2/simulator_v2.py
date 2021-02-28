@@ -9,14 +9,11 @@ from qualifier.simulatorV2.simulator_street_v2 import SimulatorStreetV2
 
 class SimulatorV2:
     def __init__(self, input_data: InputData, verbose: int = 0):
-        """
-
-        :type verbose: 0 = nothing, 1=progress bar, 2= debug output
-        """
 
         self.verbose = verbose
         self.bonus = input_data.bonus
         self.duration = input_data.duration
+        self.cars = input_data.cars
 
         self.streets = dict()
         self.intersections = dict()
@@ -29,17 +26,26 @@ class SimulatorV2:
 
         for intersection in input_data.intersections:
             streets = [street for street in self.streets.values() if street.exit_intersection == intersection.index]
-            self.intersections[intersection.index] = SimulatorIntersectionV2(intersection.index, streets)
+            self.intersections[intersection.index] = SimulatorIntersectionV2(streets)
 
-        for car in input_data.cars:
-            starting_street = car.path[0]
-            simulator_car = SimulatorCarV2([street.name for street in car.path])
-            self.streets[starting_street.name].add_car(simulator_car, at_traffic_light=True)
+    def init_run(self, output_data: OutputData):
+        self.score = 0
+        self.time = -1
 
-    def setup_run(self, output_data: OutputData):
+        # clear the streets
+        for street in self.streets.values():
+            street.cars.clear()
+
+        # set the new schedule
         for schedule in output_data.schedules:
             self.intersections[schedule.intersection].apply_schedule(
                 schedule)  # I dont need a dict here I could just scan...
+
+        # populate with the cars
+        for car in self.cars:
+            starting_street = car.path[0]
+            simulator_car = SimulatorCarV2([street.name for street in car.path])
+            self.streets[starting_street.name].add_car(simulator_car, at_traffic_light=True)
 
         # want to do this but how to restore the originals?
         # for now I have a check if intersct.schedule_duration == 0 do nothing
@@ -53,9 +59,7 @@ class SimulatorV2:
             print(message)
 
     def run(self, output_data: OutputData) -> int:
-        self.score = 0
-        self.time = -1
-        self.setup_run(output_data)
+        self.init_run(output_data)
 
         # Main loop
         if self.verbose == 1:

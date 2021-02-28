@@ -7,9 +7,9 @@ class SimulatorStreetV2:
         self.exit_intersection = exit_intersection
         self.cars = deque()
         self.name = name
-        self.schedule_duration = 0
-        self.green_start = 99
-        self.green_end = 99
+        self.schedule_duration = 0  # 0 to skip if this street had no schedule...
+        self.green_start = None
+        self.green_end = None
 
     def add_car(self, car, at_traffic_light=False):
         car.path = car.path[1:]  # remove current street
