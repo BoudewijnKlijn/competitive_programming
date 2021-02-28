@@ -18,27 +18,23 @@ class SimulatorV3:
         self.bonus = input_data.bonus
         self.duration = input_data.duration
 
-        self.streets = None
+        self.streets = dict()
         self.intersections = dict()
 
         self.score = 0
         self.time = -1
 
-        streets_dict = dict()
-
         for street_name, street in input_data.streets.items():
-            streets_dict[street_name] = SimulatorStreet(street.end, street.time, street.name)
-
-        self.streets = streets_dict.values()
+            self.streets[street_name] = SimulatorStreetV3(street.end, street.time, street.name)
 
         for intersection in input_data.intersections:
-            streets = [street for street in self.streets if street.exit_intersection == intersection.index]
-            self.intersections[intersection.index] = SimulatorIntersection(intersection.index, streets)
+            streets = [street for street in self.streets.values() if street.exit_intersection == intersection.index]
+            self.intersections[intersection.index] = SimulatorIntersectionV3(intersection.index, streets)
 
         for car in input_data.cars:
             starting_street = car.path[0]
-            simulator_car = SimulatorCar([streets_dict[street.name] for street in car.path])
-            streets_dict[starting_street.name].add_car(simulator_car, at_traffic_light=True)
+            simulator_car = SimulatorCarV3([street.name for street in car.path])
+            self.streets[starting_street.name].add_car(simulator_car, at_traffic_light=True)
 
     def setup_run(self, output_data: OutputData):
         for schedule in output_data.schedules:
@@ -75,7 +71,7 @@ class SimulatorV3:
         # I'm not checking yet if they arrive at their destination in their last move...
         # may need to move them a full 1 step when they move from an intersection on to the next road
         self.time += 1  # quite a few hacks here...
-        for street in self.streets:
+        for street in self.streets.values():
             if len(street.cars) == 0:
                 continue
 
@@ -95,7 +91,7 @@ class SimulatorV3:
         moving = []
 
         # update cars and streets
-        for street in self.streets:
+        for street in self.streets.values():
             if len(street.cars) == 0:
                 continue
 
@@ -106,6 +102,6 @@ class SimulatorV3:
 
                 # now that all streets have been processed we can move the cars (we dont want to move them twice in 1 timestep)
         for car in moving:
-            self.log(f'(time: {self.time}) {car}:\n\t\tmoving onto {car.path[0].name}')
+            self.log(f'(time: {self.time}) {car}:\n\t\tmoving onto {car.path[0]}')
             street = car.path[0]
-            street.add_car(car)
+            self.streets[street].add_car(car)

@@ -7,6 +7,7 @@ from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.simulator.simulator import Simulator
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
+from qualifier.simulatorV3.simulator import SimulatorV3
 from qualifier.strategies.evolution_strategy import EvolutionStrategy
 from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
@@ -263,8 +264,8 @@ if __name__ == '__main__':
             'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
-            'e.txt',  # instant
-            # 'f.txt',  # 4s
+            # 'e.txt',  # instant
+            'f.txt',  # 4s
         ]:
             continue
 
@@ -281,7 +282,9 @@ if __name__ == '__main__':
                                         # bit arbitrary but scale it with the problem size
                                         extra_mutations=input_data.n_intersections // 5,
 
-                                        verbose=2
+                                        verbose=2,
+                                        simulator_class=SimulatorV3,
+                                        jobs=8
                                         )
 
         output = my_strategy.solve(input_data)
@@ -289,9 +292,9 @@ if __name__ == '__main__':
         simulator = Simulator(input_data, verbose=0)
         score = simulator.run(output)
 
-        # simulator = Simulator(input_data, verbose=0)
-        # score_org = simulator.run(output)
-        # print(f'{score_org} - {score}')
+        simulatorv3 = SimulatorV3(input_data, verbose=0)
+        score_new = simulatorv3.run(output)
+        print(f'{score} - {score_new}')
 
         duration = datetime.now() - start_time
 

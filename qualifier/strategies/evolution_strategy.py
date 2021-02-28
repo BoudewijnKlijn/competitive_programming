@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
@@ -27,22 +27,33 @@ class Solution:
 class EvolutionStrategy(Strategy):
     name = 'EvolutionStrategy'
 
-    def __init__(self, generations: int, children_per_couple: int, survivor_count: int, extra_mutations: int, seed=27,
-                 verbose=0):
+    def __init__(self,
+                 generations: int,
+                 children_per_couple: int,
+                 survivor_count: int,
+                 extra_mutations: int,
+                 simulator_class: Callable,
+                 seed=27,
+                 verbose=0,
+                 jobs=1):
         super().__init__(seed=seed)
+        self.jobs = jobs
         self.extra_mutations = extra_mutations
         self.survivor_count = survivor_count
         self.children_per_parent = children_per_couple
         self.generations = generations
         self.input_data = None
         self.verbose = verbose
+        self.simulator_class = simulator_class
+
+        self.pool = Pool(self.jobs)
 
     def solve(self, input_data: InputData):
         self.input_data = input_data
         parents = []
         for _ in range(2):
             random_solution = SmartRandom(self.random.randint(0, 100), max_duration=3).solve(input_data)
-            score = Simulator(input_data=self.input_data).run(random_solution)
+            score = self.simulator_class(input_data=self.input_data).run(random_solution)
             parents.append(Solution(random_solution.schedules, score))
 
         current_generation = parents
@@ -73,6 +84,7 @@ class EvolutionStrategy(Strategy):
         else:
             print(f'Valid: {current_generation[0].score} {type(current_generation[0].schedules)}')
 
+        self.pool.close()
         return OutputData(current_generation[0].schedules)
 
     def _rnd_index(self, a_list):
@@ -87,7 +99,7 @@ class EvolutionStrategy(Strategy):
             old_street = schedules[intersection].street_duration_tuples[street]
             new_value = old_street[1] + value
             new_value = min(self.input_data.duration,
-                            max(0, new_value))  # max(0 untested but should work... might help in F)
+                            max(1, new_value))  # max(0 untested but should work... might help in F)
             schedules[intersection].street_duration_tuples[street] = (old_street[0], new_value)
 
         def get_rnd_street():
@@ -143,18 +155,18 @@ class EvolutionStrategy(Strategy):
 
         # score children 
 
-        # Bug max recursion depth with pickling objects.... (but does work on a.in)
-        # simulator = Simulator(input_data=self.input_data)
-        # outputs = [OutputData(child) for child in children]
-        # with Pool(8) as pool:
-        #     scores = pool.map(simulator.run, outputs)
-        # new_solutions = [Solution(child, score) for child, score in zip(children, scores)]
+        if self.jobs == 1:
+            new_solutions = []
+            for child in children:
+                new_solutions.append(
+                    Solution(
+                        child,
+                        self.simulator_class(input_data=self.input_data).run(OutputData(child))))
+        else:
+            simulator = self.simulator_class(input_data=self.input_data)
+            outputs = [OutputData(child) for child in children]
 
-        new_solutions = []
-        for child in children:
-            new_solutions.append(
-                Solution(
-                    child,
-                    Simulator(input_data=self.input_data).run(OutputData(child))))
+            scores = self.pool.map(simulator.run, outputs)
+            new_solutions = [Solution(child, score) for child, score in zip(children, scores)]
 
         return new_solutions

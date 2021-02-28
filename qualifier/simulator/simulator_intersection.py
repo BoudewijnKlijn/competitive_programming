@@ -17,12 +17,14 @@ class SimulatorIntersection:
         self.schedule = []  # clear old schedule
         self.streets = []  # clear old streets
 
-        for index, (street, duration) in enumerate(schedule.street_duration_tuples):
+        street_index = 0
+        for street, duration in schedule.street_duration_tuples:
             if duration == 0:
                 continue
 
-            self.schedule += [index] * duration
+            self.schedule += [street_index] * duration
             self.streets.append(self.actual_streets[street])
+            street_index += 1
 
         self.schedule_duration = len(self.schedule)
 
@@ -30,6 +32,9 @@ class SimulatorIntersection:
         return self.schedule[time % self.schedule_duration]
 
     def execute_timestep(self, time):
+        if self.schedule_duration == 0:
+            return
+
         green = self._get_green(time)
 
         self.streets[self.green].set_green_light(False)
