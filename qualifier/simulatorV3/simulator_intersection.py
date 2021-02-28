@@ -14,8 +14,11 @@ class SimulatorIntersectionV3:
         self.green = 0
 
     def add_schedule(self, schedule: Schedule):
-        self.schedule = []  # clear old schedule
-        self.streets = []  # clear old streets
+        # clear old stuff
+        self.schedule = []
+        self.streets = []
+        self.green = 0
+        self.schedule_duration = 0
 
         street_index = 0
         for street, duration in schedule.street_duration_tuples:
@@ -34,7 +37,7 @@ class SimulatorIntersectionV3:
     def execute_timestep(self, time):
         if self.schedule_duration == 0:
             return
-        
+
         green = self._get_green(time)
 
         self.streets[self.green].set_green_light(False)

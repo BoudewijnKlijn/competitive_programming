@@ -47,12 +47,16 @@ class EvolutionStrategy(Strategy):
         self.simulator_class = simulator_class
 
         self.pool = Pool(self.jobs)
+        if verbose > 0:
+            print(f"""Evolution strategy
+Extra mutations: {extra_mutations}""")
 
     def solve(self, input_data: InputData):
         self.input_data = input_data
         parents = []
-        for _ in range(2):
-            random_solution = SmartRandom(self.random.randint(0, 100), max_duration=3).solve(input_data)
+        for _ in range(self.survivor_count):
+            random_solution = SmartRandom(self.random.randint(0, 100), max_duration=3, ratio_permanent_red=0.01).solve(
+                input_data)
             score = self.simulator_class(input_data=self.input_data).run(random_solution)
             parents.append(Solution(random_solution.schedules, score))
 

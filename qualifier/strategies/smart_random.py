@@ -6,10 +6,11 @@ from qualifier.strategy import Strategy
 class SmartRandom(Strategy):
     name = 'SmartRandom'
 
-    def __init__(self, seed, max_duration):
+    def __init__(self, seed, max_duration, ratio_permanent_red: float):
 
         super().__init__(seed=seed)
         self.max_duration = max_duration
+        self.ratio_permanent_red = ratio_permanent_red
 
     def solve(self, input_data):
 
@@ -24,7 +25,11 @@ class SmartRandom(Strategy):
             self.random.shuffle(incoming_streets)
             for street in incoming_streets:
                 if street in streets_with_cars:
-                    traffic_lights.append((street.name, self.random.randint(1, self.max_duration)))
+                    if self.random.random() < self.ratio_permanent_red:  # x% chance to just disable the light
+                        traffic_lights.append((street.name, 0))
+                    else:
+                        traffic_lights.append((street.name, self.random.randint(1, self.max_duration)))
+
             schedule = Schedule(intersection.index, traffic_lights)
             schedules.append(schedule)
 

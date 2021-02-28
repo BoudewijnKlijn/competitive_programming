@@ -260,22 +260,19 @@ if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
         if file_name in [
-            'a.txt',  # instant
+            # 'a.txt',  # instant
             'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
-            'e.txt',  # instant
-            # 'f.txt',  # 4s
+            # 'e.txt',  # instant
+            'f.txt',  # 4s
         ]:
             continue
 
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3)
-
-        extra_mutations = input_data.n_intersections // 5
-        print(f'Extra mutations: {extra_mutations}')
+        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3, ratio_permanent_red=0.01)
 
         my_strategy = EvolutionStrategy(seed=random.randint(0, 1_000_000),
                                         # debug
@@ -289,7 +286,7 @@ if __name__ == '__main__':
                                         # survivor_count=20,
 
                                         # bit arbitrary but scale it with the problem size
-                                        extra_mutations=extra_mutations,
+                                        extra_mutations=input_data.n_intersections // 5,
 
                                         verbose=2,
                                         simulator_class=SimulatorV3,
