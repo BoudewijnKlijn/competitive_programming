@@ -25,6 +25,8 @@ class Solution:
 
 
 class EvolutionStrategy(Strategy):
+    name = 'EvolutionStrategy'
+
     def __init__(self, generations: int, children_per_couple: int, survivor_count: int, extra_mutations: int, seed=27,
                  verbose=0):
         super().__init__(seed=seed)
@@ -84,7 +86,8 @@ class EvolutionStrategy(Strategy):
             schedules[intersection] = schedules[intersection].copy()
             old_street = schedules[intersection].street_duration_tuples[street]
             new_value = old_street[1] + value
-            new_value = min(self.input_data.duration, max(1, new_value))
+            new_value = min(self.input_data.duration,
+                            max(0, new_value))  # max(0 untested but should work... might help in F)
             schedules[intersection].street_duration_tuples[street] = (old_street[0], new_value)
 
         def get_rnd_street():

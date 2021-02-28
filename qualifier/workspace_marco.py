@@ -6,6 +6,7 @@ from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.simulator.simulator import Simulator
+from qualifier.simulatorV2.simulator_v2 import SimulatorV2
 from qualifier.strategies.evolution_strategy import EvolutionStrategy
 from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
@@ -272,7 +273,7 @@ if __name__ == '__main__':
 
         # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3)
 
-        my_strategy = EvolutionStrategy(seed=27,
+        my_strategy = EvolutionStrategy(seed=random.randint(0, 1_000_000),
                                         generations=10,
                                         children_per_couple=10,
                                         survivor_count=20,
@@ -287,15 +288,22 @@ if __name__ == '__main__':
 
         simulator = Simulator(input_data, verbose=0)
         score = simulator.run(output)
+
+        # simulator = Simulator(input_data, verbose=0)
+        # score_org = simulator.run(output)
+        # print(f'{score_org} - {score}')
+
         duration = datetime.now() - start_time
+
+        potential_score = input_data.n_cars * (input_data.duration + input_data.bonus)
 
         print(f"""
 ---------- {file_name} ---------- ({duration.seconds} seconds)
-Score:  {score} 
-                                   Bonus value: {input_data.bonus} cars: {input_data.n_cars} duration: {input_data.duration} *theoretic max: {input_data.n_cars * input_data.bonus} + {input_data.n_cars * input_data.duration} =  {input_data.n_cars * (input_data.duration + input_data.bonus)}
+Score:  {score}         (Still to gain ~{potential_score - score} points)
+                                   Bonus value: {input_data.bonus} cars: {input_data.n_cars} duration: {input_data.duration} *theoretic max: {input_data.n_cars * input_data.bonus} + {input_data.n_cars * input_data.duration} =  {potential_score}
 ----------------------------------------------------------     
 """)
 
-        save_output(output, file_name, score, 'marco')
+        save_output(output, file_name, score, f'marco-{my_strategy.name}')
 
     zip_submission()
