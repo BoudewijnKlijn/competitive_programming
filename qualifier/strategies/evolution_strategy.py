@@ -67,9 +67,6 @@ class EvolutionStrategy(Strategy):
             new_generation = self.create_generation(
                 current_generation,
                 children_per_parent=self.children_per_parent)
-            #
-            # for sol in new_generation:
-            #     print(Simulator(input_data=self.input_data, output_data=sol.output).run())
 
             current_generation += new_generation
             current_generation.sort(key=lambda solution: solution.score, reverse=True)
@@ -77,7 +74,6 @@ class EvolutionStrategy(Strategy):
 
             if self.verbose == 2:
                 print(f'Generation {generation:03}/{self.generations:03}: {current_generation[0].score}')
-            # print(f'scores: {[x.score for x in current_generation]}')
 
         if not current_generation[0].valid():
             raise ValueError('Somebody mutated me!')
@@ -90,17 +86,16 @@ class EvolutionStrategy(Strategy):
     def _rnd_index(self, a_list):
         return self.random.randint(0, len(a_list) - 1)
 
-    def _mutate(self, schedules: List[Schedule]) -> Tuple[Schedule]:
-
-        schedules = list(schedules)  # I have a bug somewhere... this is inefficient...
+    def _mutate(self, schedules: List[Schedule]) -> List[Schedule]:
 
         def add_duration(intersection, street, value):
-            schedules[intersection] = schedules[intersection].copy()
             old_street = schedules[intersection].street_duration_tuples[street]
             new_value = old_street[1] + value
             new_value = min(self.input_data.duration,
                             max(1, new_value))  # max(0 untested but should work... might help in F)
-            schedules[intersection].street_duration_tuples[street] = (old_street[0], new_value)
+            as_list = list(schedules[intersection].street_duration_tuples)
+            as_list[street] = (old_street[0], new_value)
+            schedules[intersection].street_duration_tuples = tuple(as_list)
 
         def get_rnd_street():
             intersection = self._rnd_index(schedules)
@@ -118,11 +113,14 @@ class EvolutionStrategy(Strategy):
                 add_duration(location[0], location[1], -1)
         elif trait == 2:
             intersection = self._rnd_index(schedules)
-            self.random.shuffle(schedules[intersection].street_duration_tuples)
+            as_list = list(schedules[intersection].street_duration_tuples)
+            self.random.shuffle(as_list)
+            schedules[intersection].street_duration_tuples = tuple(as_list)
+
         else:
             raise ValueError(f'Woeps dont know what to mutate')
 
-        return tuple(schedules)
+        return schedules
 
     @staticmethod
     def _clone_schedules(schedules: Tuple[Schedule]):
@@ -138,12 +136,14 @@ class EvolutionStrategy(Strategy):
 
         # random select intersections of each to create children
         for parent_alice, parent_bob in couples:
-            alice = self._clone_schedules(parent_alice.schedules)  # searching for the bug
-
-            gene_count = len(alice)
-            gene_indexes = list(range(gene_count))
             for _ in range(children_per_parent):
+                # mutability starts there by copies of each parrent
+                alice = self._clone_schedules(parent_alice.schedules)
                 child_of_bob_and_alice = list(self._clone_schedules(parent_bob.schedules))  # makes a copy of the tuple
+
+                gene_count = len(alice)
+                gene_indexes = list(range(gene_count))
+
                 alice_genes = self.random.sample(gene_indexes, gene_count // 2)
                 for gene in alice_genes:
                     child_of_bob_and_alice[gene] = alice[gene]
@@ -151,6 +151,8 @@ class EvolutionStrategy(Strategy):
                 # add random mutations
                 for _ in range(self.extra_mutations):
                     child_of_bob_and_alice = self._mutate(child_of_bob_and_alice)
+
+                # mutability ends here by converting it to a tuple of tuples....
                 children.append(tuple(child_of_bob_and_alice))
 
         # score children 

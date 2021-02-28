@@ -7,7 +7,7 @@ class Schedule:
         self.intersection = intersection
 
     def copy(self):
-        return Schedule(self.intersection, deepcopy(self.street_duration_tuples))
+        return Schedule(self.intersection, tuple([deepcopy(t) for t in self.street_duration_tuples]))
 
     def __str__(self):
         text = f'{self.intersection}\n{len(self.street_duration_tuples)}\n'

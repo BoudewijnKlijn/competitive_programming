@@ -264,8 +264,8 @@ if __name__ == '__main__':
             'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
-            # 'e.txt',  # instant
-            'f.txt',  # 4s
+            'e.txt',  # instant
+            # 'f.txt',  # 4s
         ]:
             continue
 
@@ -274,17 +274,26 @@ if __name__ == '__main__':
 
         # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3)
 
+        extra_mutations = input_data.n_intersections // 5
+        print(f'Extra mutations: {extra_mutations}')
+
         my_strategy = EvolutionStrategy(seed=random.randint(0, 1_000_000),
-                                        generations=10,
-                                        children_per_couple=10,
-                                        survivor_count=20,
+                                        # debug
+                                        generations=3,
+                                        children_per_couple=6,
+                                        survivor_count=6,
+
+                                        # normal
+                                        # generations=10,
+                                        # children_per_couple=10,
+                                        # survivor_count=20,
 
                                         # bit arbitrary but scale it with the problem size
-                                        extra_mutations=input_data.n_intersections // 5,
+                                        extra_mutations=extra_mutations,
 
                                         verbose=2,
                                         simulator_class=SimulatorV3,
-                                        jobs=8
+                                        jobs=4
                                         )
 
         output = my_strategy.solve(input_data)
