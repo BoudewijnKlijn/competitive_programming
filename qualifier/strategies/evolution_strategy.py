@@ -1,3 +1,5 @@
+from copy import deepcopy
+from datetime import datetime
 from typing import List, Tuple, Callable
 
 from qualifier.input_data import InputData
@@ -13,15 +15,14 @@ from tqdm import tqdm
 
 class Solution:
     def __init__(self, schedules: Tuple[Schedule], score: int):
+        if not isinstance(schedules, tuple):
+            raise ValueError(f'Expected type tuple for schedules but got {type(schedules)}')
+
         self.score = score
         self.schedules = schedules
-        self.score_id = id(score)
-        self.schedules_id = id(self.schedules)
 
-    def valid(self):
-        """ check if not modified """
-        return self.score_id == id(self.score) and \
-               self.schedules_id == id(self.schedules)
+    def __copy__(self):
+        raise Exception('Use deepcopy')
 
 
 class EvolutionStrategy(Strategy):
@@ -52,6 +53,7 @@ class EvolutionStrategy(Strategy):
 Extra mutations: {extra_mutations}""")
 
     def solve(self, input_data: InputData):
+
         self.input_data = input_data
         parents = []
         for _ in range(self.survivor_count):
@@ -59,6 +61,12 @@ Extra mutations: {extra_mutations}""")
                 input_data)
             score = self.simulator_class(input_data=self.input_data).run(random_solution)
             parents.append(Solution(random_solution.schedules, score))
+
+        # working with a best score because we still have an issue with mutability.
+        best_solution = deepcopy(parents[0])
+
+        if self.verbose == 2:
+            print(f'Parents: {[x.score for x in parents]}')
 
         current_generation = parents
 
@@ -79,13 +87,15 @@ Extra mutations: {extra_mutations}""")
             if self.verbose == 2:
                 print(f'Generation {generation:03}/{self.generations:03}: {current_generation[0].score}')
 
-        if not current_generation[0].valid():
-            raise ValueError('Somebody mutated me!')
-        else:
-            print(f'Valid: {current_generation[0].score} {type(current_generation[0].schedules)}')
+            if current_generation[0].score > best_solution.score:
+                best_solution = deepcopy(current_generation[0])
+                OutputData(current_generation[0].schedules).save(
+                    f'./outputs/Evo {current_generation[0].score} {datetime.now():%H%M%S}.out')
+
+        print(f'Valid: {best_solution.score}')
 
         self.pool.close()
-        return OutputData(current_generation[0].schedules)
+        return OutputData(best_solution.schedules)
 
     def _rnd_index(self, a_list):
         return self.random.randint(0, len(a_list) - 1)
@@ -120,15 +130,14 @@ Extra mutations: {extra_mutations}""")
             as_list = list(schedules[intersection].street_duration_tuples)
             self.random.shuffle(as_list)
             schedules[intersection].street_duration_tuples = tuple(as_list)
-
         else:
             raise ValueError(f'Woeps dont know what to mutate')
 
         return schedules
 
-    @staticmethod
-    def _clone_schedules(schedules: Tuple[Schedule]):
-        return tuple([schedule.copy() for schedule in schedules])
+    # @staticmethod
+    # def _clone_schedules(schedules: Tuple[Schedule]):
+    #     return tuple([schedule.copy() for schedule in schedules])
 
     def create_generation(self, current_generation, children_per_parent):
         children = []
@@ -142,8 +151,8 @@ Extra mutations: {extra_mutations}""")
         for parent_alice, parent_bob in couples:
             for _ in range(children_per_parent):
                 # mutability starts there by copies of each parrent
-                alice = self._clone_schedules(parent_alice.schedules)
-                child_of_bob_and_alice = list(self._clone_schedules(parent_bob.schedules))  # makes a copy of the tuple
+                alice = deepcopy(parent_alice).schedules
+                child_of_bob_and_alice = list(deepcopy(parent_bob).schedules)  # makes a copy of the tuple
 
                 gene_count = len(alice)
                 gene_indexes = list(range(gene_count))
@@ -153,8 +162,8 @@ Extra mutations: {extra_mutations}""")
                     child_of_bob_and_alice[gene] = alice[gene]
 
                 # add random mutations
-                for _ in range(self.extra_mutations):
-                    child_of_bob_and_alice = self._mutate(child_of_bob_and_alice)
+                # for _ in range(self.extra_mutations):
+                #     child_of_bob_and_alice = self._mutate(child_of_bob_and_alice)
 
                 # mutability ends here by converting it to a tuple of tuples....
                 children.append(tuple(child_of_bob_and_alice))

@@ -30,7 +30,7 @@ class SmartRandom(Strategy):
                     else:
                         traffic_lights.append((street.name, self.random.randint(1, self.max_duration)))
 
-            schedule = Schedule(intersection.index, traffic_lights)
+            schedule = Schedule(intersection.index, tuple(traffic_lights))
             schedules.append(schedule)
 
         return OutputData(tuple(schedules))

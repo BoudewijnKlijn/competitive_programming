@@ -260,7 +260,7 @@ if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, '../inputs')
     for file_name in os.listdir(directory):
         if file_name in [
-            # 'a.txt',  # instant
+            'a.txt',  # instant
             'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
