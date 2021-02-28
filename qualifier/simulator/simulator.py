@@ -41,6 +41,9 @@ class Simulator:
             streets_dict[starting_street.name].add_car(simulator_car, at_traffic_light=True)
 
     def setup_run(self, output_data: OutputData):
+        self.score = 0
+        self.time = -1
+        
         for schedule in output_data.schedules:
             self.intersections[schedule.intersection].add_schedule(
                 schedule)  # I dont need a dict here I could just scan...

@@ -1,6 +1,3 @@
-from copy import deepcopy
-
-
 class Schedule:
     def __init__(self, intersection, street_duration_tuples):
         if not isinstance(street_duration_tuples, tuple):
@@ -15,6 +12,8 @@ class Schedule:
     def __str__(self):
         # dont add 0 duration streets
         final = [street for street in self.street_duration_tuples if street[1] > 0]
+        if len(final) == 0:
+            return ''
 
         text = f'{self.intersection}\n{len(final)}\n'
         for street in final:

@@ -12,7 +12,8 @@ class OutputData:
         self.schedules = schedules
 
     def save(self, filename: str):
-        final_schedules = [schedule for schedule in self.schedules if len(schedule.street_duration_tuples) > 0]
+        final_schedules = [str(schedule) for schedule in self.schedules if len(schedule.street_duration_tuples) > 0]
+        final_schedules = [schedule for schedule in final_schedules if schedule != '']
 
         text = f'{len(final_schedules)}\n'
         for schedule in final_schedules:
