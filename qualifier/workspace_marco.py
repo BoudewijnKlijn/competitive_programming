@@ -261,10 +261,10 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         if file_name in [
             'a.txt',  # instant
-            # 'b.txt',  # 26s
+            'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
-            'e.txt',  # instant
+            # 'e.txt',  # instant
             'f.txt',  # 4s
         ]:
             continue
@@ -272,30 +272,33 @@ if __name__ == '__main__':
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3, ratio_permanent_red=0.01)
+        my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=3, ratio_permanent_red=0.01)
 
-        my_strategy = EvolutionStrategy(seed=random.randint(0, 1_000_000),
-                                        # debug
-                                        generations=2,
-                                        children_per_couple=2,
-                                        survivor_count=2,
-
-                                        # normal
-                                        # generations=10,
-                                        # children_per_couple=10,
-                                        # survivor_count=12,
-
-                                        # bit arbitrary but scale it with the problem size
-                                        extra_mutations=input_data.n_intersections // 5,
-
-                                        verbose=2,
-                                        simulator_class=SimulatorV2,
-                                        jobs=1
-                                        )
+        # my_strategy = EvolutionStrategy(seed=random.randint(0, 1_000_000),
+        #                                 # debug
+        #                                 # generations=2,
+        #                                 # children_per_couple=2,
+        #                                 # survivor_count=2,
+        #
+        #                                 # normal
+        #                                 generations=10,
+        #                                 children_per_couple=8,
+        #                                 survivor_count=10,
+        #
+        #                                 # bit arbitrary but scale it with the problem size
+        #                                 extra_mutations=input_data.n_intersections // 5,
+        #
+        #                                 verbose=2,
+        #                                 simulator_class=SimulatorV2,
+        #                                 jobs=6
+        #                                 )
 
         output = my_strategy.solve(input_data)
 
-        simulator = SimulatorV3(input_data, verbose=0)
+        score_v2 = SimulatorV2(input_data, verbose=0).run(output)
+        print(f'v2 score: {score_v2}')
+        print('--- org sim ---')
+        simulator = Simulator(input_data, verbose=0)
         score = simulator.run(output)
 
         duration = datetime.now() - start_time

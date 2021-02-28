@@ -52,12 +52,6 @@ class SimulatorV2:
         if self.verbose >= 2:
             print(message)
 
-    def _score(self, cars):
-        for car in cars:
-            score = self.bonus + self.duration - self.time
-            self.log(f'(time: {self.time}) {str(car[0])} reached destination +{score}')
-            self.score += score
-
     def run(self, output_data: OutputData) -> int:
         self.score = 0
         self.time = -1
@@ -73,15 +67,23 @@ class SimulatorV2:
 
         # I'm not checking yet if they arrive at their destination in their last move...
         # may need to move them a full 1 step when they move from an intersection on to the next road
-        self.time += 1  # quite a few hacks here...
-        for street in self.streets.values():
-            if len(street.cars) == 0:
-                continue
-
-            destination_reached, _ = street.execute_timestep(self.time)
-            self._score(destination_reached)
+        # self.time += 1  # quite a few hacks here...
+        # for street in self.streets.values():
+        #     if len(street.cars) == 0:
+        #         continue
+        #
+        #     destination_reached, _ = street.execute_timestep(self.time)
+        #     self._score(destination_reached, self.time)
 
         return self.score
+
+    def _score(self, cars, time):
+        for car in cars:
+            time_points = self.duration - time
+            if time_points >= 0:
+                score = self.bonus + time_points
+                self.log(f'(time: {time}) {str(car)} reached destination +{score}')
+                self.score += score
 
     def _execute_timestep(self):
         self.time += 1
@@ -94,12 +96,15 @@ class SimulatorV2:
                 continue
 
             destination_reached, moving_to_next_street = street.execute_timestep(self.time)
-            self._score(destination_reached)
+            self._score(destination_reached, self.time)
             if moving_to_next_street is not None:
                 moving.append((street, moving_to_next_street))
 
                 # now that all streets have been processed we can move the cars (we dont want to move them twice in 1 timestep)
         for street, car in moving:
             self.log(f'(time: {self.time}) {car}:\n\t\tmoving onto {car.path[0]}')
-            street = car.path[0]
-            self.streets[street].add_car(car)
+            if len(car.path) == 1:
+                self._score([car], self.time + self.streets[car.path[0]].length)
+            else:
+                street = car.path[0]
+                self.streets[street].add_car(car)

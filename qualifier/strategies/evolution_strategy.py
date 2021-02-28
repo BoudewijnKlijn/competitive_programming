@@ -135,10 +135,6 @@ Extra mutations: {extra_mutations}""")
 
         return schedules
 
-    # @staticmethod
-    # def _clone_schedules(schedules: Tuple[Schedule]):
-    #     return tuple([schedule.copy() for schedule in schedules])
-
     def create_generation(self, current_generation, children_per_parent):
         children = []
 
