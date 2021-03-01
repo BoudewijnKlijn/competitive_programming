@@ -1,6 +1,7 @@
 from qualifier.calculate_score import calculate_score
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
+from qualifier.simulator.simulator import Simulator
 from qualifier.strategy import Strategy
 
 
@@ -20,7 +21,7 @@ class RandomStrategy(Strategy):
 
             strategy = self._strategy(seed=seed)
             result = strategy.solve(input)
-            score = calculate_score(result)
+            score = Simulator(input, result).run()
             if score > best_score:
                 best_score = score
                 best_seed = seed

@@ -1,3 +1,6 @@
+from collections import OrderedDict
+
+
 class Street:
 
     def __init__(self, begin, end, name, time):
@@ -13,6 +16,9 @@ class Car:
         self.n_streets = n_streets  # N streets in path
         self.path = path  # List of street names
         assert len(self.path) == self.n_streets
+
+    def get_total_time(self):
+        return sum(street.time for street in self.path)
 
 
 class Intersection:
@@ -45,8 +51,8 @@ class InputData:
         self.bonus = int(first_line_elements[4])
 
         # Read streets, and create intersections
-        self.streets = dict()
-        self.intersections = [Intersection(i) for i in range(self.n_intersections)]
+        self.streets = OrderedDict()
+        self.intersections = tuple([Intersection(i) for i in range(self.n_intersections)])
 
         street_lines = lines[1:1 + self.n_streets]
         for street_line in street_lines:
@@ -66,14 +72,13 @@ class InputData:
         assert len(self.streets) == self.n_streets
 
         # Read cars
-        self.cars = []
+        cars = []
         car_lines = lines[1 + self.n_streets:]
         for car_line in car_lines:
             line_elements = car_line.replace("\n", "").split(" ")
-            self.cars.append(Car(
+            cars.append(Car(
                 n_streets=int(line_elements[0]),
                 path=[self.streets[street_name] for street_name in line_elements[1:]]
             ))
 
-    # def get_data(self):
-    #     return self.data
+        self.cars = tuple(cars)
