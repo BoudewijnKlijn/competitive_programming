@@ -50,19 +50,33 @@ class EvolutionStrategy(Strategy):
                  input_data: InputData,
                  generations: int,
                  children_per_couple: int,
-                 survivor_count: int,
+                 generation_size_limit: int,
                  extra_mutations: int,
                  simulator_class: Callable,
+                 gene_pool: List[OutputData] = None,
                  seed=27,
                  verbose=0,
                  jobs=1):
+        """
+
+        :param input_data:
+        :param generations:
+        :param children_per_couple: where total children will be generation_size_limit / 2 * children_per_couple
+        :param generation_size_limit: the x best children will for the next generation.
+        :param extra_mutations:
+        :param simulator_class:
+        :param seed:
+        :param verbose:
+        :param jobs:
+        """
 
         super().__init__(seed=seed)
 
+        self.gene_pool = gene_pool
         self.input_data = input_data
         self.jobs = jobs
         self.extra_mutations = extra_mutations
-        self.survivor_count = survivor_count
+        self.survivor_count = generation_size_limit
         self.children_per_parent = children_per_couple
         self.generations = generations
         self.verbose = verbose
@@ -83,19 +97,24 @@ Extra mutations: {extra_mutations}""")
     def solve(self, input_data: InputData):
 
         self.input_data = input_data
-        parents = []
-        for _ in range(self.survivor_count):
-            random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
-                                          ratio_permanent_red=0.01).solve(
-                input_data)
-            score = self.simulator.run(random_solution)
-            parents.append(Solution(random_solution.schedules, score))
+
+        if self.gene_pool:
+            print('Using existing gene pool')
+            parents = [Solution(genes.schedules, self.simulator.run(genes)) for genes in self.gene_pool]
+        else:
+            print('Generating gene pool...')
+            parents = []
+            for _ in range(self.survivor_count):
+                random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
+                                              ratio_permanent_red=0.01).solve(
+                    input_data)
+                score = self.simulator.run(random_solution)
+                parents.append(Solution(random_solution.schedules, score))
 
         # working with a best score because we still have an issue with mutability.
         best_solution = deepcopy(parents[0])
 
-        if self.verbose == 2:
-            print(f'Parents: {[x.score for x in parents]}')
+        print(f'Parents: {[x.score for x in parents]}')
 
         current_generation = parents
 

@@ -21,3 +21,24 @@ class OutputData:
 
         with open(filename, 'w') as file:
             file.write(text)
+
+    @classmethod
+    def read(cls, filename: str):
+        print(f'Warning this will not yet fill in duration 0 / missing street lights that were permanent red')
+        print(f'Will also not add missing intersections')
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+
+        schedules = []
+
+        intersections = int(lines.pop(0))
+        while (lines):
+            intersection = int(lines.pop(0).strip())
+            schedule_count = int(lines.pop(0).strip())
+            street_durations = []
+            for _ in range(schedule_count):
+                street, duration = lines.pop(0).split(' ')
+                street_durations.append((street, int(duration.strip())))
+
+            schedules.append(Schedule(intersection, tuple(street_durations)))
+        return OutputData(tuple(schedules))

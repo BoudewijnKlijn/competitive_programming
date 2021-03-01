@@ -11,5 +11,5 @@ def save_output(output: OutputData, for_input_file, score, user_name):
     output_dir = os.path.join(this_path, 'outputs')
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
-    
+
     output.save(os.path.join(this_path, 'outputs', file_name))

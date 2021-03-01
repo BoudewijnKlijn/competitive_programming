@@ -264,13 +264,20 @@ if __name__ == '__main__':
             'b.txt',  # 26s
             'c.txt',  # 17s
             'd.txt',  # 2m09s
-            # 'e.txt',  # instant
-            'f.txt',  # 4s
+            'e.txt',  # instant
+            # 'f.txt',  # 4s
         ]:
             continue
 
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
+
+        file = os.path.join(THIS_PATH, '../outputs/f_000931074_marco-EvolutionStrategy.out')
+        good_result = OutputData.read(file)
+
+        print(SimulatorV2(input_data, verbose=0).run(good_result))
+
+        exit(0)
 
         # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=10, ratio_permanent_red=0.01)
 
@@ -283,16 +290,16 @@ if __name__ == '__main__':
             # survivor_count=2,
 
             # normal
-            generations=5,
-            children_per_couple=8,
-            survivor_count=10,
+            generations=30,
+            children_per_couple=20,
+            generation_size_limit=20,
 
             # bit arbitrary but scale it with the problem size
             extra_mutations=input_data.n_intersections // 5,
 
             verbose=2,
             simulator_class=SimulatorV2,
-            jobs=1
+            jobs=4
         )
 
         output = my_strategy.solve(input_data)
