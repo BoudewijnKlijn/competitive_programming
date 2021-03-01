@@ -13,7 +13,6 @@ class Simulator:
 
         :type verbose: 0 = nothing, 1=progress bar, 2= debug output
         """
-
         self.verbose = verbose
         self.bonus = input_data.bonus
         self.duration = input_data.duration
@@ -43,7 +42,7 @@ class Simulator:
     def setup_run(self, output_data: OutputData):
         self.score = 0
         self.time = -1
-        
+
         for schedule in output_data.schedules:
             self.intersections[schedule.intersection].add_schedule(
                 schedule)  # I dont need a dict here I could just scan...
@@ -66,6 +65,7 @@ class Simulator:
             self.score += score
 
     def run(self, output_data: OutputData) -> int:
+        self._validate(output_data)
         self.setup_run(output_data)
 
         if self.verbose == 1:
@@ -112,3 +112,9 @@ class Simulator:
             self.log(f'(time: {self.time}) {car}:\n\t\tmoving onto {car.path[0].name}')
             street = car.path[0]
             street.add_car(car)
+
+    def _validate(self, input_data: InputData, output_data: OutputData):
+        out_intersections = [schedule.intersection for schedule in output_data.schedules]
+        if len({*out_intersections}) != input_data.n_intersections:
+            raise ValueError(
+                f'Expected {input_data.n_intersections} intersections but got an OutputData with {len(out_intersections)} uniques and total {len(out_intersections)}')

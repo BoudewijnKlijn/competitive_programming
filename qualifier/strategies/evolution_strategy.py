@@ -6,7 +6,6 @@ from typing import List, Tuple, Callable
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
-from qualifier.simulator.simulator import Simulator
 from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
 
@@ -98,18 +97,19 @@ Extra mutations: {extra_mutations}""")
 
         self.input_data = input_data
 
+        parents = []
+
         if self.gene_pool:
             print('Using existing gene pool')
             parents = [Solution(genes.schedules, self.simulator.run(genes)) for genes in self.gene_pool]
-        else:
-            print('Generating gene pool...')
-            parents = []
-            for _ in range(self.survivor_count):
-                random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
-                                              ratio_permanent_red=0.01).solve(
-                    input_data)
-                score = self.simulator.run(random_solution)
-                parents.append(Solution(random_solution.schedules, score))
+
+        print('Adding extra SmartRandom parents if needed')
+        for _ in range(max(0, self.survivor_count - len(parents))):
+            random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
+                                          ratio_permanent_red=0.01).solve(
+                input_data)
+            score = self.simulator.run(random_solution)
+            parents.append(Solution(random_solution.schedules, score))
 
         # working with a best score because we still have an issue with mutability.
         best_solution = deepcopy(parents[0])
@@ -164,7 +164,7 @@ Extra mutations: {extra_mutations}""")
             if len(schedules[intersection].street_duration_tuples) == 0:
                 return None
             street = self._rnd_index(schedules[intersection].street_duration_tuples)
-            return (intersection, street)
+            return intersection, street
 
         trait = self.random.randint(0, 2)
         if trait == 0:
@@ -194,7 +194,7 @@ Extra mutations: {extra_mutations}""")
         # random select intersections of each to create children
         for parent_alice, parent_bob in couples:
             for _ in range(children_per_parent):
-                # mutability starts there by copies of each parrent
+                # mutability starts there by copies of each parent
                 alice = deepcopy(parent_alice).schedules
                 child_of_bob_and_alice = list(deepcopy(parent_bob).schedules)  # makes a copy of the tuple
 

@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from qualifier.input_data import InputData
 from qualifier.schedule import Schedule
 
 
@@ -23,7 +24,7 @@ class OutputData:
             file.write(text)
 
     @classmethod
-    def read(cls, filename: str):
+    def read(cls, filename: str, input_data: InputData):
         print(f'Warning this will not yet fill in duration 0 / missing street lights that were permanent red')
         print(f'Will also not add missing intersections')
         with open(filename, 'r') as file:
@@ -32,8 +33,10 @@ class OutputData:
         schedules = []
 
         intersections = int(lines.pop(0))
+        current_intersections = []
         while (lines):
             intersection = int(lines.pop(0).strip())
+            current_intersections.append(intersection)
             schedule_count = int(lines.pop(0).strip())
             street_durations = []
             for _ in range(schedule_count):
@@ -41,4 +44,14 @@ class OutputData:
                 street_durations.append((street, int(duration.strip())))
 
             schedules.append(Schedule(intersection, tuple(street_durations)))
+
+        # adding missing intersections
+        missing = {intersection.index for intersection in input_data.intersections} - {*current_intersections}
+        for intersection in missing:
+            street_durations = []
+            for street in input_data.intersections[intersection].incoming_streets:
+                street_durations.append((street.name, 0))
+            schedules.append(Schedule(intersection, tuple(street_durations)))
+
+        schedules.sort(key=lambda x: x.intersection)  # make sure they are in order else genes get flipped
         return OutputData(tuple(schedules))

@@ -21,6 +21,7 @@ THIS_PATH = os.path.realpath(__file__)
 
 
 class FixedPeriods(Strategy):
+    name = 'FixedPeriods'
 
     def solve(self, input):
         schedules = []
@@ -28,13 +29,15 @@ class FixedPeriods(Strategy):
             trafic_lights = []
             for street in intersection.incoming_streets:
                 trafic_lights.append((street.name, 1))
-            schedule = Schedule(intersection.index, trafic_lights)
+            schedule = Schedule(intersection.index, tuple(trafic_lights))
             schedules.append(schedule)
 
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 class RandomPeriods(Strategy):
+    name = 'RandomPeriods'
+
     def solve(self, input):
         schedules = []
         for intersection in input.intersections:
@@ -44,10 +47,12 @@ class RandomPeriods(Strategy):
             schedule = Schedule(intersection.index, trafic_lights)
             schedules.append(schedule)
 
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 class RandomPeriodsx(Strategy):
+    name = 'RandomPeriodsx'
+
     def solve(self, input):
         schedules = []
         for intersection in input.intersections:
@@ -57,10 +62,12 @@ class RandomPeriodsx(Strategy):
             schedule = Schedule(intersection.index, trafic_lights)
             schedules.append(schedule)
 
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 class AtleastOneCar(Strategy):
+    name = 'AtleastOneCar'
+
     def solve(self, input):
 
         all_streets = [car.path for car in input.cars]
@@ -76,10 +83,12 @@ class AtleastOneCar(Strategy):
                 schedule = Schedule(intersection.index, trafic_lights)
                 schedules.append(schedule)
 
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 class CarsFirst(Strategy):
+    name = 'CarsFirst'
+
     def solve(self, input: InputData) -> OutputData:
         instersections = dict()
 
@@ -98,10 +107,12 @@ class CarsFirst(Strategy):
         for intersection, streets in instersections.items():
             schedule = Schedule(intersection, [(street, 1) for street in streets])
             schedules.append(schedule)
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 class BusyFirst(Strategy):
+    name = 'BusyFirst'
+
     def solve(self, input: InputData) -> OutputData:
         all_streets = [car.path for car in input.cars]
         all_streets = [item for sublist in all_streets for item in sublist]
@@ -127,23 +138,22 @@ class BusyFirst(Strategy):
             else:
                 return 6
 
-            print('should not happen')
-            return 1
-
         schedules = []
         for intersection in input.intersections:
             trafic_lights = []
             for street in intersection.incoming_streets:
                 if street.name in streets_with_cars:
                     trafic_lights.append((street.name, seconds(street)))
-            if len(trafic_lights):
-                schedule = Schedule(intersection.index, trafic_lights)
-                schedules.append(schedule)
 
-        return OutputData(schedules)
+            schedule = Schedule(intersection.index, tuple(trafic_lights))
+            schedules.append(schedule)
+
+        return OutputData(tuple(schedules))
 
 
 class Eliot(Strategy):
+    name = 'Eliot'
+
     def solve(self, input: InputData) -> OutputData:
         all_streets = [car.path for car in input.cars]
         all_streets = [item for sublist in all_streets for item in sublist]
@@ -164,10 +174,12 @@ class Eliot(Strategy):
         for intersection, streets in instersections.items():
             schedule = Schedule(intersection, [(street[0], street[1]) for street in streets])
             schedules.append(schedule)
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 class CarsFirstBusyFirst(Strategy):
+    name = 'CarsFirstBusyFirst'
+
     def solve(self, input: InputData) -> OutputData:
         instersections = dict()
 
@@ -184,12 +196,14 @@ class CarsFirstBusyFirst(Strategy):
 
         schedules = []
         for intersection, streets in instersections.items():
-            schedule = Schedule(intersection, [(street, 1) for street in streets])
+            schedule = Schedule(intersection, tuple([(street, 1) for street in streets]))
             schedules.append(schedule)
-        return OutputData(schedules)
+        return OutputData(tuple(schedules))
 
 
 class BusyFirstV2(Strategy):
+    name = 'BusyFirstV2'
+
     def solve(self, input: InputData) -> OutputData:
         all_streets = [car.path for car in input.cars]
         all_streets = [item for sublist in all_streets for item in sublist]
@@ -215,22 +229,22 @@ class BusyFirstV2(Strategy):
             for street in intersection.incoming_streets:
                 if street.name in streets_with_cars:
                     trafic_lights.append((street.name, seconds(street)))
-            if len(trafic_lights):
-                schedule = Schedule(intersection.index, trafic_lights)
-                schedules.append(schedule)
 
-        return OutputData(schedules)
+            schedule = Schedule(intersection.index, tuple(trafic_lights))
+            schedules.append(schedule)
+
+        return OutputData(tuple(schedules))
 
 
 class BusyFirstV3(Strategy):
+    name = 'BusyFirstV3'
+
     def solve(self, input: InputData) -> OutputData:
         all_streets = [car.path for car in input.cars]
         all_streets = [item for sublist in all_streets for item in sublist]
         counted = Counter(all_streets)
         priority = {k: v for k, v in sorted(counted.items(), key=lambda item: item[1], reverse=True)}
         values = list(priority.values())
-        mean_value = np.mean(values)
-        std_value = np.std(values)
 
         streets_with_cars = {street.name for street in all_streets}
 
@@ -247,10 +261,9 @@ class BusyFirstV3(Strategy):
                 if street.name in streets_with_cars and counted[street] > 1:
                     trafic_lights.append((street.name, seconds(street)))
 
-            if len([trafic_light for trafic_light in trafic_lights if trafic_light[1] > 0]):
-                schedule = Schedule(intersection.index,
-                                    [trafic_light for trafic_light in trafic_lights if trafic_light[1] > 0])
-                schedules.append(schedule)
+            schedule = Schedule(intersection.index,
+                                tuple(trafic_lights))
+            schedules.append(schedule)
 
         return OutputData(tuple(schedules))
 
@@ -272,14 +285,37 @@ if __name__ == '__main__':
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        file = os.path.join(THIS_PATH, '../outputs/f_000931074_marco-EvolutionStrategy.out')
-        good_result = OutputData.read(file)
-
-        print(SimulatorV2(input_data, verbose=0).run(good_result))
-
-        exit(0)
+        good_results = {
+            'f.txt': [
+                'f_000931074_marco-EvolutionStrategy.out',
+                'f_qualifier_marco.out',
+                'f_980648_EvolutionStrategy.out'
+            ]
+        }
 
         # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=10, ratio_permanent_red=0.01)
+
+        parents = []
+        if file_name in good_results:
+            print(f'Loading good parents')
+            for output_file in good_results[file_name]:
+                file = os.path.join(THIS_PATH, f'../saved_results/{output_file}')
+                parent = OutputData.read(file, input_data)
+                parents.append(parent)
+
+        parents = [
+            # *parents,
+            BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),  # bad results atm
+            BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),  # bad results atm
+            BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
+            FixedPeriods(seed=random.randint(0, 1_000_000)).solve(input_data),
+            # CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
+        ]
+
+        simulator = SimulatorV2(input_data, verbose=0)
+        for i, parent in enumerate(parents):
+            print(f'{i} {simulator.run(parent)}')
+        exit(0)  # debug end
 
         my_strategy = EvolutionStrategy(
             input_data=input_data,
@@ -290,13 +326,13 @@ if __name__ == '__main__':
             # survivor_count=2,
 
             # normal
-            generations=30,
-            children_per_couple=20,
-            generation_size_limit=20,
+            generations=3,
+            children_per_couple=30,
+            generation_size_limit=6,
 
             # bit arbitrary but scale it with the problem size
             extra_mutations=input_data.n_intersections // 5,
-
+            gene_pool=parents,
             verbose=2,
             simulator_class=SimulatorV2,
             jobs=4

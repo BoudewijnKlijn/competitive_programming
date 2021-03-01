@@ -9,11 +9,14 @@ from qualifier.simulatorV2.simulator_street_v2 import SimulatorStreetV2
 
 class SimulatorV2:
     def __init__(self, input_data: InputData, verbose: int = 0):
-
         self.verbose = verbose
+
+        # TODO switch  back to just using self.input_data.
         self.bonus = input_data.bonus
         self.duration = input_data.duration
         self.cars = input_data.cars
+
+        self.input_data = input_data
 
         self.streets = dict()
         self.intersections = dict()
@@ -60,6 +63,7 @@ class SimulatorV2:
             print(message)
 
     def run(self, output_data: OutputData) -> int:
+        self._validate(input_data=self.input_data, output_data=output_data)
         self.init_run(output_data)
 
         # Main loop
@@ -113,3 +117,9 @@ class SimulatorV2:
             else:
                 street = car.path[0]
                 self.streets[street].add_car(car)
+
+    def _validate(self, input_data: InputData, output_data: OutputData):
+        out_intersections = [schedule.intersection for schedule in output_data.schedules]
+        if len({*out_intersections}) != input_data.n_intersections:
+            raise ValueError(
+                f'Expected {input_data.n_intersections} intersections but got an OutputData with {len(out_intersections)} uniques and total {len(out_intersections)}')
