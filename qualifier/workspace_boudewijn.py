@@ -1,3 +1,4 @@
+import time
 import os
 from collections import defaultdict
 
@@ -7,6 +8,7 @@ from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy
 from qualifier.util import save_output
+from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 
 THIS_PATH = os.path.realpath(__file__)
 
@@ -41,17 +43,33 @@ class MyStrategy(Strategy):
         return OutputData(schedules)
 
 
+class FixedPeriods(Strategy):
+
+    def solve(self, input):
+        schedules = []
+        for intersection in input.intersections:
+            traffic_lights = []
+            for street in intersection.incoming_streets:
+                traffic_lights.append((street.name, 1))
+            schedule = Schedule(intersection.index, tuple(traffic_lights))
+            schedules.append(schedule)
+
+        return OutputData(tuple(schedules))
+
+
 if __name__ == '__main__':
 
     directory = os.path.join('inputs')
     for file_name in os.listdir(directory):
-    # file_name = 'a.txt'
+        # file_name = 'f.txt'
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = MyStrategy()
+        my_strategy = FixedPeriods()
 
         output = my_strategy.solve(input_data)
 
-        # score = calculate_score(output)
+        start_time = time.time()
+        score = SimulatorV4(input_data).run(output)
+        print(time.time() - start_time)
 
-        save_output(output, file_name, 0, 'boudewijn')
+        save_output(output, file_name, score, 'boudewijn')
