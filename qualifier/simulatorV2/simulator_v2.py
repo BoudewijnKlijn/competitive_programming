@@ -18,8 +18,8 @@ class SimulatorV2:
         self.streets = dict()
         self.intersections = dict()
 
-        self.score = 0
-        self.time = -1
+        self.score = None
+        self.time = None
 
         for street_name, street in input_data.streets.items():
             self.streets[street_name] = SimulatorStreetV2(street.end, street.time, street.name)
@@ -32,9 +32,10 @@ class SimulatorV2:
         self.score = 0
         self.time = -1
 
-        # clear the streets
+        # clear the streets of cars and schedules
         for street in self.streets.values():
             street.cars.clear()
+            street.schedule_duration = 0
 
         # set the new schedule
         for schedule in output_data.schedules:

@@ -292,7 +292,7 @@ if __name__ == '__main__':
 
             verbose=2,
             simulator_class=SimulatorV2,
-            jobs=6
+            jobs=1
         )
 
         output = my_strategy.solve(input_data)
