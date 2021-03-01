@@ -23,14 +23,16 @@ class MyStrategy(Strategy):
 
         for intersection in input.intersections:
             trafic_lights = []
-            min_intersection = min(street_counts[street.name] for street in intersection.incoming_streets)
+
+            min_weight = min(street_counts[street.name] / street.time for street in intersection.incoming_streets)
             any_non_zero_weight = False
             for street in intersection.incoming_streets:
-                if min_intersection == 0:
-                    weight = 0
-                else:
+                if min_weight == 0:
+                    continue
+                weight = round(street_counts[street.name] / street.time / min_weight)
+                if weight > 0:
                     any_non_zero_weight = True
-                    weight = round(street_counts[street.name] / min_intersection)
+                print((intersection.index, street.name, weight))
                 trafic_lights.append((street.name, weight))
             if any_non_zero_weight:
                 schedule = Schedule(intersection.index, trafic_lights)
@@ -50,6 +52,6 @@ if __name__ == '__main__':
 
         output = my_strategy.solve(input_data)
 
-        score = calculate_score(output)
+        # score = calculate_score(output)
 
-        save_output(output, file_name, score, 'boudewijn')
+        save_output(output, file_name, 0, 'boudewijn')
