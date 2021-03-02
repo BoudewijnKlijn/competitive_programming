@@ -1,14 +1,19 @@
 import time
 import os
 from collections import defaultdict
+import numpy as np
 
 from qualifier.calculate_score import calculate_score
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy
+from qualifier.strategies.RandomPeriods import RandomPeriods
+from qualifier.strategies.FixedPeriods import FixedPeriods
 from qualifier.util import save_output
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
+from qualifier.simulatorV2.simulator_v2 import SimulatorV2
+from qualifier.simulator.simulator import Simulator
 
 THIS_PATH = os.path.realpath(__file__)
 
@@ -43,33 +48,24 @@ class MyStrategy(Strategy):
         return OutputData(schedules)
 
 
-class FixedPeriods(Strategy):
-
-    def solve(self, input):
-        schedules = []
-        for intersection in input.intersections:
-            traffic_lights = []
-            for street in intersection.incoming_streets:
-                traffic_lights.append((street.name, 1))
-            schedule = Schedule(intersection.index, tuple(traffic_lights))
-            schedules.append(schedule)
-
-        return OutputData(tuple(schedules))
-
-
 if __name__ == '__main__':
 
     directory = os.path.join('inputs')
+    single_file = 'e.txt'  # file_name or None
     for file_name in os.listdir(directory):
-        # file_name = 'f.txt'
+        if single_file is not None:
+            file_name = single_file
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = FixedPeriods()
+        my_strategy = RandomPeriods(np.random.randint(0, 10000000))  # FixedPeriods()
 
         output = my_strategy.solve(input_data)
 
-        start_time = time.time()
-        score = SimulatorV4(input_data).run(output)
-        print(time.time() - start_time)
+        sims = [SimulatorV4]  # Simulator, SimulatorV2,
+        for sim in sims:
+            score = sim(input_data, verbose=0).run(output)
+            print(f'{sim.__name__=}, {score=}')
+            save_output(output, file_name, score, f'boudewijn_{sim.__name__}')
 
-        save_output(output, file_name, score, 'boudewijn')
+        if single_file is not None:
+            break

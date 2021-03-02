@@ -9,11 +9,12 @@ from qualifier.simulatorV4.simulator_street_v4 import SimulatorStreetV4
 
 
 class SimulatorV4:
-    def __init__(self, input_data: InputData):
+    def __init__(self, input_data: InputData, verbose: int = 0):
 
         self.bonus = input_data.bonus
         self.duration = input_data.duration
         self.cars = [SimulatorCarV4(path=deque(car.path)) for car in input_data.cars]
+        self.verbose = verbose
 
         self.actions = [deque() for _ in range(self.duration)]  # list with cars, at positions equal to time of entering street
 
@@ -36,11 +37,15 @@ class SimulatorV4:
                     sum_other_streets_before +
                     seconds_this_street_before +
                     length_schedule * multiplier
-                    for seconds_this_street_before in range(duration)
                     for multiplier in range(2 + self.duration // length_schedule)
+                    for seconds_this_street_before in range(duration)
                 ] if time < self.duration])
                 sum_other_streets_before += duration
             assert sum_other_streets_before == length_schedule
+
+        if self.verbose:
+            for street_name, street in self.streets.items():
+                print(f'{street_name=}, {street.passing_times}')
 
         # init cars
         for car in self.cars:
