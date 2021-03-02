@@ -5,6 +5,7 @@ import random
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
+from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.strategies.BusyFirst import BusyFirst
 from qualifier.strategies.BusyFirstV2 import BusyFirstV2
 from qualifier.strategies.BusyFirstV3 import BusyFirstV3
@@ -22,8 +23,8 @@ if __name__ == '__main__':
     for file_name in [
         # 'a.txt',  # instant
         # 'b.txt',  # 26s
-        'c.txt',  # 17s
-        # 'd.txt',  # 2m09s
+        # 'c.txt',  # 17s
+        'd.txt',  # 2m09s
         # 'e.txt',  # instant
         # 'f.txt',  # 4s
     ]:
@@ -58,7 +59,10 @@ if __name__ == '__main__':
             BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
             BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
             BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
-            FixedPeriods(seed=random.randint(0, 1_000_000)).solve(input_data),
+            FixedPeriods(period=0).solve(input_data),
+            FixedPeriods(period=1).solve(input_data),
+            FixedPeriods(period=2).solve(input_data),
+            FixedPeriods(period=3).solve(input_data),
             # CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
         ]
 
@@ -75,16 +79,21 @@ if __name__ == '__main__':
             # children_per_couple=2,
             # generation_size_limit=2,
 
+            # quick
+            generations=2,
+            children_per_couple=4,
+            generation_size_limit=4,
+
             # normal
-            generations=5,
-            children_per_couple=40,
-            generation_size_limit=10,
+            # generations=5,
+            # children_per_couple=40,
+            # generation_size_limit=10,
 
             # bit arbitrary but scale it with the problem size
             extra_mutations=input_data.n_intersections // 5,
             gene_pool=parents,
             verbose=2,
-            simulator_class=SimulatorV2,
+            simulator_class=SimulatorV4,
             jobs=4
         )
 

@@ -169,6 +169,8 @@ Extra mutations: {extra_mutations}""")
         def get_rnd_street():
             intersection = self._rnd_index(schedules)
             if len(schedules[intersection].street_duration_tuples) == 0:
+                # if by rng we picked an intersection with no schedule just skip it.
+                print('Warning: chose an intersection without a schedule')
                 return None
             street = self._rnd_index(schedules[intersection].street_duration_tuples)
             return intersection, street
@@ -176,7 +178,11 @@ Extra mutations: {extra_mutations}""")
         trait = self.random.randint(0, 2)
         if trait == 0:
             if location := get_rnd_street():
-                add_duration(location[0], location[1], 1)
+                if self.random.random() < 0.01:
+                    # with a small percentage chance just turn this traffic light off
+                    add_duration(location[0], location[1], 0)
+                else:
+                    add_duration(location[0], location[1], 1)
         elif trait == 1:
             if location := get_rnd_street():
                 add_duration(location[0], location[1], -1)
