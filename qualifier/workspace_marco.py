@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import random
+import glob
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
@@ -28,32 +29,29 @@ if __name__ == '__main__':
         # 'e.txt',  # instant
         # 'f.txt',  # 4s
     ]:
-
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        good_results = {
-            'b.txt': ['b_qualifier_marco_.out'],
-            'c.txt': ['c_qualifier_marco.out'],
-            'd.txt': ['d_qualifier_marco.out'],
-            'e.txt': ['e_qualifier_marco.out'],
-            'f.txt': [
-                'f_000931074_marco-EvolutionStrategy.out',
-                'f_qualifier_marco.out',
-                'f_980648_EvolutionStrategy.out'
-            ]
+        file_filter = {
+            'a.txt': 'ignore',
+            'b.txt': 'b_*.out',
+            'c.txt': 'c_*.out',
+            'd.txt': 'd_*.out',
+            'e.txt': 'e_*.out',
+            'f.txt': 'f_*.out'
         }
+        saved_results = glob.glob(os.path.join(THIS_PATH, '../saved_results', file_filter[file_name]))
 
-        my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=10, ratio_permanent_red=0.01)
+        # my_strategy = SmartRandom(seed=random.randint(0, 1_000_000), max_duration=10, ratio_permanent_red=0.01)
 
         parents = []
-        if file_name in good_results:
-            print(f'Loading good parents')
-            for output_file in good_results[file_name]:
-                file = os.path.join(THIS_PATH, f'../saved_results/{output_file}')
-                parent = OutputData.read(file, input_data)
-                parents.append(parent)
 
+        print(f'Loading good parents: {saved_results}')
+        for output_file in saved_results:
+            parent = OutputData.read(output_file, input_data)
+            parents.append(parent)
+
+        # setup initial gene pool, learning from previous results and adding some from different strategies
         parents = [
             *parents,
             BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
@@ -63,6 +61,7 @@ if __name__ == '__main__':
             FixedPeriods(period=1).solve(input_data),
             FixedPeriods(period=2).solve(input_data),
             FixedPeriods(period=3).solve(input_data),
+
             # CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
         ]
 
@@ -81,7 +80,7 @@ if __name__ == '__main__':
 
             # quick
             generations=2,
-            children_per_couple=4,
+            children_per_couple=5,
             generation_size_limit=4,
 
             # normal
@@ -93,15 +92,15 @@ if __name__ == '__main__':
             extra_mutations=input_data.n_intersections // 5,
             gene_pool=parents,
             verbose=2,
-            simulator_class=SimulatorV4,
+            simulator_class=SimulatorV2,
             jobs=4
         )
 
         output = my_strategy.solve(input_data)
 
         score = SimulatorV2(input_data, verbose=0).run(output)
-        # score = SimulatorV4(input_data).run(output)
-        # print(f'---- {file_name} ----')
+
+        print(f'---- {file_name} ----')
         # print(f'Org sim score: {Simulator(input_data, verbose=0).run(output)}')
         # print(f'V2 sim score: {score}')
         # print(f'V4 sim score: {SimulatorV4(input_data).run(output)}')

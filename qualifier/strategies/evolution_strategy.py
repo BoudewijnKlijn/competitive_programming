@@ -140,7 +140,7 @@ Extra mutations: {extra_mutations}""")
             current_generation = current_generation[:self.generation_size_limit]
 
             if self.verbose == 2:
-                print(f'Generation {generation:03}/{self.generations:03}: {current_generation[0].score}')
+                print(f'Generation {generation:03}/{self.generations:03}: {[p.score for p in current_generation[0]]}')
 
             if current_generation[0].score > best_solution.score:
                 best_solution = deepcopy(current_generation[0])
