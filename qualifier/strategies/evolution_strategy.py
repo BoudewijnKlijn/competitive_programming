@@ -75,7 +75,7 @@ class EvolutionStrategy(Strategy):
         self.input_data = input_data
         self.jobs = jobs
         self.extra_mutations = extra_mutations
-        self.survivor_count = generation_size_limit
+        self.generation_size_limit = generation_size_limit
         self.children_per_parent = children_per_couple
         self.generations = generations
         self.verbose = verbose
@@ -103,13 +103,20 @@ Extra mutations: {extra_mutations}""")
             print('Using existing gene pool')
             parents = [Solution(genes.schedules, self.simulator.run(genes)) for genes in self.gene_pool]
 
-        print('Adding extra SmartRandom parents if needed')
-        for _ in range(max(0, self.survivor_count - len(parents))):
+        def add_solution():
             random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
                                           ratio_permanent_red=0.01).solve(
                 input_data)
             score = self.simulator.run(random_solution)
             parents.append(Solution(random_solution.schedules, score))
+
+        if len(parents) % 2 == 1:
+            print('Odd amount in gene pool, adding a random parent')
+            add_solution()
+
+        print('Adding extra SmartRandom parents if needed to fill to generation_size_limit')
+        for _ in range(max(0, self.generation_size_limit - len(parents))):
+            add_solution()
 
         # working with a best score because we still have an issue with mutability.
         best_solution = deepcopy(parents[0])
@@ -130,7 +137,7 @@ Extra mutations: {extra_mutations}""")
 
             current_generation += new_generation
             current_generation.sort(key=lambda solution: solution.score, reverse=True)
-            current_generation = current_generation[:self.survivor_count]
+            current_generation = current_generation[:self.generation_size_limit]
 
             if self.verbose == 2:
                 print(f'Generation {generation:03}/{self.generations:03}: {current_generation[0].score}')

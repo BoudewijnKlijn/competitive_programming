@@ -13,6 +13,7 @@ class Simulator:
 
         :type verbose: 0 = nothing, 1=progress bar, 2= debug output
         """
+        self.input_data = input_data
         self.verbose = verbose
         self.bonus = input_data.bonus
         self.duration = input_data.duration
@@ -65,7 +66,7 @@ class Simulator:
             self.score += score
 
     def run(self, output_data: OutputData) -> int:
-        self._validate(output_data)
+        self._validate(self.input_data, output_data)
         self.setup_run(output_data)
 
         if self.verbose == 1:
