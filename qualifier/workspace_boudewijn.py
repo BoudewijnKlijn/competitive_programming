@@ -47,20 +47,6 @@ class MyStrategy(Strategy):
         return OutputData(schedules)
 
 
-class FixedPeriods(Strategy):
-
-    def solve(self, input):
-        schedules = []
-        for intersection in input.intersections:
-            traffic_lights = []
-            for street in intersection.incoming_streets:
-                traffic_lights.append((street.name, 1))
-            schedule = Schedule(intersection.index, tuple(traffic_lights))
-            schedules.append(schedule)
-
-        return OutputData(tuple(schedules))
-
-
 if __name__ == '__main__':
 
     directory = os.path.join('inputs')
@@ -74,10 +60,10 @@ if __name__ == '__main__':
 
         output = my_strategy.solve(input_data)
 
-        sims = [Simulator, SimulatorV2, SimulatorV4]
+        sims = [SimulatorV4]  # Simulator, SimulatorV2,
         for sim in sims:
             score = sim(input_data, verbose=0).run(output)
-            print(f'{sim=}, {score=}')
+            print(f'{sim.__name__=}, {score=}')
             save_output(output, file_name, score, f'boudewijn_{sim.__name__}')
 
         if single_file is not None:

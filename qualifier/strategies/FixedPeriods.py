@@ -9,10 +9,10 @@ class FixedPeriods(Strategy):
     def solve(self, input):
         schedules = []
         for intersection in input.intersections:
-            trafic_lights = []
+            traffic_lights = []
             for street in intersection.incoming_streets:
-                trafic_lights.append((street.name, 1))
-            schedule = Schedule(intersection.index, tuple(trafic_lights))
+                traffic_lights.append((street.name, 1))
+            schedule = Schedule(intersection.index, tuple(traffic_lights))
             schedules.append(schedule)
 
         return OutputData(tuple(schedules))
