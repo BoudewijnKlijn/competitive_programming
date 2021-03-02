@@ -9,6 +9,7 @@ from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy
 from qualifier.strategies.RandomPeriods import RandomPeriods
+from qualifier.strategies.FixedPeriods import FixedPeriods
 from qualifier.util import save_output
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
