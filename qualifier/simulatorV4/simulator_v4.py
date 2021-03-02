@@ -13,10 +13,11 @@ class SimulatorV4:
 
         self.bonus = input_data.bonus
         self.duration = input_data.duration
-        self.cars = [SimulatorCarV4(path=deque(car.path)) for car in input_data.cars]
+        self.cars_init = input_data.cars
+        self.cars = list()
         self.verbose = verbose
 
-        self.actions = [deque() for _ in range(self.duration)]  # list with cars, at positions equal to time of entering street
+        self.actions = list()  # list with cars, at positions equal to time of entering street
 
         self.streets = dict()
 
@@ -27,6 +28,11 @@ class SimulatorV4:
             self.streets[street_name] = SimulatorStreetV4(street.time, deque())
 
     def init_run(self, output_data: OutputData):
+
+        self.finished = np.zeros(self.duration + 1, dtype=int)
+
+        # init action queue: list with cars, at positions equal to time of entering street
+        self.actions = [deque() for _ in range(self.duration)]
 
         # init streets with the schedules # todo: optimize and/or rewrite
         for schedule in output_data.schedules:
@@ -50,6 +56,7 @@ class SimulatorV4:
                 print(f'{street_name=}, {street.passing_times}')
 
         # init cars
+        self.cars = [SimulatorCarV4(path=deque(car.path)) for car in self.cars_init]
         for car in self.cars:
             starting_street = car.path.popleft()
             while True:

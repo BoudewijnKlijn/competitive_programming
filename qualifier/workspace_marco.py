@@ -5,6 +5,7 @@ import random
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
+from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.strategies.BusyFirst import BusyFirst
 from qualifier.strategies.BusyFirstV2 import BusyFirstV2
 from qualifier.strategies.BusyFirstV3 import BusyFirstV3
@@ -84,7 +85,7 @@ if __name__ == '__main__':
             extra_mutations=input_data.n_intersections // 5,
             gene_pool=parents,
             verbose=2,
-            simulator_class=SimulatorV2,
+            simulator_class=SimulatorV4,
             jobs=4
         )
 
