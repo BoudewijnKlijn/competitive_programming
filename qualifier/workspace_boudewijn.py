@@ -1,6 +1,7 @@
 import time
 import os
 from collections import defaultdict
+import numpy as np
 
 from qualifier.calculate_score import calculate_score
 from qualifier.input_data import InputData
@@ -63,32 +64,21 @@ class FixedPeriods(Strategy):
 if __name__ == '__main__':
 
     directory = os.path.join('inputs')
-    single_file = 'a.txt'  # 'f.txt',  None
+    single_file = 'e.txt'  # file_name or None
     for file_name in os.listdir(directory):
         if single_file is not None:
             file_name = single_file
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomPeriods() #FixedPeriods()
+        my_strategy = RandomPeriods(np.random.randint(0, 10000000))  # FixedPeriods()
 
         output = my_strategy.solve(input_data)
 
-        # start_time = time.time()
-        # score = SimulatorV4(input_data).run(output)
-        # print(time.time() - start_time)
         sims = [Simulator, SimulatorV2, SimulatorV4]
         for sim in sims:
-            score = sim(input_data).run(output)
+            score = sim(input_data, verbose=0).run(output)
             print(f'{sim=}, {score=}')
             save_output(output, file_name, score, f'boudewijn_{sim.__name__}')
-        # score = SimulatorV2(input_data, verbose=0).run(output)
-        # # score = SimulatorV4(input_data).run(output)
-        # print(f'---- {file_name} ----')
-        # print(f'Org sim score: {Simulator(input_data, verbose=0).run(output)}')
-        # print(f'V2 sim score: {score}')
-        # print(f'V4 sim score: {SimulatorV4(input_data).run(output)}')
-
-        # save_output(output, file_name, score, 'boudewijn')
 
         if single_file is not None:
             break
