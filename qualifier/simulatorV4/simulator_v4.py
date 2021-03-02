@@ -32,6 +32,8 @@ class SimulatorV4:
         for schedule in output_data.schedules:
             sum_other_streets_before = 0
             length_schedule = sum([d for _, d in schedule.street_duration_tuples])
+            if length_schedule == 0:
+                continue
             for street_name, duration in schedule.street_duration_tuples:
                 self.streets[street_name].passing_times = deque([time for time in [
                     sum_other_streets_before +
