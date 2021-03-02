@@ -92,7 +92,7 @@ if __name__ == '__main__':
             extra_mutations=input_data.n_intersections // 5,
             gene_pool=parents,
             verbose=2,
-            simulator_class=SimulatorV2,
+            simulator_class=SimulatorV4,
             jobs=4
         )
 
