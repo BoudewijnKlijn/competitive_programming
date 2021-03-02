@@ -7,8 +7,11 @@ from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy
+from qualifier.strategies.RandomPeriods import RandomPeriods
 from qualifier.util import save_output
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
+from qualifier.simulatorV2.simulator_v2 import SimulatorV2
+from qualifier.simulator.simulator import Simulator
 
 THIS_PATH = os.path.realpath(__file__)
 
@@ -60,16 +63,32 @@ class FixedPeriods(Strategy):
 if __name__ == '__main__':
 
     directory = os.path.join('inputs')
+    single_file = 'a.txt'  # 'f.txt',  None
     for file_name in os.listdir(directory):
-        # file_name = 'f.txt'
+        if single_file is not None:
+            file_name = single_file
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = FixedPeriods()
+        my_strategy = RandomPeriods() #FixedPeriods()
 
         output = my_strategy.solve(input_data)
 
-        start_time = time.time()
-        score = SimulatorV4(input_data).run(output)
-        print(time.time() - start_time)
+        # start_time = time.time()
+        # score = SimulatorV4(input_data).run(output)
+        # print(time.time() - start_time)
+        sims = [Simulator, SimulatorV2, SimulatorV4]
+        for sim in sims:
+            score = sim(input_data).run(output)
+            print(f'{sim=}, {score=}')
+            save_output(output, file_name, score, f'boudewijn_{sim.__name__}')
+        # score = SimulatorV2(input_data, verbose=0).run(output)
+        # # score = SimulatorV4(input_data).run(output)
+        # print(f'---- {file_name} ----')
+        # print(f'Org sim score: {Simulator(input_data, verbose=0).run(output)}')
+        # print(f'V2 sim score: {score}')
+        # print(f'V4 sim score: {SimulatorV4(input_data).run(output)}')
 
-        save_output(output, file_name, score, 'boudewijn')
+        # save_output(output, file_name, score, 'boudewijn')
+
+        if single_file is not None:
+            break
