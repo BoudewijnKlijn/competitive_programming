@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
         output = my_strategy.solve(input_data)
 
-        sims = [SimulatorV4]  # Simulator, SimulatorV2,
+        sims = [Simulator, SimulatorV2, SimulatorV4]  # Simulator, SimulatorV2,
         for sim in sims:
             score = sim(input_data, verbose=0).run(output)
             print(f'{sim.__name__=}, {score=}')

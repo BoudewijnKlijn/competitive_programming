@@ -1,4 +1,5 @@
 from collections import deque
+from copy import deepcopy
 import numpy as np
 
 from qualifier.input_data import InputData
@@ -13,11 +14,13 @@ class SimulatorV4:
 
         self.bonus = input_data.bonus
         self.duration = input_data.duration
-        self.cars_init = input_data.cars
-        self.cars = list()
         self.verbose = verbose
 
-        self.actions = list()  # list with cars, at positions equal to time of entering street
+        self.cars_init = [SimulatorCarV4(path=deque(car.path)) for car in input_data.cars]
+        self.cars = list()
+
+        self.actions_init = [deque() for _ in range(self.duration)]  # list with cars, at positions equal to time of entering street
+        self.actions = list()
 
         self.streets = dict()
 
@@ -32,7 +35,7 @@ class SimulatorV4:
         self.finished = np.zeros(self.duration + 1, dtype=int)
 
         # init action queue: list with cars, at positions equal to time of entering street
-        self.actions = [deque() for _ in range(self.duration)]
+        self.actions = deepcopy(self.actions_init)
 
         # init streets with the schedules # todo: optimize and/or rewrite
         for schedule in output_data.schedules:
@@ -41,22 +44,16 @@ class SimulatorV4:
             if length_schedule == 0:
                 continue
             for street_name, duration in schedule.street_duration_tuples:
-                self.streets[street_name].passing_times = deque([time for time in [
-                    sum_other_streets_before +
-                    seconds_this_street_before +
-                    length_schedule * multiplier
-                    for multiplier in range(2 + self.duration // length_schedule)
-                    for seconds_this_street_before in range(duration)
-                ] if time < self.duration])
+                passing_times = list()
+                for seconds_this_street_before in range(duration):
+                    passing_times += range(sum_other_streets_before + seconds_this_street_before,
+                                           self.duration,
+                                           length_schedule)
                 sum_other_streets_before += duration
-            assert sum_other_streets_before == length_schedule
-
-        if self.verbose:
-            for street_name, street in self.streets.items():
-                print(f'{street_name=}, {street.passing_times}')
+                self.streets[street_name].passing_times = deque(sorted(passing_times))
 
         # init cars
-        self.cars = [SimulatorCarV4(path=deque(car.path)) for car in self.cars_init]
+        self.cars = deepcopy(self.cars_init)
         for car in self.cars:
             starting_street = car.path.popleft()
             while True:
@@ -68,7 +65,6 @@ class SimulatorV4:
                 if passing_time < car.time_passed:
                     continue  # get next passing time (green light). car has spend more time already.
                 else:
-                    # todo: verify if +0 or +1
                     car.time_passed = passing_time
                     self.actions[passing_time].append(car)  # add car with remaining streets to action queue
                     break
