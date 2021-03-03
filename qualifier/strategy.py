@@ -18,3 +18,6 @@ class Strategy(ABC):
     @abstractmethod
     def solve(self, input: InputData) -> OutputData:
         raise NotImplementedError()
+
+    def get_history(self):
+        return None

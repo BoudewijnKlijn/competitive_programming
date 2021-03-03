@@ -80,7 +80,7 @@ class EvolutionStrategyV2(Strategy):
         self.generations = generations
         self.verbose = verbose
         self.simulator_class = simulator_class
-
+        self.history = []
         self.pool = None
 
         # create one for the algo as well.. switch to a worker once we got a handle on this...
@@ -105,7 +105,7 @@ Extra mutations: {extra_mutations}""")
 
         def add_solution():
             random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
-                                          ratio_permanent_red=0.01).solve(
+                                          ratio_permanent_red=0).solve(
                 input_data)
             score = self.simulator.run(random_solution)
             parents.append(Solution(random_solution.schedules, score))
@@ -139,8 +139,12 @@ Extra mutations: {extra_mutations}""")
             current_generation.sort(key=lambda solution: solution.score, reverse=True)
             current_generation = current_generation[:self.generation_size_limit]
 
+            scores = [p.score for p in current_generation]
+
             if self.verbose == 2:
-                print(f'Generation {generation:03}/{self.generations:03}: {[p.score for p in current_generation]}')
+                print(f'Generation {generation:03}/{self.generations:03}: {scores}')
+
+            self.history.append(scores)
 
             if current_generation[0].score > best_solution.score:
                 best_solution = deepcopy(current_generation[0])
@@ -186,6 +190,9 @@ Extra mutations: {extra_mutations}""")
             raise ValueError(f'Woeps dont know what to mutate')
 
         return schedules
+
+    def get_history(self):
+        return self.history
 
     def create_generation(self, current_generation, children_per_parent):
         children = []

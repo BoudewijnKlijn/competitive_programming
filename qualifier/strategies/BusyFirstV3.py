@@ -14,7 +14,6 @@ class BusyFirstV3(Strategy):
         all_streets = [item for sublist in all_streets for item in sublist]
         counted = Counter(all_streets)
         priority = {k: v for k, v in sorted(counted.items(), key=lambda item: item[1], reverse=True)}
-        values = list(priority.values())
 
         streets_with_cars = {street.name for street in all_streets}
 
@@ -27,8 +26,12 @@ class BusyFirstV3(Strategy):
         schedules = []
         for intersection in input.intersections:
             trafic_lights = []
-            for street in intersection.incoming_streets:
-                if street.name in streets_with_cars and counted[street] > 1:
+
+            intersection_streets = [(street, priority.get(street, 0)) for street in intersection.incoming_streets]
+            intersection_streets.sort(key=lambda x: x[1])
+
+            for street, _ in intersection_streets:
+                if street.name in streets_with_cars and counted[street] >= 1:
                     trafic_lights.append((street.name, seconds(street)))
 
             schedule = Schedule(intersection.index,

@@ -20,6 +20,7 @@ class SmartRandom(Strategy):
             traffic_lights = []
             incoming_streets = list(intersection.incoming_streets)
             self.random.shuffle(incoming_streets)
+
             for street in incoming_streets:
                 if street.name in streets_with_cars:
                     if self.random.random() < self.ratio_permanent_red:  # x% chance to just disable the light
