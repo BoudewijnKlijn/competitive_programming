@@ -1,5 +1,4 @@
-from collections import deque, defaultdict
-from copy import deepcopy
+from collections import deque
 import numpy as np
 
 from qualifier.input_data import InputData
@@ -16,15 +15,13 @@ class SimulatorV4:
         self.duration = input_data.duration
         self.verbose = verbose
 
-        self.cars_init = [SimulatorCarV4(path=deque(car.path)) for car in input_data.cars]
+        self.cars_input = input_data.cars
         self.cars = list()
 
-        self.actions_init = [list() for _ in range(self.duration)]
         self.actions = list()
 
-        self.streets_init = {street_name: SimulatorStreetV4(street.time, deque())
-                             for street_name, street in input_data.streets.items()}
-        self.streets = defaultdict(SimulatorStreetV4)
+        self.streets_input = input_data.streets
+        self.streets = dict()
 
         self.finished = np.zeros(self.duration + 1, dtype=int)
         self.points = self.bonus + np.arange(self.duration, -1, -1)
@@ -35,26 +32,23 @@ class SimulatorV4:
         self.finished = np.zeros(self.duration + 1, dtype=int)
 
         # reset action queue with cars, at positions equal to time of entering street
-        self.actions = deepcopy(self.actions_init)
+        self.actions = [list() for _ in range(self.duration)]
 
         # add the schedules to the streets
-        self.streets = deepcopy(self.streets_init)
+        self.streets = {street_name: SimulatorStreetV4(street.time, deque())
+                        for street_name, street in self.streets_input.items()}
         for schedule in output_data.schedules:
-            sum_other_streets_before = 0
             length_schedule = sum([d for _, d in schedule.street_duration_tuples])
             if length_schedule == 0:
                 continue
-            for street_name, duration in schedule.street_duration_tuples:
-                passing_times = list()
-                for seconds_this_street_before in range(duration):
-                    passing_times += range(sum_other_streets_before + seconds_this_street_before,
-                                           self.duration,
-                                           length_schedule)
-                sum_other_streets_before += duration
-                self.streets[street_name].passing_times = deque(sorted(passing_times))
+            all_times = list(range(self.duration))
+            time = 0
+            while time < self.duration:
+                for street_name, duration in schedule.street_duration_tuples:
+                    self.streets[street_name].passing_times += all_times[time: (time := time + duration)]
 
         # reset routes of cars and add to action queue
-        self.cars = deepcopy(self.cars_init)
+        self.cars = [SimulatorCarV4(path=deque(car.path)) for car in self.cars_input]
         for car in self.cars:
             starting_street_name = car.path.popleft()
             while True:

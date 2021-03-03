@@ -100,6 +100,16 @@ def green_light_times22():
     return results
 
 
+def green_light_times23():
+    all_times = list(range(DURATION))
+    time = 0
+    streets = {street_name: {'passing_times': []} for street_name, d in street_duration_tuples}
+    while time < DURATION:
+        for street_name, duration in street_duration_tuples:
+            streets[street_name]['passing_times'] += all_times[time: (time := time + duration)]
+    return streets
+
+
 def green_light_times3():
     sum_other_streets_before = 0
     length_schedule = sum([d for _, d in street_duration_tuples])
@@ -135,6 +145,7 @@ print(timeit.timeit('green_light_times2()',  number=number, globals=globals()))
 print(timeit.timeit('green_light_times3()',  number=number, globals=globals()))
 print(timeit.timeit('green_light_times21()',  number=number, globals=globals()))
 print(timeit.timeit('green_light_times22()',  number=number, globals=globals()))
+print(timeit.timeit('green_light_times23()',  number=number, globals=globals()))
 
 
 size = 1000000
