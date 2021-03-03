@@ -40,18 +40,14 @@ class SimulatorV4:
         # add the schedules to the streets
         self.streets = deepcopy(self.streets_init)
         for schedule in output_data.schedules:
-            sum_other_streets_before = 0
             length_schedule = sum([d for _, d in schedule.street_duration_tuples])
             if length_schedule == 0:
                 continue
-            for street_name, duration in schedule.street_duration_tuples:
-                passing_times = list()
-                for seconds_this_street_before in range(duration):
-                    passing_times += range(sum_other_streets_before + seconds_this_street_before,
-                                           self.duration,
-                                           length_schedule)
-                sum_other_streets_before += duration
-                self.streets[street_name].passing_times = deque(sorted(passing_times))
+            all_times = list(range(self.duration))
+            time = 0
+            while time < self.duration:
+                for street_name, duration in schedule.street_duration_tuples:
+                    self.streets[street_name].passing_times += all_times[time: (time := time + duration)]
 
         # reset routes of cars and add to action queue
         self.cars = deepcopy(self.cars_init)
