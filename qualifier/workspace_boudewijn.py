@@ -57,11 +57,11 @@ if __name__ == '__main__':
             file_name = single_file
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = RandomPeriods(np.random.randint(0, 10000000))  # FixedPeriods()
+        my_strategy = RandomPeriods(seed=1)  # FixedPeriods()
 
         output = my_strategy.solve(input_data)
 
-        sims = [Simulator, SimulatorV2, SimulatorV4]  # Simulator, SimulatorV2,
+        sims = [SimulatorV4]  # Simulator, SimulatorV2,
         for sim in sims:
             score = sim(input_data, verbose=0).run(output)
             print(f'{sim.__name__=}, {score=}')
