@@ -65,11 +65,38 @@ def green_light_times21():
     length_schedule = sum([d for _, d in street_duration_tuples])
     results = list()
     for street_name, duration in street_duration_tuples:
-        ranges = [range(sum_other_streets_before + seconds_this_street_before,
+        ranges = (range(sum_other_streets_before + seconds_this_street_before,
                            DURATION,
-                           length_schedule) for seconds_this_street_before in range(duration)]
+                           length_schedule) for seconds_this_street_before in range(duration))
         sum_other_streets_before += duration
         results.append(deque(sorted(chain(*ranges))))
+    return results
+
+
+import numpy as np
+
+
+def green_light_times22():
+    sum_other_streets_before = 0
+    length_schedule = sum([d for _, d in street_duration_tuples])
+    results = list()
+    for street_name, duration in street_duration_tuples:
+        times = np.sort(
+            np.concatenate(
+                [np.arange(sum_other_streets_before + seconds_this_street_before,
+                           DURATION,
+                           length_schedule
+                           ) for seconds_this_street_before in range(duration)
+                 ]
+            ), kind='stable'
+        )
+        # list()
+        # for seconds_this_street_before in range(duration):
+        #     times += range(sum_other_streets_before + seconds_this_street_before,
+        #                    DURATION,
+        #                    length_schedule)
+        sum_other_streets_before += duration
+        results.append(deque(times))
     return results
 
 
@@ -98,7 +125,7 @@ def green_light_times3():
 
 
 assert green_light_times1() == green_light_times2()
-assert green_light_times2() == green_light_times21()
+# assert green_light_times2() == green_light_times21()
 assert green_light_times1() == green_light_times3()
 
 
@@ -107,11 +134,10 @@ print(timeit.timeit('green_light_times1()',  number=number, globals=globals()))
 print(timeit.timeit('green_light_times2()',  number=number, globals=globals()))
 print(timeit.timeit('green_light_times3()',  number=number, globals=globals()))
 print(timeit.timeit('green_light_times21()',  number=number, globals=globals()))
+print(timeit.timeit('green_light_times22()',  number=number, globals=globals()))
 
 
-
-
-size = 10000
+size = 1000000
 L = list(range(size))
 Q = deque(deepcopy(L))
 L_reversed = deepcopy(L)[::-1]
@@ -154,22 +180,50 @@ def loop4():
         x * 2  # some operation
 
 
-def loop5():
-    while True:
-        try:
-            x = L.pop(0)  # pop from 0, so worst case for list
-        except IndexError:
-            break
-        # print(x)
-        x * 2  # some operation
-
-
 # number = 1
 # print(timeit.timeit('loop1()',  number=number, globals=globals()))
 # print(timeit.timeit('loop2()',  number=number, globals=globals()))
 # print(timeit.timeit('loop3()',  number=number, globals=globals()))
 # print(timeit.timeit('loop4()',  number=number, globals=globals()))
-# print(timeit.timeit('loop5()',  number=number, globals=globals()))
 
 
+# inner_list_size = 100
+# n_lists = 10000
+# L = list([list(range(inner_list_size)) for _ in range(n_lists)])
+# Q = list([deque(range(inner_list_size)) for _ in range(n_lists)])
+# L_iter = list([iter(range(inner_list_size)) for _ in range(n_lists)])
 
+
+def loop21():
+    for inner in L:
+        for x in inner:
+            # print(x)
+            x * 2  # some operation
+
+
+def loop22():
+    for inner in Q:
+        while True:
+            try:
+                x = inner.popleft()
+            except IndexError:
+                break
+            # print(x)
+            x * 2  # some operation
+
+
+def loop24():
+    for inner in L_iter:
+        while True:
+            try:
+                x = next(inner)
+            except StopIteration:
+                break
+            # print(x)
+            x * 2  # some operation
+
+
+# number = 1
+# print(timeit.timeit('loop21()',  number=number, globals=globals()))
+# print(timeit.timeit('loop22()',  number=number, globals=globals()))
+# print(timeit.timeit('loop24()',  number=number, globals=globals()))
