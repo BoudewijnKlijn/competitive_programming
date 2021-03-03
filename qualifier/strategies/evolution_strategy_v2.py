@@ -149,7 +149,7 @@ Extra mutations: {extra_mutations}""")
             if current_generation[0].score > best_solution.score:
                 best_solution = deepcopy(current_generation[0])
                 OutputData(current_generation[0].schedules).save(
-                    f'./outputs/Evo {current_generation[0].score} {datetime.now():%H%M%S}.out')
+                    f'./outputs/intermediate results/Evo {current_generation[0].score}.out')
 
         print(f'Valid: {best_solution.score}')
 

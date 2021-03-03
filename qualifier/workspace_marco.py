@@ -28,7 +28,7 @@ from qualifier.strategy import Strategy
 from qualifier.submit import zip_submission
 from qualifier.util import save_output
 
-THIS_PATH = os.path.realpath(__file__)
+THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 class StartFirstGreen(Strategy):
@@ -67,7 +67,7 @@ def setup_evolution_strategy(file_name: str):
         'e.txt': 'e_*.out',
         'f.txt': 'f_*.out'
     }
-    saved_results = glob.glob(os.path.join(THIS_PATH, '../saved_results', file_filter[file_name]))
+    saved_results = glob.glob(os.path.join(THIS_PATH, 'saved_results', file_filter[file_name]))
 
     parents = []
 
@@ -79,6 +79,7 @@ def setup_evolution_strategy(file_name: str):
     # setup initial gene pool, learning from previous results and adding some from different strategies
     parents = [
         *parents,
+        StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
         BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
@@ -120,15 +121,20 @@ def setup_evolution_strategy(file_name: str):
 
 if __name__ == '__main__':
 
-    directory = os.path.join(THIS_PATH, '../inputs')
+    directory = os.path.join(THIS_PATH, 'inputs')
     for file_name in [
         # 'a.txt',  # instant
-        # 'b.txt',  # 26s
-        # 'c.txt',  # 17s
-        # 'd.txt',  # 2m09s
+
+        # ordered by speed (as measured by V1 simulator back in the day)
+
         'e.txt',  # instant
         # 'f.txt',  # 4s
+        'c.txt',  # 17s
+        'b.txt',  # 26s
+        'd.txt',  # 2m09s
+
     ]:
+        print(f'----- Solving {file_name} -----')
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
@@ -164,15 +170,30 @@ Score:  {score}         (Still to gain ~{potential_score - score} points)
         if history:
             transposed = list(map(list, zip(*history)))
             x = list(range(1, len(transposed[0]) + 1))
-            plt.figure(figsize=(15, 10))
-            plt.plot(x, transposed[0], label='Best in each generation')
-            for i in range(1, len(transposed)):
-                plt.plot(x, transposed[i], color='lightgray')
 
-            plt.plot(x, transposed[-1], label='Worst in each generation')
-            plt.xlabel('generation')
-            plt.ylabel('score')
-            plt.legend()
-            plt.show()
+            fig, axs = plt.subplots(2, figsize=(15, 20))
+
+            axs[0].plot(x, transposed[0], label='Best in each generation')
+            for i in range(1, len(transposed)):
+                axs[0].plot(x, transposed[i], color='lightgray')
+
+            axs[0].plot(x, transposed[-1], label='Worst in each generation')
+            axs[0].set_xlabel('generation')
+            axs[0].set_ylabel('score')
+            axs[0].legend()
+            axs[0].set_title(f'Full history: {len(x)} generations')
+
+            axs[1].plot(x[-3:], transposed[0][-3:], label='Best in each generation')
+            for i in range(1, len(transposed)):
+                axs[1].plot(x[-3:], transposed[i][-3:], color='lightgray')
+
+            axs[1].plot(x[-3:], transposed[-1][-3:], label='Worst in each generation')
+            axs[1].set_xlabel('generation')
+            axs[1].set_ylabel('score')
+            axs[1].legend()
+            axs[1].set_title(f'last 3 generations')
+            fig.suptitle(f'Problem: {file_name} Strategy: {my_strategy.name} score: {score}')
+            fig.show()
+            fig.savefig(os.path.join(THIS_PATH, 'outputs', 'history', f'{file_name}.{score}.png'))
 
     zip_submission()
