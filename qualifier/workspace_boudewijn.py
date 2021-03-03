@@ -51,7 +51,7 @@ class MyStrategy(Strategy):
 if __name__ == '__main__':
 
     directory = os.path.join('inputs')
-    single_file = None  # 'e.txt'  # file_name or None
+    single_file = 'f.txt'  # 'e.txt'  # file_name or None
     for file_name in os.listdir(directory):
         if single_file is not None:
             file_name = single_file
