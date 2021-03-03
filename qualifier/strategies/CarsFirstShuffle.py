@@ -11,7 +11,6 @@ class CarsFirstShuffle(Strategy):
         instersections = dict()
 
         cars = list(input.cars)
-        print(f'Debug: {self.random.randint(0, 100)}')
         self.random.shuffle(cars)
 
         for car in cars:

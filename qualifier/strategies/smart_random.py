@@ -6,7 +6,7 @@ from qualifier.strategy import Strategy
 class SmartRandom(Strategy):
     name = 'SmartRandom'
 
-    def __init__(self, seed, max_duration, ratio_permanent_red: float):
+    def __init__(self, seed, max_duration=3, ratio_permanent_red: float = .0001):
 
         super().__init__(seed=seed)
         self.max_duration = max_duration

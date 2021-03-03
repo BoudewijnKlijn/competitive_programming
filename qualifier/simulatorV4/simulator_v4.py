@@ -37,6 +37,7 @@ class SimulatorV4:
         # add the schedules to the streets
         self.streets = {street_name: SimulatorStreetV4(street.time, deque())
                         for street_name, street in self.streets_input.items()}
+
         for schedule in output_data.schedules:
             length_schedule = sum([d for _, d in schedule.street_duration_tuples])
             if length_schedule == 0:
@@ -58,7 +59,8 @@ class SimulatorV4:
                     break  # no passing times available anymore for street
 
                 if passing_time < car.time_passed:
-                    self.streets[starting_street_name].n_unused_passing_times += 1  # for analysis: add unused green light
+                    self.streets[
+                        starting_street_name].n_unused_passing_times += 1  # for analysis: add unused green light
                     continue  # get next passing time (green light). car has spend more time already.
                 else:
                     self.streets[starting_street_name].sum_waiting_time += \

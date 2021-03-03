@@ -101,7 +101,7 @@ def setup_evolution_strategy(file_name: str):
 
         # Problem D
         # generations=20,
-        # children_per_couple=10,
+        # children_per_couple=15,
         # generation_size_limit=8,
 
         # normal
@@ -130,7 +130,7 @@ if __name__ == '__main__':
         # 'e.txt',  # instant
         # 'f.txt',  # 4s
         # 'c.txt',  # 17s
-        'b.txt',  # 26s
+        # 'b.txt',  # 26s
         'd.txt',  # 2m09s
 
     ]:
@@ -138,9 +138,9 @@ if __name__ == '__main__':
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        # my_strategy = StartFirstGreen(seed=random.randint(0, 1_000_000))
+        my_strategy = StartFirstGreen(seed=random.randint(0, 1_000_000))
         # my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
-        my_strategy = setup_evolution_strategy(file_name)
+        # my_strategy = setup_evolution_strategy(file_name)
 
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)
