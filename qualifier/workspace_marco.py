@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 import random
 import glob
-import numpy as np
+import matplotlib.pyplot as plt
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
@@ -82,11 +82,10 @@ def setup_evolution_strategy(file_name: str):
         BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
-        # BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
+        BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
-        FixedPeriods(period=1).solve(input_data),
-        # RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration).solve(input_data),
-        # RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration).solve(input_data)
+        SmartRandom(seed=random.randint(0, 1_000_000), ratio_permanent_red=0, max_duration=3).solve(input_data),
+        RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration).solve(input_data)
 
         # CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
     ]
@@ -95,14 +94,14 @@ def setup_evolution_strategy(file_name: str):
         input_data=input_data,
         seed=random.randint(0, 1_000_000),
         # debug
-        # generations=2,
-        # children_per_couple=2,
-        # generation_size_limit=2,
-
-        # quick
-        generations=10,
-        children_per_couple=15,
+        generations=20,
+        children_per_couple=10,
         generation_size_limit=6,
+
+        # Problem D
+        # generations=20,
+        # children_per_couple=10,
+        # generation_size_limit=8,
 
         # normal
         # generations=5,
@@ -126,16 +125,16 @@ if __name__ == '__main__':
         # 'a.txt',  # instant
         # 'b.txt',  # 26s
         # 'c.txt',  # 17s
-        'd.txt',  # 2m09s
-        # 'e.txt',  # instant
+        # 'd.txt',  # 2m09s
+        'e.txt',  # instant
         # 'f.txt',  # 4s
     ]:
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
         # my_strategy = StartFirstGreen(seed=random.randint(0, 1_000_000))
-        my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
-        # my_strategy = setup_evolution_strategy(file_name)
+        # my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
+        my_strategy = setup_evolution_strategy(file_name)
 
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)
@@ -159,6 +158,21 @@ Score:  {score}         (Still to gain ~{potential_score - score} points)
 ----------------------------------------------------------
         """)
 
-        save_output(output, file_name, score, f'marco-{my_strategy.name}')
+        save_output(output, file_name, score, f'M_and_B-{my_strategy.name}')
+
+        history = my_strategy.get_history()
+        if history:
+            transposed = list(map(list, zip(*history)))
+            x = list(range(1, len(transposed[0]) + 1))
+            plt.figure(figsize=(15, 10))
+            plt.plot(x, transposed[0], label='Best in each generation')
+            for i in range(1, len(transposed)):
+                plt.plot(x, transposed[i], color='lightgray')
+
+            plt.plot(x, transposed[-1], label='Worst in each generation')
+            plt.xlabel('generation')
+            plt.ylabel('score')
+            plt.legend()
+            plt.show()
 
     zip_submission()
