@@ -135,6 +135,10 @@ Extra mutations: {extra_mutations}""")
                 current_generation,
                 children_per_parent=self.children_per_parent)
 
+            # consider giving genes that survived a generation a tiny bonus survival
+            # consider keeping a few genomes that are novel so to maintain diversity
+            #  - perhaps generating hash codes of genes and counting nr of unique genes a genome has
+
             current_generation += new_generation
             current_generation.sort(key=lambda solution: solution.score, reverse=True)
             current_generation = current_generation[:self.generation_size_limit]
