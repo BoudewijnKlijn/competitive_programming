@@ -4,14 +4,15 @@ from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy
 
 
-class CarsFirst(Strategy):
-    name = 'CarsFirst'
+class CarsFirstShuffle(Strategy):
+    name = 'CarsFirstShuffle'
 
     def solve(self, input: InputData) -> OutputData:
         instersections = dict()
 
-        cars = input.cars
-        sorted(cars, key=lambda car_: sum([street_.time for street_ in car_.path]))
+        cars = list(input.cars)
+        print(f'Debug: {self.random.randint(0, 100)}')
+        self.random.shuffle(cars)
 
         for car in cars:
             for street in car.path[:-1]:
@@ -23,6 +24,7 @@ class CarsFirst(Strategy):
 
         schedules = []
         for intersection, streets in instersections.items():
+            # maybe a bit to much? self.random.shuffle(streets)  # this does have effect on score
             schedule = Schedule(intersection, tuple([(street, 1) for street in streets]))
             schedules.append(schedule)
         return OutputData(tuple(schedules))

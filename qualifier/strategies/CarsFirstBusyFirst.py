@@ -14,7 +14,7 @@ class CarsFirstBusyFirst(Strategy):
         sorted(cars, key=lambda car_: sum([street_.time for street_ in car_.path]))
 
         for car in cars:
-            for street in car.path:
+            for street in car.path[:-1]:
                 if street.end not in instersections:
                     instersections[street.end] = [street.name]
                 else:

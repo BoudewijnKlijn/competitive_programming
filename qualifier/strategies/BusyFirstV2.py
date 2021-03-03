@@ -12,15 +12,15 @@ class BusyFirstV2(Strategy):
     name = 'BusyFirstV2'
 
     def solve(self, input: InputData) -> OutputData:
-        all_streets = [car.path for car in input.cars]
-        all_streets = [item for sublist in all_streets for item in sublist]
+        all_streets = [car.path[:-1] for car in input.cars]
+        all_streets = [item.name for sublist in all_streets for item in sublist]
         counted = Counter(all_streets)
         priority = {k: v for k, v in sorted(counted.items(), key=lambda item: item[1], reverse=True)}
         values = list(priority.values())
         mean_value = np.mean(values)
         std_value = np.std(values)
 
-        streets_with_cars = {street.name for street in all_streets}
+        streets_with_cars = {*all_streets}
 
         step_size = max(1, input.duration // input.n_cars)
 

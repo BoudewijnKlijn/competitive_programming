@@ -10,7 +10,7 @@ class BusyFirstV3(Strategy):
     name = 'BusyFirstV3'
 
     def solve(self, input: InputData) -> OutputData:
-        all_streets = [car.path for car in input.cars]
+        all_streets = [car.path[:-1] for car in input.cars]
         all_streets = [item for sublist in all_streets for item in sublist]
         counted = Counter(all_streets)
         priority = {k: v for k, v in sorted(counted.items(), key=lambda item: item[1], reverse=True)}

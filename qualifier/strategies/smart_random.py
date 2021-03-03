@@ -13,10 +13,7 @@ class SmartRandom(Strategy):
         self.ratio_permanent_red = ratio_permanent_red
 
     def solve(self, input_data):
-
-        # driving trough! them (if they only finish there we dont need to do any traffic lights schedule either...
-        all_streets = [car.path[:-1] for car in input_data.cars]
-        streets_with_cars = {item for sublist in all_streets for item in sublist}
+        streets_with_cars = self.streets_with_car_at_light(input_data)
 
         schedules = []
         for intersection in input_data.intersections:
@@ -24,7 +21,7 @@ class SmartRandom(Strategy):
             incoming_streets = list(intersection.incoming_streets)
             self.random.shuffle(incoming_streets)
             for street in incoming_streets:
-                if street in streets_with_cars:
+                if street.name in streets_with_cars:
                     if self.random.random() < self.ratio_permanent_red:  # x% chance to just disable the light
                         traffic_lights.append((street.name, 0))
                     else:
