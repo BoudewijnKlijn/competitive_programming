@@ -45,7 +45,7 @@ if __name__ == '__main__':
         sims = [SimulatorV2, SimulatorV4]  # Simulator, SimulatorV2,
         for sim in sims:
             simulator = sim(input_data, verbose=0)
-            score = simulator.run(output)
+            score, _ = simulator.run(output)
             print(f'{sim.__name__=}, {score=}')
             save_output(output, file_name, score, f'b_and_m-{sim.__name__}')
 

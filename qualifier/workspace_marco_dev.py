@@ -97,26 +97,28 @@ def setup_evolution_strategy(file_name: str):
         input_data=input_data,
         seed=random.randint(0, 1_000_000),
         # debug
-        generations=10,
-        children_per_couple=3,
-        generation_size_limit=10,
+        # generations=2,
+        # children_per_couple=2,
+        # generation_size_limit=2,
+        # jobs=1,
 
         # Problem D
-        # generations=20,
-        # children_per_couple=3,
-        # generation_size_limit=30,
+        generations=20,
+        children_per_couple=3,
+        generation_size_limit=30,
+        jobs=5,
 
         # normal
         # generations=5,
         # children_per_couple=40,
         # generation_size_limit=10,
+        # jobs=4,
 
         # bit arbitrary but scale it with the problem size
         extra_mutations=input_data.n_intersections // 5,
         gene_pool=parents,
         verbose=2,
         simulator_class=SimulatorV4,
-        jobs=6
     )
     return evo_strategy
 

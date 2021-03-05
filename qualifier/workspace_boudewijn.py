@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         sims = [SimulatorV4]  # Simulator, SimulatorV2,
         for sim in sims:
-            score = sim(input_data, verbose=0).run(output)
+            score, _ = sim(input_data, verbose=0).run(output)
             print(f'{sim.__name__=}, {score=}')
             save_output(output, file_name, score, f'boudewijn_{sim.__name__}')
 
