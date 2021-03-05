@@ -21,7 +21,7 @@ from qualifier.strategies.FixedPeriods import FixedPeriods
 from qualifier.util import save_output
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
-from qualifier.simulator.simulator import Simulator
+from qualifier.simulator.simulatorv1 import SimulatorV1
 from qualifier.workspace_marco import StartFirstGreen
 
 THIS_PATH = os.path.realpath(__file__)

@@ -3,12 +3,14 @@ import numpy as np
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
+from qualifier.schedule import EvaluatedSchedule
+from qualifier.simulator.simulator import Simulator
 
 from qualifier.simulatorV4.simulator_car_v4 import SimulatorCarV4
 from qualifier.simulatorV4.simulator_street_v4 import SimulatorStreetV4
 
 
-class SimulatorV4:
+class SimulatorV4(Simulator):
     def __init__(self, input_data: InputData, verbose: int = 0):
 
         self.bonus = input_data.bonus
@@ -39,13 +41,13 @@ class SimulatorV4:
                         for street_name, street in self.streets_input.items()}
 
         for schedule in output_data.schedules:
-            length_schedule = sum([d for _, d in schedule.street_duration_tuples])
+            length_schedule = sum([d for _, d, *_ in schedule.street_duration_tuples])
             if length_schedule == 0:
                 continue
             all_times = list(range(self.duration))
             time = 0
             while time < self.duration:
-                for street_name, duration in schedule.street_duration_tuples:
+                for street_name, duration, *_ in schedule.street_duration_tuples:
                     self.streets[street_name].passing_times += all_times[time: (time := time + duration)]
 
         # reset routes of cars and add to action queue
@@ -69,7 +71,7 @@ class SimulatorV4:
                     self.actions[passing_time].append(car)  # add car with remaining streets to action queue
                     break  # used passing time to let a car pass, continue with next car
 
-    def run(self, output_data: OutputData) -> int:
+    def run(self, output_data: OutputData) -> (int, OutputData):
         self.init_run(output_data)
 
         for time in range(self.duration):
@@ -99,4 +101,11 @@ class SimulatorV4:
                         self.actions[passing_time].append(car)  # add car with remaining streets to action queue
                         break  # used passing time to let a car pass, continue with next car
 
-        return int(np.dot(self.finished, self.points))
+        evaluated_schedule = []
+        for schedule in output_data.schedules:
+            new_schedule = []
+            for street in schedule.street_duration_tuples:
+                new_schedule.append((street[0], street[1], self.streets[street[0]].sum_waiting_time))
+            evaluated_schedule.append(EvaluatedSchedule(schedule.intersection, tuple(new_schedule)))
+
+        return int(np.dot(self.finished, self.points)), OutputData(tuple(evaluated_schedule))

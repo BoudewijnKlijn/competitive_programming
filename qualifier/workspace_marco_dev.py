@@ -85,24 +85,26 @@ def setup_evolution_strategy(file_name: str):
         # StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
+        # CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
+
+        # good extras
         SmartRandom(seed=random.randint(0, 1_000_000), ratio_permanent_red=0, max_duration=3).solve(input_data),
         RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration).solve(input_data)
 
-        # CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
     ]
 
     evo_strategy = EvolutionStrategyV2(
         input_data=input_data,
         seed=random.randint(0, 1_000_000),
         # debug
-        # generations=20,
-        # children_per_couple=10,
-        # generation_size_limit=6,
+        generations=10,
+        children_per_couple=3,
+        generation_size_limit=10,
 
         # Problem D
-        generations=20,
-        children_per_couple=3,
-        generation_size_limit=30,
+        # generations=20,
+        # children_per_couple=3,
+        # generation_size_limit=30,
 
         # normal
         # generations=5,
@@ -114,7 +116,7 @@ def setup_evolution_strategy(file_name: str):
         gene_pool=parents,
         verbose=2,
         simulator_class=SimulatorV4,
-        jobs=4
+        jobs=6
     )
     return evo_strategy
 
@@ -128,10 +130,10 @@ if __name__ == '__main__':
         # ordered by speed (as measured by V1 simulator back in the day)
 
         # 'e.txt',  # instant
-        # 'f.txt',  # 4s
+        'f.txt',  # 4s
         # 'c.txt',  # 17s
         # 'b.txt',  # 26s
-        'd.txt',  # 2m09s
+        # 'd.txt',  # 2m09s
 
     ]:
         print(f'----- Solving {file_name} -----')
@@ -146,7 +148,8 @@ if __name__ == '__main__':
         output = my_strategy.solve(input_data)
 
         print(f'Running solution trough simulator...')
-        score, _ = SimulatorV4(input_data, verbose=0).run(output)
+        sim = SimulatorV4(input_data, verbose=0)
+        score, _ = sim.run(output)
 
         # print(f'---- {file_name} ----')
         # print(f'Org sim score: {Simulator(input_data, verbose=0).run(output)}')

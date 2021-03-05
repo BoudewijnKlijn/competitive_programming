@@ -20,3 +20,11 @@ class Schedule:
             text += f'{street[0]} {street[1]}\n'
 
         return text
+
+
+class EvaluatedSchedule(Schedule):
+    """ each street schedule contains an extra int with waiting times from simulator evaluation
+    """
+
+    def get_evaluation(self):
+        pass

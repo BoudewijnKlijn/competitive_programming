@@ -5,18 +5,25 @@ from typing import List, Tuple, Callable
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
-from qualifier.schedule import Schedule
+from qualifier.schedule import Schedule, EvaluatedSchedule
 from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
 
 from multiprocessing import Pool
 from tqdm import tqdm
+import numpy as np
+
+# to catch runtime warnings
+np.seterr(all='raise')
 
 
 class Solution:
     def __init__(self, schedules: Tuple[Schedule], score: int):
         if not isinstance(schedules, tuple):
             raise ValueError(f'Expected type tuple for schedules but got {type(schedules)}')
+
+        if not isinstance(score, int):
+            raise ValueError(f'Expected score to be of type int got {type(score)}')
 
         self.score = score
         self.schedules = schedules
@@ -101,14 +108,16 @@ Extra mutations: {extra_mutations}""")
 
         if self.gene_pool:
             print('Using existing gene pool')
-            parents = [Solution(genes.schedules, self.simulator.run(genes)) for genes in self.gene_pool]
+            parents = []
+            for genes in self.gene_pool:
+                score, output = self.simulator.run(genes)
+                parents.append(Solution(output.schedules, score))
 
         def add_solution():
             random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
-                                          ratio_permanent_red=0).solve(
-                input_data)
-            score = self.simulator.run(random_solution)
-            parents.append(Solution(random_solution.schedules, score))
+                                          ratio_permanent_red=0).solve(input_data)
+            score, output = self.simulator.run(random_solution)
+            parents.append(Solution(output.schedules, score))
 
         if len(parents) % 2 == 1:
             print('Odd amount in gene pool, adding a random parent')
@@ -117,6 +126,9 @@ Extra mutations: {extra_mutations}""")
         print('Adding extra SmartRandom parents if needed to fill to generation_size_limit')
         for _ in range(max(0, self.generation_size_limit - len(parents))):
             add_solution()
+
+        # easier to compre to first generation
+        parents.sort(key=lambda solution: solution.score, reverse=True)
 
         # working with a best score because we still have an issue with mutability.
         best_solution = deepcopy(parents[0])
@@ -163,7 +175,16 @@ Extra mutations: {extra_mutations}""")
     def _rnd_index(self, a_list):
         return self.random.randint(0, len(a_list) - 1)
 
-    def _mutate(self, schedules: List[Schedule]) -> List[Schedule]:
+    def _mutate(self, schedules: List[EvaluatedSchedule], losses) -> List[Schedule]:
+
+        def get_weighted_random_intersection(schedules, losses):
+            """ returns the index of a random street, with a higher probability for intersections with long wait times"""
+            total_loss = sum(losses)
+            rnd = self.random.randint(1, total_loss)
+            for index, schedule in enumerate(schedules):
+                rnd -= losses[index]
+                if rnd <= 0:
+                    return index
 
         def random_duration(intersection, street):
             old_street = schedules[intersection].street_duration_tuples[street]
@@ -173,7 +194,8 @@ Extra mutations: {extra_mutations}""")
             schedules[intersection].street_duration_tuples = tuple(as_list)
 
         def get_rnd_street():
-            intersection = self._rnd_index(schedules)
+            # we could also weight individual streets.. but due to the interplay it might actualy be bad to do so
+            intersection = get_weighted_random_intersection(schedules, losses)
             if len(schedules[intersection].street_duration_tuples) == 0:
                 # if by rng we picked an intersection with no schedule just skip it.
                 print('Warning: chose an intersection without a schedule')
@@ -198,6 +220,31 @@ Extra mutations: {extra_mutations}""")
     def get_history(self):
         return self.history
 
+    @staticmethod
+    def softmax(alice_loss, bob_loss):
+        """Calculates 1 - softmax """
+        loss = np.array([alice_loss, bob_loss])
+        norm = np.linalg.norm(loss)
+        normalized_loss = loss / (norm if norm else 1)  # avoid div by 0
+        softmax = np.exp(normalized_loss) / sum(np.exp(normalized_loss))
+        return softmax
+
+    @staticmethod
+    def schedule_loss(schedule):
+        return sum([street[2] for street in schedule.street_duration_tuples])
+
+    @staticmethod
+    def gene_weight_alice(alice_gene: EvaluatedSchedule, bob_gene: EvaluatedSchedule):
+        bob_loss = EvolutionStrategyV2.schedule_loss(bob_gene)
+        alice_loss = EvolutionStrategyV2.schedule_loss(alice_gene)
+        softmax = EvolutionStrategyV2.softmax(alice_loss, bob_loss)
+
+        # since it was a loss, and we want only to pick alice if bob was bad
+        # example: bob wait time 99 alice wait time 1
+        # softmax .1 .99
+        # so we want to pick alice with a probability of .99 since bob's gene was horrible
+        return softmax[1]
+
     def create_generation(self, current_generation, children_per_parent):
         children = []
 
@@ -214,15 +261,18 @@ Extra mutations: {extra_mutations}""")
                 child_of_bob_and_alice = list(deepcopy(parent_bob).schedules)  # makes a copy of the tuple
 
                 gene_count = len(alice)
-                gene_indexes = list(range(gene_count))
 
-                alice_genes = self.random.sample(gene_indexes, gene_count // 2)
-                for gene in alice_genes:
-                    child_of_bob_and_alice[gene] = alice[gene]
+                for gene_index in range(gene_count):
+                    alice_gene_probability = self.gene_weight_alice(alice[gene_index],
+                                                                    child_of_bob_and_alice[gene_index])
+                    if self.random.random() < alice_gene_probability:
+                        child_of_bob_and_alice[gene_index] = alice[gene_index]
+
+                losses = [self.schedule_loss(gene) for gene in child_of_bob_and_alice]
 
                 # add random mutations
-                # for _ in range(self.extra_mutations):
-                #     child_of_bob_and_alice = self._mutate(child_of_bob_and_alice)
+                for _ in range(self.extra_mutations):
+                    child_of_bob_and_alice = self._mutate(child_of_bob_and_alice, losses)
 
                 # mutability ends here by converting it to a tuple of tuples....
                 children.append(tuple(child_of_bob_and_alice))
@@ -232,14 +282,13 @@ Extra mutations: {extra_mutations}""")
         if self.jobs == 1:
             new_solutions = []
             for child in children:
+                score, output = self.simulator.run(OutputData(child))
                 new_solutions.append(
-                    Solution(
-                        child,
-                        self.simulator.run(OutputData(child))))
+                    Solution(output.schedules, score))
         else:
             outputs = [OutputData(child) for child in children]
 
-            scores = self.pool.map(_worker_func, outputs)
-            new_solutions = [Solution(child, score) for child, score in zip(children, scores)]
+            simulation_results = self.pool.map(_worker_func, outputs)
+            new_solutions = [Solution(output.schedules, score) for score, output in simulation_results]
 
         return new_solutions

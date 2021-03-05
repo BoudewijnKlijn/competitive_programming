@@ -2,12 +2,13 @@ from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from tqdm import tqdm
 
+from qualifier.simulator.simulator import Simulator
 from qualifier.simulatorV2.simulator_car_v2 import SimulatorCarV2
 from qualifier.simulatorV2.simulator_intersection_v2 import SimulatorIntersectionV2
 from qualifier.simulatorV2.simulator_street_v2 import SimulatorStreetV2
 
 
-class SimulatorV2:
+class SimulatorV2(Simulator):
     def __init__(self, input_data: InputData, verbose: int = 0):
         self.verbose = verbose
 
@@ -62,7 +63,7 @@ class SimulatorV2:
         if self.verbose >= 2:
             print(message)
 
-    def run(self, output_data: OutputData) -> int:
+    def run(self, output_data: OutputData) -> (int, OutputData):
         self._validate(input_data=self.input_data, output_data=output_data)
         self.init_run(output_data)
 
@@ -84,7 +85,7 @@ class SimulatorV2:
         #     destination_reached, _ = street.execute_timestep(self.time)
         #     self._score(destination_reached, self.time)
 
-        return self.score
+        return self.score, output_data
 
     def _score(self, cars, time):
         for car in cars:
