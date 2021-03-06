@@ -80,14 +80,14 @@ def setup_evolution_strategy(file_name: str):
     parents = [
         *parents,
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
-        BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
-        CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
+        BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
+        # skips intersections CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
 
-        SmartRandom(seed=random.randint(0, 1_000_000), ratio_permanent_red=0, max_duration=3).solve(input_data),
-        RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration).solve(input_data)
+        SmartRandom(seed=random.randint(0, 1_000_000), ratio_permanent_red=0, max_duration=5).solve(input_data),
+        RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration // 2).solve(input_data)
 
         # x CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
     ]
@@ -130,10 +130,10 @@ if __name__ == '__main__':
 
         # ordered by speed (as measured by V1 simulator back in the day)
 
-        # 'e.txt',  # instant
-        # 'f.txt',  # 4s
-        # 'c.txt',  # 17s
-        # 'b.txt',  # 26s
+        'e.txt',  # instant
+        'f.txt',  # 4s
+        'c.txt',  # 17s
+        'b.txt',  # 26s
         'd.txt',  # 2m09s
 
     ]:

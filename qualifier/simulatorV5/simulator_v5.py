@@ -8,7 +8,7 @@ from qualifier.simulator.simulator import Simulator
 
 from qualifier.simulatorV5.simulator_car_v5 import SimulatorCarV5
 from qualifier.simulatorV5.simulator_street_v5 import SimulatorStreetV5
-from qualifier.simulatorV5.traffic_light import TrafficLight, green_light_times
+from qualifier.simulatorV5.traffic_light import green_light_times
 
 
 class SimulatorV5(Simulator):
@@ -49,18 +49,18 @@ class SimulatorV5(Simulator):
         for car_path in self.car_paths:
             car = SimulatorCarV5(path=deque(car_path))
             starting_street_name = car.path.popleft()
+            starting_street = self.streets[starting_street_name]
             while True:
                 try:
-                    passing_time = next(self.streets[starting_street_name].passing_times)
+                    passing_time = next(starting_street.passing_times)
                 except StopIteration:
                     break  # no passing times available anymore for street
 
                 if passing_time < car.time_passed:
-                    self.streets[
-                        starting_street_name].n_unused_passing_times += 1  # for analysis: add unused green light
+                    starting_street.n_unused_passing_times += 1  # for analysis: add unused green light
                     continue  # get next passing time (green light). car has spend more time already.
                 else:
-                    self.streets[starting_street_name].sum_waiting_time += \
+                    starting_street.sum_waiting_time += \
                         passing_time - car.time_passed  # for analysis: add waiting time
                     car.time_passed = passing_time
                     self.actions[passing_time].append(car)  # add car with remaining streets to action queue
@@ -79,11 +79,6 @@ class SimulatorV5(Simulator):
                                                                             (time := time + duration),
                                                                             self.duration)
 
-            # time = 0
-            # while time < self.duration:
-            #     for street_name, duration, *_ in schedule.street_duration_tuples:
-            #         self.streets[street_name].passing_times += self.all_times[time: (time := time + duration)]
-
     def init_run(self, output_data: OutputData):
         self.reset()
 
@@ -98,7 +93,8 @@ class SimulatorV5(Simulator):
             for car in self.actions[time]:
                 # car enters street. ride street and check if it needs to go to another street
                 street_name = car.path.popleft()
-                car.time_passed += self.streets[street_name].length
+                street = self.streets[street_name]
+                car.time_passed += street.length
 
                 # if car is finished WITHIN duration, add it to finished
                 if len(car.path) == 0 and car.time_passed <= self.duration:
@@ -107,15 +103,15 @@ class SimulatorV5(Simulator):
 
                 while True:
                     try:
-                        passing_time = next(self.streets[street_name].passing_times)
+                        passing_time = next(street.passing_times)
                     except StopIteration:
                         break
 
                     if passing_time < car.time_passed:
-                        self.streets[street_name].n_unused_passing_times += 1  # for analysis: add unused green light
+                        street.n_unused_passing_times += 1  # for analysis: add unused green light
                         continue  # get next passing time (green light). car has spend more time already.
                     else:
-                        self.streets[street_name].sum_waiting_time += \
+                        street.sum_waiting_time += \
                             passing_time - car.time_passed  # for analysis: add waiting time
                         car.time_passed = passing_time
                         self.actions[passing_time].append(car)  # add car with remaining streets to action queue

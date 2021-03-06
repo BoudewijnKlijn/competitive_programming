@@ -186,12 +186,21 @@ Extra mutations: {extra_mutations}""")
                 if rnd <= 0:
                     return index
 
-        def random_duration(intersection, street):
+        def add_duration(intersection, street, value):
             old_street = schedules[intersection].street_duration_tuples[street]
-            new_value = self.random.randint(1, 3)
+            new_value = old_street[1] + value
+            new_value = min(self.input_data.duration,
+                            max(0, new_value))  # max(0 untested but should work... might help in F)
             as_list = list(schedules[intersection].street_duration_tuples)
             as_list[street] = (old_street[0], new_value)
             schedules[intersection].street_duration_tuples = tuple(as_list)
+
+        # def random_duration(intersection, street):
+        #     old_street = schedules[intersection].street_duration_tuples[street]
+        #     new_value = self.random.randint(1, 3)
+        #     as_list = list(schedules[intersection].street_duration_tuples)
+        #     as_list[street] = (old_street[0], new_value)
+        #     schedules[intersection].street_duration_tuples = tuple(as_list)
 
         def get_rnd_street():
             # we could also weight individual streets.. but due to the interplay it might actualy be bad to do so
@@ -204,10 +213,13 @@ Extra mutations: {extra_mutations}""")
             return intersection, street
 
         trait = self.random.randint(0, 2)
-        if trait == 0:  # 33%
+        if trait == 0:
             if location := get_rnd_street():
-                random_duration(location[0], location[1])
-        elif trait >= 1:  # 66%
+                add_duration(location[0], location[1], 1)
+        elif trait == 1:
+            if location := get_rnd_street():
+                add_duration(location[0], location[1], -1)
+        elif trait == 2:
             intersection = self._rnd_index(schedules)
             as_list = list(schedules[intersection].street_duration_tuples)
             self.random.shuffle(as_list)

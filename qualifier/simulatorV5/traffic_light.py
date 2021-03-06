@@ -1,29 +1,14 @@
-from collections import Generator
-
-
-class TrafficLight(Generator):
-    def __init__(self, cycle_length, green_start, green_end, duration):
-        self.duration = duration
-        self.green_end = green_end
-        self.green_start = green_start
-        self.cycle_length = cycle_length
-        self.time = 0  # this will start the loop with 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        while self.time < self.duration:
-            if self.green_start <= self.time % self.cycle_length < self.green_end:
-                yield self.time
-            self.time += 1
-
-        raise StopIteration()
-
-
 def green_light_times(cycle_length, green_start, green_end, duration):
-    time = 0
+    time = green_start
+    green_length = green_end - green_start
+    red_length = cycle_length - green_length
+
     while time < duration:
-        if green_start <= time % cycle_length < green_end:
-            yield time
-        time += 1
+        remainder = time % cycle_length
+
+        if remainder == green_end or (remainder != green_start and remainder == 0):
+            time += red_length
+        elif green_start <= remainder:
+            for _ in range(green_length):
+                yield time
+                time += 1

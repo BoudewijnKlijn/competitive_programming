@@ -31,7 +31,7 @@ THIS_PATH = os.path.realpath(__file__)
 if __name__ == '__main__':
     directory = os.path.join('inputs')
 
-    single_file = 'f.txt'  # file_name or None
+    single_file = 'd.txt'  # file_name or None
 
     for file_name in os.listdir(directory):
         if single_file is not None:
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         seed = random.randint(1, 1_000_000)
 
         profile = False
-        iteration_count = 10
+        iteration_count = 5
 
         if profile == False:
             start = datetime.now()
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         print(
             f'V5 random {iteration_count} times, total {elapsed_v5.seconds:0.01f} per iteration {elapsed_v5.seconds / iteration_count:0.02f}')
         print('---------------------------------------------------------------')
-        
+
         if profile == False:
             sims = [SimulatorV4, SimulatorV5]  # SimulatorV2,
             for sim in sims:
