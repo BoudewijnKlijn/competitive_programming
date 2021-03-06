@@ -79,18 +79,17 @@ def setup_evolution_strategy(file_name: str):
     # setup initial gene pool, learning from previous results and adding some from different strategies
     parents = [
         *parents,
-        # StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
-        # BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
-        # CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
-        # StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
+        StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
+        BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
+        CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
+        StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
-        # CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
 
-        # good extras
         SmartRandom(seed=random.randint(0, 1_000_000), ratio_permanent_red=0, max_duration=3).solve(input_data),
         RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration).solve(input_data)
 
+        # x CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
     ]
 
     evo_strategy = EvolutionStrategyV2(
@@ -104,9 +103,9 @@ def setup_evolution_strategy(file_name: str):
 
         # Problem D
         generations=20,
-        children_per_couple=3,
+        children_per_couple=2,
         generation_size_limit=30,
-        jobs=5,
+        jobs=6,
 
         # normal
         # generations=5,
@@ -132,10 +131,10 @@ if __name__ == '__main__':
         # ordered by speed (as measured by V1 simulator back in the day)
 
         # 'e.txt',  # instant
-        'f.txt',  # 4s
+        # 'f.txt',  # 4s
         # 'c.txt',  # 17s
         # 'b.txt',  # 26s
-        # 'd.txt',  # 2m09s
+        'd.txt',  # 2m09s
 
     ]:
         print(f'----- Solving {file_name} -----')
@@ -178,21 +177,21 @@ Score:  {score}         (Still to gain ~{potential_score - score} points)
 
             fig, axs = plt.subplots(2, figsize=(15, 20))
 
-            axs[0].plot(x, transposed[0], label='Best in each generation')
             for i in range(1, len(transposed)):
                 axs[0].plot(x, transposed[i], color='lightgray')
 
             axs[0].plot(x, transposed[-1], label='Worst in each generation')
+            axs[0].plot(x, transposed[0], label='Best in each generation')
             axs[0].set_xlabel('generation')
             axs[0].set_ylabel('score')
             axs[0].legend()
             axs[0].set_title(f'Full history: {len(x)} generations')
 
-            axs[1].plot(x[-3:], transposed[0][-3:], label='Best in each generation')
             for i in range(1, len(transposed)):
                 axs[1].plot(x[-3:], transposed[i][-3:], color='lightgray')
 
             axs[1].plot(x[-3:], transposed[-1][-3:], label='Worst in each generation')
+            axs[1].plot(x[-3:], transposed[0][-3:], label='Best in each generation')
             axs[1].set_xlabel('generation')
             axs[1].set_ylabel('score')
             axs[1].legend()

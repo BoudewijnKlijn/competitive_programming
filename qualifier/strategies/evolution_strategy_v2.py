@@ -104,36 +104,36 @@ Extra mutations: {extra_mutations}""")
 
         self.input_data = input_data
 
-        parents = []
+        starting_solutions = []
 
         if self.gene_pool:
             print('Using existing gene pool')
-            parents = []
-            for genes in self.gene_pool:
-                score, output = self.simulator.run(genes)
-                parents.append(Solution(output.schedules, score))
+            starting_solutions += self.gene_pool
 
         def add_solution():
-            random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=3,
+            random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=2,
                                           ratio_permanent_red=0).solve(input_data)
-            score, output = self.simulator.run(random_solution)
-            parents.append(Solution(output.schedules, score))
+            starting_solutions.append(random_solution)
 
-        if len(parents) % 2 == 1:
+        if len(starting_solutions) % 2 == 1:
             print('Odd amount in gene pool, adding a random parent')
             add_solution()
 
         print('Adding extra SmartRandom parents if needed to fill to generation_size_limit')
-        for _ in range(max(0, self.generation_size_limit - len(parents))):
+        for _ in range(max(0, self.generation_size_limit - len(starting_solutions))):
             add_solution()
 
-        # easier to compre to first generation
+        simulation_results = self.pool.map(_worker_func, starting_solutions)
+        parents = [Solution(output.schedules, score) for score, output in simulation_results]
+
+        # easier to compare to first generation
         parents.sort(key=lambda solution: solution.score, reverse=True)
 
         # working with a best score because we still have an issue with mutability.
         best_solution = deepcopy(parents[0])
 
-        print(f'Parents: {[x.score for x in parents]}')
+        # extra spaces to align with generations output
+        print(f'Parents         : {[x.score for x in parents]}')
 
         current_generation = parents
 

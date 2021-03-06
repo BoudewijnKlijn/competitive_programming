@@ -23,7 +23,7 @@ class RandomStrategy(Strategy):
 
             strategy = self._strategy(seed=seed)
             result = strategy.solve(input)
-            score = simulator.run(result)  # still a bug in v4 with reruns...
+            score, _ = simulator.run(result)  # still a bug in v4 with reruns...
             print(f'Score try {i}/{self.tries}: {score}')
             if score > best_score:
                 best_score = score

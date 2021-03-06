@@ -22,8 +22,12 @@ class CarsFirstShuffle(Strategy):
                         instersections[street.end] = instersections[street.end] + [street.name]
 
         schedules = []
-        for intersection, streets in instersections.items():
-            # maybe a bit to much? self.random.shuffle(streets)  # this does have effect on score
-            schedule = Schedule(intersection, tuple([(street, 1) for street in streets]))
+        for org_intersection in input.intersections:
+            intersection = org_intersection.index
+            if intersection in instersections:
+                streets = instersections[org_intersection.index]
+                schedule = Schedule(intersection, tuple([(street, 1) for street in streets]))
+            else:
+                schedule = Schedule(intersection, tuple())
             schedules.append(schedule)
         return OutputData(tuple(schedules))

@@ -10,6 +10,7 @@ from qualifier.random_strategy import RandomStrategy
 from qualifier.schedule import Schedule
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
+from qualifier.simulatorV5.simulator_v5 import SimulatorV5
 from qualifier.strategies.AtleastOneCar import AtleastOneCar
 from qualifier.strategies.BusyFirst import BusyFirst
 from qualifier.strategies.BusyFirstV2 import BusyFirstV2
@@ -95,9 +96,9 @@ def setup_evolution_strategy(file_name: str):
         input_data=input_data,
         seed=random.randint(0, 1_000_000),
         # debug
-        generations=20,
-        children_per_couple=10,
-        generation_size_limit=6,
+        generations=2,
+        children_per_couple=2,
+        generation_size_limit=2,
         jobs=1,
 
         # Problem D
@@ -116,7 +117,7 @@ def setup_evolution_strategy(file_name: str):
         extra_mutations=input_data.n_intersections // 5,
         gene_pool=parents,
         verbose=2,
-        simulator_class=SimulatorV4,
+        simulator_class=SimulatorV5,
 
     )
     return evo_strategy
@@ -126,24 +127,24 @@ if __name__ == '__main__':
 
     directory = os.path.join(THIS_PATH, 'inputs')
     for file_name in [
-        # 'a.txt',  # instant
+        'a.txt',  # instant
 
         # ordered by speed (as measured by V1 simulator back in the day)
 
-        # 'e.txt',  # instant
-        # 'f.txt',  # 4s
+        'e.txt',  # instant
+        'f.txt',  # 4s
         # 'c.txt',  # 17s
         # 'b.txt',  # 26s
-        'd.txt',  # 2m09s
+        # 'd.txt',  # 2m09s
 
     ]:
         print(f'----- Solving {file_name} -----')
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        # my_strategy = StartFirstGreen(seed=random.randint(0, 1_000_000))
+        my_strategy = StartFirstGreen(seed=random.randint(0, 1_000_000))
         # my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
-        my_strategy = setup_evolution_strategy(file_name)
+        # my_strategy = setup_evolution_strategy(file_name)
 
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)
@@ -153,8 +154,8 @@ if __name__ == '__main__':
 
         # print(f'---- {file_name} ----')
         # print(f'Org sim score: {Simulator(input_data, verbose=0).run(output)}')
-        # print(f'V2 sim score: {score}')
-        # print(f'V4 sim score: {SimulatorV4(input_data).run(output)}')
+        print(f'V5 sim score: {score}')
+        print(f'V4 sim score: {SimulatorV4(input_data).run(output)}')
 
         duration = datetime.now() - start_time
 
