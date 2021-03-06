@@ -1,6 +1,6 @@
 from collections import deque
 
-from qualifier.simulatorV5.traffic_light import TrafficLight, green_light_times
+from qualifier.simulatorV5.traffic_light import green_light_times
 
 
 class SimulatorStreetV5:

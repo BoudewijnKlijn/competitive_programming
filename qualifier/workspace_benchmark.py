@@ -31,7 +31,7 @@ THIS_PATH = os.path.realpath(__file__)
 if __name__ == '__main__':
     directory = os.path.join('inputs')
 
-    single_file = 'd.txt'  # file_name or None
+    single_file = 'c.txt'  # file_name or None
 
     for file_name in os.listdir(directory):
         if single_file is not None:

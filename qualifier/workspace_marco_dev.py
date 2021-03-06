@@ -102,7 +102,7 @@ def setup_evolution_strategy(file_name: str):
         # jobs=1,
 
         # Problem D
-        generations=30,
+        generations=100,
         children_per_couple=1,
         generation_size_limit=30,
         jobs=6,
@@ -129,7 +129,7 @@ if __name__ == '__main__':
         # 'a.txt',  # instant
 
         # ordered by speed (as measured by V1 simulator back in the day)
-        'e.txt',  # 920k optimal current 710k
+        'e.txt',  # 920k optimal current 718k
         # 'f.txt',  # 176k optimal current 130k
         # very close to optimal 'c.txt',  # 17s
         # very close to optimal 'b.txt',  # 26s

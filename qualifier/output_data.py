@@ -1,3 +1,4 @@
+import os
 from typing import Tuple
 
 from qualifier.input_data import InputData
@@ -20,8 +21,9 @@ class OutputData:
         for schedule in final_schedules:
             text += str(schedule)
 
-        with open(filename, 'w') as file:
-            file.write(text)
+        if not os.path.exists(filename):
+            with open(filename, 'w') as file:
+                file.write(text)
 
     @classmethod
     def read(cls, filename: str, input_data: InputData):

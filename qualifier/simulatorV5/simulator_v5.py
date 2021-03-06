@@ -24,18 +24,15 @@ class SimulatorV5(Simulator):
 
         self.actions = list()
 
-        self.streets_input = input_data.streets
         self.streets = {street_name: SimulatorStreetV5(street.time)
-                        for street_name, street in self.streets_input.items()}
-
-        self.finished = np.zeros(self.duration + 1, dtype=int)
-        self.points = self.bonus + np.arange(self.duration, -1, -1)
+                        for street_name, street in input_data.streets.items()}
+        self.score = 0
 
         self.all_times = list(range(self.duration))
 
     def reset(self):
+        self.score = 0
         # reset finished
-        self.finished = np.zeros(self.duration + 1, dtype=int)
 
         # reset action queue with cars, at positions equal to time of entering street
         self.actions = [list() for _ in range(self.duration)]
@@ -80,6 +77,7 @@ class SimulatorV5(Simulator):
                                                                             self.duration)
 
     def init_run(self, output_data: OutputData):
+
         self.reset()
 
         self.add_schedules_to_streets(output_data)
@@ -98,7 +96,7 @@ class SimulatorV5(Simulator):
 
                 # if car is finished WITHIN duration, add it to finished
                 if len(car.path) == 0 and car.time_passed <= self.duration:
-                    self.finished[car.time_passed] += 1
+                    self.score += self.duration - car.time_passed + self.bonus
                     continue
 
                 while True:
@@ -124,4 +122,4 @@ class SimulatorV5(Simulator):
                 new_schedule.append((street[0], street[1], self.streets[street[0]].sum_waiting_time))
             evaluated_schedule.append(EvaluatedSchedule(schedule.intersection, tuple(new_schedule)))
 
-        return int(np.dot(self.finished, self.points)), OutputData(tuple(evaluated_schedule))
+        return self.score, OutputData(tuple(evaluated_schedule))

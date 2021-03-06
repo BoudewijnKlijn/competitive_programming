@@ -133,7 +133,7 @@ Extra mutations: {extra_mutations}""")
         best_solution = deepcopy(parents[0])
 
         # extra spaces to align with generations output
-        print(f'Parents         : {[x.score for x in parents]}')
+        print(f'Parents           : {[x.score for x in parents]}')
 
         current_generation = parents
 
@@ -224,17 +224,18 @@ Extra mutations: {extra_mutations}""")
             intersection = self._rnd_index(schedules)
             as_list = list(schedules[intersection].street_duration_tuples)
             street_count = len(as_list)
-            random_str = self.random.randint(0, street_count - 1)
-            street = as_list.pop(random_str)
-            up = self.random.randint(0, 1)
-            if up and random_str + 1 < street_count - 1:  # remember we removed one so less then xxx - 1
-                as_list.insert(random_str + 1, street)
-            elif random_str - 1 >= 0:
-                as_list.insert(random_str - 1, street)
-            else:
-                as_list.insert(0, street)  # intersection with 1 street? Just put it back
+            if street_count > 1:  # no need to do stuff with 0 or 1 streets..
+                random_str = self.random.randint(0, street_count - 1)
+                street = as_list.pop(random_str)
+                up = self.random.randint(0, 1)
+                if up:
+                    new_index = (random_str + 1) % street_count
+                else:
+                    # insert at end if we go negative
+                    new_index = (random_str - 1) if random_str else street_count - 1
+                as_list.insert(new_index, street)
 
-            schedules[intersection].street_duration_tuples = tuple(as_list)
+                schedules[intersection].street_duration_tuples = tuple(as_list)
         else:
             raise ValueError(f'Woeps dont know what to mutate')
 
