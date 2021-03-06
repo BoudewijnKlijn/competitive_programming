@@ -164,8 +164,9 @@ Extra mutations: {extra_mutations}""")
 
             if current_generation[0].score > best_solution.score:
                 best_solution = deepcopy(current_generation[0])
-                OutputData(current_generation[0].schedules).save(
-                    f'./outputs/intermediate results/Evo {current_generation[0].score}.out')
+            for child in current_generation:
+                OutputData(child.schedules).save(
+                    f'./outputs/intermediate results/Evo {child.score}.out')
 
         print(f'Valid: {best_solution.score}')
 
@@ -213,16 +214,26 @@ Extra mutations: {extra_mutations}""")
             return intersection, street
 
         trait = self.random.randint(0, 2)
-        if trait == 0:
+        if trait == 0:  # add 1 second to a green light duration
             if location := get_rnd_street():
                 add_duration(location[0], location[1], 1)
-        elif trait == 1:
+        elif trait == 1:  # remove 1 second from a green light duration
             if location := get_rnd_street():
                 add_duration(location[0], location[1], -1)
-        elif trait == 2:
+        elif trait == 2:  # move the order of 1 streets green light up or down 1 step
             intersection = self._rnd_index(schedules)
             as_list = list(schedules[intersection].street_duration_tuples)
-            self.random.shuffle(as_list)
+            street_count = len(as_list)
+            random_str = self.random.randint(0, street_count - 1)
+            street = as_list.pop(random_str)
+            up = self.random.randint(0, 1)
+            if up and random_str + 1 < street_count - 1:  # remember we removed one so less then xxx - 1
+                as_list.insert(random_str + 1, street)
+            elif random_str - 1 >= 0:
+                as_list.insert(random_str - 1, street)
+            else:
+                as_list.insert(0, street)  # intersection with 1 street? Just put it back
+
             schedules[intersection].street_duration_tuples = tuple(as_list)
         else:
             raise ValueError(f'Woeps dont know what to mutate')

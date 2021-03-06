@@ -102,8 +102,8 @@ def setup_evolution_strategy(file_name: str):
         # jobs=1,
 
         # Problem D
-        generations=20,
-        children_per_couple=2,
+        generations=30,
+        children_per_couple=1,
         generation_size_limit=30,
         jobs=6,
 
@@ -114,7 +114,7 @@ def setup_evolution_strategy(file_name: str):
         # jobs=4,
 
         # bit arbitrary but scale it with the problem size
-        extra_mutations=input_data.n_intersections // 5,
+        extra_mutations=max(1, input_data.n_intersections // 100),
         gene_pool=parents,
         verbose=2,
         simulator_class=SimulatorV4,
@@ -129,12 +129,11 @@ if __name__ == '__main__':
         # 'a.txt',  # instant
 
         # ordered by speed (as measured by V1 simulator back in the day)
-
-        'e.txt',  # instant
-        'f.txt',  # 4s
-        'c.txt',  # 17s
-        'b.txt',  # 26s
-        'd.txt',  # 2m09s
+        'e.txt',  # 920k optimal current 710k
+        # 'f.txt',  # 176k optimal current 130k
+        # very close to optimal 'c.txt',  # 17s
+        # very close to optimal 'b.txt',  # 26s
+        # 'd.txt',  # 3986k optimal
 
     ]:
         print(f'----- Solving {file_name} -----')
