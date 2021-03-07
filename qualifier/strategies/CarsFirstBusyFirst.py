@@ -11,7 +11,7 @@ class CarsFirstBusyFirst(Strategy):
         instersections = dict()
 
         cars = input.cars
-        sorted(cars, key=lambda car_: sum([street_.time for street_ in car_.path]))
+        sorted(cars, key=lambda car_: sum([street_.time for street_ in car_.path[1:]]))
 
         for car in cars:
             for street in car.path[:-1]:

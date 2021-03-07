@@ -10,5 +10,6 @@ def green_light_times(cycle_length, green_start, green_end, duration):
             time += red_length
         elif green_start <= remainder:
             for _ in range(green_length):
-                yield time
-                time += 1
+                if time < duration:
+                    yield time
+                    time += 1

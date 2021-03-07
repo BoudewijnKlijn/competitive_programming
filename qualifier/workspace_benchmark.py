@@ -15,7 +15,9 @@ from qualifier.simulatorV5.simulator_v5 import SimulatorV5
 from qualifier.strategies.BusyFirst import BusyFirst
 from qualifier.strategies.BusyFirstV2 import BusyFirstV2
 from qualifier.strategies.BusyFirstV3 import BusyFirstV3
+from qualifier.strategies.CarsFirst import CarsFirst
 from qualifier.strategies.CarsFirstShuffle import CarsFirstShuffle
+from qualifier.strategies.CarsFirstShuffleDropOut import CarsFirstShuffleDropOut
 from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
 from qualifier.strategies.RandomPeriods import RandomPeriods
@@ -31,7 +33,7 @@ THIS_PATH = os.path.realpath(__file__)
 if __name__ == '__main__':
     directory = os.path.join('inputs')
 
-    single_file = 'c.txt'  # file_name or None
+    single_file = 'd.txt'  # file_name or None
 
     for file_name in os.listdir(directory):
         if single_file is not None:
@@ -40,12 +42,12 @@ if __name__ == '__main__':
 
         seed = random.randint(1, 1_000_000)
 
-        profile = False
-        iteration_count = 5
+        profile = True
+        iteration_count = 3
 
         if profile == False:
             start = datetime.now()
-            my_strategy = RandomStrategy(CarsFirstShuffle, SimulatorV4, tries=iteration_count,
+            my_strategy = RandomStrategy(CarsFirst, SimulatorV4, tries=iteration_count,
                                          seed=seed)  # FixedPeriods()
             _ = my_strategy.solve(input_data)
             elapsed_v4 = datetime.now() - start
@@ -54,7 +56,8 @@ if __name__ == '__main__':
             print('---------------------------------------------------------------')
 
         start = datetime.now()
-        my_strategy = RandomStrategy(CarsFirstShuffle, SimulatorV5, tries=iteration_count, seed=seed)  # FixedPeriods()
+        my_strategy = RandomStrategy(CarsFirst, SimulatorV5, tries=iteration_count,
+                                     seed=seed)  # FixedPeriods()
         output_v5 = my_strategy.solve(input_data)
         elapsed_v5 = datetime.now() - start
         print(

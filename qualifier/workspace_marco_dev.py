@@ -10,6 +10,7 @@ from qualifier.random_strategy import RandomStrategy
 from qualifier.schedule import Schedule
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
+from qualifier.simulatorV5.simulator_v5 import SimulatorV5
 from qualifier.strategies.AtleastOneCar import AtleastOneCar
 from qualifier.strategies.BusyFirst import BusyFirst
 from qualifier.strategies.BusyFirstV2 import BusyFirstV2
@@ -79,6 +80,7 @@ def setup_evolution_strategy(file_name: str):
     # setup initial gene pool, learning from previous results and adding some from different strategies
     parents = [
         *parents,
+        CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
         BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
@@ -102,7 +104,7 @@ def setup_evolution_strategy(file_name: str):
         # jobs=1,
 
         # Problem D
-        generations=100,
+        generations=200,
         children_per_couple=1,
         generation_size_limit=30,
         jobs=6,
@@ -117,7 +119,7 @@ def setup_evolution_strategy(file_name: str):
         extra_mutations=max(1, input_data.n_intersections // 100),
         gene_pool=parents,
         verbose=2,
-        simulator_class=SimulatorV4,
+        simulator_class=SimulatorV5,
     )
     return evo_strategy
 
