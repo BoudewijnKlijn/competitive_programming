@@ -142,7 +142,9 @@ Extra mutations: {extra_mutations}""")
         else:
             generation_iterator = range(1, self.generations + 1)
 
+        start = datetime.now()
         for generation in generation_iterator:
+            current = datetime.now()
             new_generation = self.create_generation(
                 current_generation,
                 children_per_parent=self.children_per_parent)
@@ -158,7 +160,12 @@ Extra mutations: {extra_mutations}""")
             scores = [p.score for p in current_generation]
 
             if self.verbose == 2:
-                print(f'Generation {generation:03}/{self.generations:03}: {scores}')
+                elapsed = datetime.now() - current
+                total_elapsed = datetime.now() - start
+                estimated_duration = total_elapsed / generation * (self.generations + 1)
+
+                print(
+                    f'Generation {generation:03}/{self.generations:03}: {scores}  [{elapsed.seconds}s| {start + estimated_duration:%H:%M}]')
 
             self.history.append(scores)
 

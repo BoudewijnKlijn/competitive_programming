@@ -12,6 +12,8 @@ from qualifier.simulatorV5.traffic_light import green_light_times
 
 
 class SimulatorV5(Simulator):
+    __slots__ = ['bonus', 'duration', 'verbose', 'car_paths', 'cars', 'actions', 'streets', 'score', 'all_times']
+
     def __init__(self, input_data: InputData, verbose: int = 0):
 
         self.bonus = input_data.bonus

@@ -43,45 +43,53 @@ def setup_evolution_strategy(file_name: str):
     # setup initial gene pool, learning from previous results and adding some from different strategies
     parents = [
         *parents,
-        CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
-        StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
-        StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
-        BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
+        # CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
+        # StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
+        # StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
+        # BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         Plan(seed=random.randint(0, 1_000_000)).solve(input_data),
         PlanV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # skips intersections CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
 
-        SmartRandom(seed=random.randint(0, 1_000_000), ratio_permanent_red=0, max_duration=5).solve(input_data),
-        RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration // 2).solve(input_data)
+        # SmartRandom(seed=random.randint(0, 1_000_000), ratio_permanent_red=0, max_duration=5).solve(input_data),
+        # RandomPeriods(seed=random.randint(0, 1_000_000), max_period=input_data.duration // 2).solve(input_data)
 
         # x CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
     ]
 
     if file_name == 'd.txt':
+        extra_mutations = max(1, input_data.n_intersections // 400)
+        generations = 20
+        children = 2
+    elif file_name == 'e.txt':
         extra_mutations = max(1, input_data.n_intersections // 200)
+        generations = 80
+        children = 2
+    elif file_name == 'f.txt':
+        extra_mutations = max(1, input_data.n_intersections // 200)
+        generations = 30
+        children = 2
     else:
         extra_mutations = max(1, input_data.n_intersections // 100)
+        generations = 20
+        children = 1
 
     evo_strategy = EvolutionStrategyV2(
         input_data=input_data,
         seed=random.randint(0, 1_000_000),
+        generations=generations,
+
         # debug
-        # generations=2,
-        # children_per_couple=2,
         # generation_size_limit=2,
         # jobs=1,
 
-        # Problem D
-        generations=20,
-        children_per_couple=1,
+        children_per_couple=children,
         generation_size_limit=30,
         jobs=6,
 
         # normal
-        # generations=5,
-        # children_per_couple=40,
         # generation_size_limit=10,
         # jobs=4,
 
@@ -101,11 +109,11 @@ if __name__ == '__main__':
         # 'a.txt',  # instant
 
         # ordered by speed (as measured by V1 simulator back in the day)
-        # 'e.txt',  # 920k optimal current 718k
-        # 'f.txt',  # 176k optimal current 130k
+        'e.txt',  # 920k optimal current 718k
+        # 'f.txt',  # 176k optimal current 141k
         # very close to optimal 'c.txt',  # 17s
         # very close to optimal 'b.txt',  # 26s
-        'd.txt',  # 3986k optimal
+        # 'd.txt',  # 3986k optimal
 
     ]:
         print(f'----- Solving {file_name} -----')
