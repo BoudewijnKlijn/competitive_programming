@@ -11,6 +11,7 @@ from qualifier.simulatorV5.simulator_v5 import SimulatorV5
 from qualifier.strategies.BusyFirst import BusyFirst
 from qualifier.strategies.CarsFirst import CarsFirst
 from qualifier.strategies.Plan import Plan
+from qualifier.strategies.PlanV2 import PlanV2
 from qualifier.strategies.RandomPeriods import RandomPeriods
 from qualifier.strategies.evolution_strategy_v2 import EvolutionStrategyV2
 from qualifier.strategies.smart_random import SmartRandom
@@ -46,6 +47,8 @@ def setup_evolution_strategy(file_name: str):
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
         StartFirstGreen(seed=random.randint(0, 1_000_000)).solve(input_data),
         BusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
+        Plan(seed=random.randint(0, 1_000_000)).solve(input_data),
+        PlanV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # skips intersections CarsFirst(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV2(seed=random.randint(0, 1_000_000)).solve(input_data),
         # x BusyFirstV3(seed=random.randint(0, 1_000_000)).solve(input_data),
@@ -55,6 +58,11 @@ def setup_evolution_strategy(file_name: str):
 
         # x CarsFirstBusyFirst(seed=random.randint(0, 1_000_000)).solve(input_data), # bad results atm
     ]
+
+    if file_name == 'd.txt':
+        extra_mutations = max(1, input_data.n_intersections // 200)
+    else:
+        extra_mutations = max(1, input_data.n_intersections // 100)
 
     evo_strategy = EvolutionStrategyV2(
         input_data=input_data,
@@ -66,7 +74,7 @@ def setup_evolution_strategy(file_name: str):
         # jobs=1,
 
         # Problem D
-        generations=200,
+        generations=20,
         children_per_couple=1,
         generation_size_limit=30,
         jobs=6,
@@ -78,7 +86,7 @@ def setup_evolution_strategy(file_name: str):
         # jobs=4,
 
         # bit arbitrary but scale it with the problem size
-        extra_mutations=max(1, input_data.n_intersections // 100),
+        extra_mutations=extra_mutations,
         gene_pool=parents,
         verbose=2,
         simulator_class=SimulatorV5,
@@ -104,9 +112,9 @@ if __name__ == '__main__':
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        my_strategy = Plan(seed=random.randint(0, 1_000_000))
+        # my_strategy = Plan(seed=random.randint(0, 1_000_000))
         # my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
-        # my_strategy = setup_evolution_strategy(file_name)
+        my_strategy = setup_evolution_strategy(file_name)
 
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)

@@ -3,7 +3,7 @@ from datetime import datetime
 import random
 
 from qualifier.input_data import InputData
-from qualifier.strategies.random_strategy import RandomStrategy
+from qualifier.strategies.PlanV2 import PlanV2
 from qualifier.simulatorV5.simulator_v5 import SimulatorV5
 from qualifier.strategies.Plan import Plan
 from qualifier.strategies.random_strategy_multi_core import RandomStrategyMultiCore
@@ -20,19 +20,24 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         if single_file is not None:
             file_name = single_file
+
+        print(f'File: {file_name}')
         input_data = InputData(os.path.join(directory, file_name))
 
         seed = random.randint(1, 1_000_000)
 
         profile = True
         save = True
-        iteration_count = 50
+        jobs = 6
+        iteration_count = jobs * 2
+
+        strategy = PlanV2
 
         try:
             if profile == False:
                 start = datetime.now()
-                my_strategy = RandomStrategy(Plan, SimulatorV4, tries=iteration_count,
-                                             seed=seed)  # FixedPeriods()
+                my_strategy = RandomStrategyMultiCore(strategy, SimulatorV4, tries=iteration_count,
+                                                      seed=seed, jobs=jobs, input_data=input_data)  # FixedPeriods()
                 _ = my_strategy.solve(input_data)
                 elapsed_v4 = datetime.now() - start
                 print(
@@ -40,8 +45,8 @@ if __name__ == '__main__':
                 print('---------------------------------------------------------------')
 
             start = datetime.now()
-            my_strategy = RandomStrategyMultiCore(Plan, SimulatorV5, tries=iteration_count, input_data=input_data,
-                                                  seed=seed)  # FixedPeriods()
+            my_strategy = RandomStrategyMultiCore(strategy, SimulatorV5, tries=iteration_count, input_data=input_data,
+                                                  seed=seed, jobs=jobs)  # FixedPeriods()
             output_v5 = my_strategy.solve(input_data)
             elapsed_v5 = datetime.now() - start
             print(
@@ -57,7 +62,7 @@ if __name__ == '__main__':
 
             if save:
                 score, _ = SimulatorV5(input_data, verbose=0).run(output_v5)
-                save_output(output_v5, file_name, score, f'b_and_m-')
+                save_output(output_v5, file_name, score, f'b_and_m-{my_strategy.name}')
 
             if single_file is not None:
                 break
