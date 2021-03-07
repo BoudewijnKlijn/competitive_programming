@@ -1,4 +1,4 @@
-from qualifier.input_data import InputData
+from qualifier.input_data import InputData, Street
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy
@@ -18,38 +18,61 @@ class Plan(Strategy):
         super().__init__(seed=seed)
         self.drop_out = drop_out
 
-    def solve(self, input: InputData) -> OutputData:
-        instersections = dict()
+    def solve(self, input_data: InputData) -> OutputData:
+        intersections = dict()
 
-        cars = list(input.cars)
-        sorted(cars, key=lambda car_: sum([street_.time for street_ in car_.path[1:]]))
+        streets_with_cars = self.streets_with_car_at_light(input_data)
 
-        if self.drop_out > 0:
-            cars_drop = int(len(cars) // (1 / self.drop_out))
-            cars = cars[:-cars_drop]
+        for intersection in input_data.intersections:
+            streets = [street for street in intersection.incoming_streets if street.name in streets_with_cars]
+            intersections[intersection.index] = {
+                'streets': streets,
+                'cycle_time': len(streets),
+                'schedule': [None] * len(streets),  # for now they are 1 second durations
+            }
 
-        potential_score = sum(
-            [input.duration - sum([street.time for street in car.path]) + input.bonus for car in cars])
-        print(f'drop ratio: {self.drop_out} => {len(cars)} cars, potential score: {potential_score}')
+        cars = list(input_data.cars)
+        self.random.shuffle(cars)
+
+        streets_where_cars_start = {car.path[0] for car in cars}
+
+        def add_street_to_schedule(street: Street, passing_time) -> int:
+            """ add the street in the optimal schedule slot if it is still empty else the first availalbe
+            assumes 1 second durations
+            """
+            intersection = intersections[street.end]
+
+            schedule_slot = passing_time % intersection['cycle_time']
+
+            if street.name in intersection['schedule']:
+                # lets hope for the best but we can improve upon this
+                given_slot = intersection['schedule'].index(street.name)
+                diff = given_slot - schedule_slot
+                if diff < 0:
+                    diff = intersection['cycle_time'] - diff
+                return diff
+
+            delay = 0
+            while intersection['schedule'][schedule_slot] is not None:
+                schedule_slot = (schedule_slot + 1) % intersection['cycle_time']
+                delay += 1
+
+            intersection['schedule'][schedule_slot] = street.name
+            return delay
+
+        for street in streets_where_cars_start:
+            add_street_to_schedule(street, passing_time=0)
 
         for car in cars:
-            for street in car.path[:-1]:
-                if street.end not in instersections:
-                    instersections[street.end] = [street.name]
-                else:
-                    if street.name not in instersections[street.end]:
-                        instersections[street.end] = instersections[street.end] + [street.name]
+            time = 0
+            for street in car.path[1:-1]:
+                time += street.time
+                delay = add_street_to_schedule(street, time)
+                time += delay
 
         schedules = []
-        for org_intersection in input.intersections:
-            intersection = org_intersection.index
-            if intersection in instersections:
-                streets = instersections[org_intersection.index]
-                self.random.shuffle(streets)
-                schedule = Schedule(intersection, tuple([(street, 1) for street in streets]))
-            else:
-                # schedules = [(street.name, 0) for street in org_intersection.incoming_streets]
-                # schedule = Schedule(intersection, tuple(schedules))
-                schedule = Schedule(intersection, tuple())
-            schedules.append(schedule)
+        for intersection_nr, intersection in intersections.items():
+            schedule = [(street, 1) for street in intersection['schedule'] if street is not None]
+            schedules.append(Schedule(intersection_nr, tuple(schedule)))
+
         return OutputData(tuple(schedules))

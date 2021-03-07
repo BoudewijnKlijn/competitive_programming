@@ -6,57 +6,19 @@ import matplotlib.pyplot as plt
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
-from qualifier.random_strategy import RandomStrategy
-from qualifier.schedule import Schedule
-from qualifier.simulatorV2.simulator_v2 import SimulatorV2
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.simulatorV5.simulator_v5 import SimulatorV5
-from qualifier.strategies.AtleastOneCar import AtleastOneCar
 from qualifier.strategies.BusyFirst import BusyFirst
-from qualifier.strategies.BusyFirstV2 import BusyFirstV2
-from qualifier.strategies.BusyFirstV3 import BusyFirstV3
 from qualifier.strategies.CarsFirst import CarsFirst
-from qualifier.strategies.CarsFirstBusyFirst import CarsFirstBusyFirst
-from qualifier.strategies.CarsFirstShuffle import CarsFirstShuffle
-from qualifier.strategies.FixedPeriods import FixedPeriods
+from qualifier.strategies.Plan import Plan
 from qualifier.strategies.RandomPeriods import RandomPeriods
-from qualifier.strategies.drop_out_cars import DropOutCars
-from qualifier.strategies.drop_out_specific_cars import DropOutSpecificCars
-from qualifier.strategies.evolution_strategy import EvolutionStrategy
 from qualifier.strategies.evolution_strategy_v2 import EvolutionStrategyV2
 from qualifier.strategies.smart_random import SmartRandom
-from qualifier.strategy import Strategy
+from qualifier.strategies.start_first_green import StartFirstGreen
 from qualifier.submit import zip_submission
 from qualifier.util import save_output
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
-
-
-class StartFirstGreen(Strategy):
-    """ Streets where cars start get green light first"""
-    name = 'StartFirstGreen'
-
-    def solve(self, input_data: InputData):
-        streets_with_cars = self.streets_with_car_at_light(input_data)
-
-        streets_where_cars_start = {car.path[0].name for car in input_data.cars}
-
-        schedules = []
-
-        for intersection in input_data.intersections:
-
-            schedule = []
-            streets = list(intersection.incoming_streets)
-            self.random.shuffle(streets)
-            for street in streets:
-                if street.name in streets_where_cars_start:
-                    schedule.insert(0, (street.name, 1))
-                elif street.name in streets_with_cars:
-                    schedule.append((street.name, 1))
-
-            schedules.append(Schedule(intersection.index, tuple(schedule)))
-
-        return OutputData(tuple(schedules))
 
 
 def setup_evolution_strategy(file_name: str):
@@ -131,20 +93,20 @@ if __name__ == '__main__':
         # 'a.txt',  # instant
 
         # ordered by speed (as measured by V1 simulator back in the day)
-        'e.txt',  # 920k optimal current 718k
+        # 'e.txt',  # 920k optimal current 718k
         # 'f.txt',  # 176k optimal current 130k
         # very close to optimal 'c.txt',  # 17s
         # very close to optimal 'b.txt',  # 26s
-        # 'd.txt',  # 3986k optimal
+        'd.txt',  # 3986k optimal
 
     ]:
         print(f'----- Solving {file_name} -----')
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        # my_strategy = StartFirstGreen(seed=random.randint(0, 1_000_000))
+        my_strategy = Plan(seed=random.randint(0, 1_000_000))
         # my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
-        my_strategy = setup_evolution_strategy(file_name)
+        # my_strategy = setup_evolution_strategy(file_name)
 
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)

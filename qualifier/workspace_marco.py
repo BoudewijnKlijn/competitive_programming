@@ -6,23 +6,10 @@ import matplotlib.pyplot as plt
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
-from qualifier.random_strategy import RandomStrategy
 from qualifier.schedule import Schedule
-from qualifier.simulatorV2.simulator_v2 import SimulatorV2
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.simulatorV5.simulator_v5 import SimulatorV5
-from qualifier.strategies.AtleastOneCar import AtleastOneCar
-from qualifier.strategies.BusyFirst import BusyFirst
-from qualifier.strategies.BusyFirstV2 import BusyFirstV2
-from qualifier.strategies.BusyFirstV3 import BusyFirstV3
-from qualifier.strategies.CarsFirst import CarsFirst
-from qualifier.strategies.CarsFirstBusyFirst import CarsFirstBusyFirst
-from qualifier.strategies.CarsFirstShuffle import CarsFirstShuffle
-from qualifier.strategies.FixedPeriods import FixedPeriods
 from qualifier.strategies.RandomPeriods import RandomPeriods
-from qualifier.strategies.drop_out_cars import DropOutCars
-from qualifier.strategies.drop_out_specific_cars import DropOutSpecificCars
-from qualifier.strategies.evolution_strategy import EvolutionStrategy
 from qualifier.strategies.evolution_strategy_v2 import EvolutionStrategyV2
 from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
