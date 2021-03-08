@@ -61,14 +61,14 @@ def setup_evolution_strategy(file_name: str):
 
     if file_name == 'd.txt':
         extra_mutations = max(1, input_data.n_intersections // 300)
-        generation_size_limit = 30
-        generations = 20
+        generation_size_limit = 60
+        generations = 10
         children = 2
         children_strategies = PlanV2
     elif file_name == 'e.txt':
         extra_mutations = max(1, input_data.n_intersections // 250)
         generation_size_limit = 30
-        generations = 80
+        generations = 400
         children = 2
         children_strategies = SmartRandom
     elif file_name == 'f.txt':
@@ -96,7 +96,7 @@ def setup_evolution_strategy(file_name: str):
         generation_size_limit=generation_size_limit,
         children_per_couple=children,
         children_strategies=children_strategies,
-        jobs=6,
+        jobs=4,
 
         # normal
         # generation_size_limit=10,
@@ -126,11 +126,11 @@ if __name__ == '__main__':
         # 'a.txt',  # instant
 
         # ordered by speed (as measured by V1 simulator back in the day)
-        'e.txt',  # 920k optimal, current 718k
+        # 'e.txt',  # 920k optimal, current 730k
         # 'f.txt',  # 176k optimal, current 141k
         # 'c.txt',  # 1328389 optimal, current 1,310,996 points
         # 'b.txt',  # 4576202 optimal, current 4,568,491 points
-        # 'd.txt',  # 3986k optimal, current 1,974,754 points
+        'd.txt',  # 3986k optimal, current 1,974,754 points
 
     ]:
         print(f'----- Solving {file_name} -----')

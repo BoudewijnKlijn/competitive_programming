@@ -77,7 +77,7 @@ class PlanV2(Strategy):
             add_street_to_schedule(street, passing_time=0)
 
         for car in cars:
-            time = 0
+            time = 1
             for street in car.path[1:-1]:
                 time += street.time
                 delay = add_street_to_schedule(street, time)

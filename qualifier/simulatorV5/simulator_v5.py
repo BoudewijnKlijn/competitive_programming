@@ -47,13 +47,9 @@ class SimulatorV5(Simulator):
         # reset routes of cars and add to action queue
         for car_path in self.car_paths:
             car = SimulatorCarV5(path=deque(car_path))
-            starting_street_name = car.path.popleft()
-            starting_street = self.streets[starting_street_name]
-            while True:
-                try:
-                    passing_time = next(starting_street.passing_times)
-                except StopIteration:
-                    break  # no passing times available anymore for street
+            starting_street = self.streets[car.path.popleft()]
+
+            for passing_time in starting_street.passing_times:
 
                 if passing_time < car.time_passed:
                     starting_street.n_unused_passing_times += 1  # for analysis: add unused green light
@@ -92,8 +88,7 @@ class SimulatorV5(Simulator):
         for time in self.all_times:
             for car in self.actions[time]:
                 # car enters street. ride street and check if it needs to go to another street
-                street_name = car.path.popleft()
-                street = self.streets[street_name]
+                street = self.streets[car.path.popleft()]
                 car.time_passed += street.length
 
                 # if car is finished WITHIN duration, add it to finished
@@ -101,11 +96,7 @@ class SimulatorV5(Simulator):
                     self.score += self.duration - car.time_passed + self.bonus
                     continue
 
-                while True:
-                    try:
-                        passing_time = next(street.passing_times)
-                    except StopIteration:
-                        break
+                for passing_time in street.passing_times:
 
                     if passing_time < car.time_passed:
                         street.n_unused_passing_times += 1  # for analysis: add unused green light

@@ -26,12 +26,12 @@ if __name__ == '__main__':
 
         seed = random.randint(1, 1_000_000)
 
-        profile = True
+        profile = False
         save = True
         jobs = 6
-        iteration_count = jobs * 2
+        iteration_count = jobs * 1
 
-        strategy = Plan
+        strategy = PlanV2
 
         try:
             if profile == False:

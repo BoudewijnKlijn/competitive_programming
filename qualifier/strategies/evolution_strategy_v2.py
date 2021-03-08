@@ -124,7 +124,7 @@ Extra mutations: {extra_mutations} ({extra_mutations / input_data.n_intersection
             print('Odd amount in gene pool, adding a random parent')
             add_solution()
 
-        print('Adding extra SmartRandom parents if needed to fill to generation_size_limit')
+        print(f'Adding extra {self.children_strategies.name} parents if needed to fill to generation_size_limit')
         for _ in range(max(0, self.generation_size_limit - len(starting_solutions))):
             add_solution()
 
