@@ -12,6 +12,29 @@ class Plan(Strategy):
 
         streets_with_cars = self.streets_with_car_at_light(input_data)
 
+        def add_street_to_schedule(street: Street, passing_time) -> int:
+            """ add the street in the optimal schedule slot if it is still empty else the first available
+            assumes 1 second durations
+            """
+            intersection = intersections[street.end]
+
+            schedule_slot = passing_time % intersection['cycle_time']
+
+            if street.name in intersection['schedule']:
+                given_slot = intersection['schedule'].index(street.name)
+                delay = given_slot - schedule_slot
+                if delay < 0:
+                    delay = intersection['cycle_time'] - delay
+                return delay
+
+            delay = 0
+            while intersection['schedule'][schedule_slot] is not None:
+                schedule_slot = (schedule_slot + 1) % intersection['cycle_time']
+                delay += 1
+
+            intersection['schedule'][schedule_slot] = street.name
+            return delay
+
         for intersection in input_data.intersections:
             streets = [street for street in intersection.incoming_streets if street.name in streets_with_cars]
             intersections[intersection.index] = {
@@ -24,30 +47,7 @@ class Plan(Strategy):
 
         streets_where_cars_start = {car.path[0] for car in cars}
 
-        self.random.shuffle(cars)
-
-        def add_street_to_schedule(street: Street, passing_time) -> int:
-            """ add the street in the optimal schedule slot if it is still empty else the first available
-            assumes 1 second durations
-            """
-            intersection = intersections[street.end]
-
-            schedule_slot = passing_time % intersection['cycle_time']
-
-            if street.name in intersection['schedule']:
-                given_slot = intersection['schedule'].index(street.name)
-                diff = given_slot - schedule_slot
-                if diff < 0:
-                    diff = intersection['cycle_time'] - diff
-                return diff
-
-            delay = 0
-            while intersection['schedule'][schedule_slot] is not None:
-                schedule_slot = (schedule_slot + 1) % intersection['cycle_time']
-                delay += 1
-
-            intersection['schedule'][schedule_slot] = street.name
-            return delay
+        # self.random.shuffle(cars)
 
         for street in streets_where_cars_start:
             add_street_to_schedule(street, passing_time=0)

@@ -1,4 +1,6 @@
+import math
 import os
+import statistics
 from datetime import datetime
 import random
 import glob
@@ -12,6 +14,8 @@ from qualifier.strategies.BusyFirst import BusyFirst
 from qualifier.strategies.CarsFirst import CarsFirst
 from qualifier.strategies.Plan import Plan
 from qualifier.strategies.PlanV2 import PlanV2
+from qualifier.strategies.PlanV3 import PlanV3
+from qualifier.strategies.PlanV4 import PlanV4
 from qualifier.strategies.RandomPeriods import RandomPeriods
 from qualifier.strategies.evolution_strategy_v2 import EvolutionStrategyV2
 from qualifier.strategies.smart_random import SmartRandom
@@ -137,16 +141,23 @@ if __name__ == '__main__':
         start_time = datetime.now()
         input_data = InputData(os.path.join(directory, file_name))
 
-        # my_strategy = Plan(seed=random.randint(0, 1_000_000))
+        my_strategy = PlanV4(seed=random.randint(0, 1_000_000))
         # my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
-        my_strategy = setup_evolution_strategy(file_name)
+        # my_strategy = setup_evolution_strategy(file_name)
 
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)
 
         print(f'Running solution trough simulator...')
         sim = SimulatorV4(input_data, verbose=0)
-        score, _ = sim.run(output)
+        score, evaluation = sim.run(output)
+
+        waiting_times = [sum([street[2] for street in intersection.street_duration_tuples]) for intersection in
+                         evaluation.schedules]
+        print(f"""Total waiting time: {sum(waiting_times)}
+avg waiting time per intersection: {statistics.mean(waiting_times):0.01f}
+avg waiting time per car: {sum(waiting_times) / input_data.n_cars:0.01f}
+""")
 
         # print(f'---- {file_name} ----')
         # print(f'Org sim score: {Simulator(input_data, verbose=0).run(output)}')
