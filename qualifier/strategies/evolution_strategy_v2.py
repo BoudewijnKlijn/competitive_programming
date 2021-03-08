@@ -52,6 +52,9 @@ def _worker_func(work):
 class EvolutionStrategyV2(Strategy):
     name = 'EvolutionStrategy'
 
+    # TODO: swithc to MultiCoreStrategy class
+    # TODO: drop duplicate genomes (prefer lowerscoring genomes instead to keep diversity)
+
     def __init__(self,
                  input_data: InputData,
                  generations: int,
@@ -59,6 +62,7 @@ class EvolutionStrategyV2(Strategy):
                  generation_size_limit: int,
                  extra_mutations: int,
                  simulator_class: Callable,
+                 children_strategies: Strategy,
                  gene_pool: List[OutputData] = None,
                  seed=27,
                  verbose=0,
@@ -87,6 +91,7 @@ class EvolutionStrategyV2(Strategy):
         self.generations = generations
         self.verbose = verbose
         self.simulator_class = simulator_class
+        self.children_strategies = children_strategies
         self.history = []
         self.pool = None
 
@@ -94,8 +99,9 @@ class EvolutionStrategyV2(Strategy):
         self.simulator = self.simulator_class(input_data=input_data)
 
         if verbose > 0:
-            print(f"""Evolution strategy
-Extra mutations: {extra_mutations}""")
+            print(f""" --- Evolution strategy ---
+Genes: {input_data.n_intersections}
+Extra mutations: {extra_mutations} ({extra_mutations / input_data.n_intersections * 100:0.01f}%)""")
 
         if self.jobs > 0:
             self.pool = Pool(self.jobs, initializer=_worker_initializer, initargs=(simulator_class, input_data))
@@ -111,8 +117,7 @@ Extra mutations: {extra_mutations}""")
             starting_solutions += self.gene_pool
 
         def add_solution():
-            random_solution = SmartRandom(self.random.randint(0, 10000), max_duration=2,
-                                          ratio_permanent_red=0).solve(input_data)
+            random_solution = self.children_strategies(self.random.randint(0, 10000)).solve(input_data)
             starting_solutions.append(random_solution)
 
         if len(starting_solutions) % 2 == 1:
@@ -173,7 +178,7 @@ Extra mutations: {extra_mutations}""")
                 best_solution = deepcopy(current_generation[0])
             for child in current_generation:
                 OutputData(child.schedules).save(
-                    f'./outputs/intermediate results/Evo {child.score}.out')
+                    f'./outputs/intermediate results/_{child.score:09}_Evo.out')
 
         print(f'Valid: {best_solution.score}')
 

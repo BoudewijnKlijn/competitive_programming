@@ -60,21 +60,29 @@ def setup_evolution_strategy(file_name: str):
     ]
 
     if file_name == 'd.txt':
-        extra_mutations = max(1, input_data.n_intersections // 400)
+        extra_mutations = max(1, input_data.n_intersections // 300)
+        generation_size_limit = 30
         generations = 20
         children = 2
+        children_strategies = PlanV2
     elif file_name == 'e.txt':
-        extra_mutations = max(1, input_data.n_intersections // 200)
+        extra_mutations = max(1, input_data.n_intersections // 250)
+        generation_size_limit = 30
         generations = 80
         children = 2
+        children_strategies = SmartRandom
     elif file_name == 'f.txt':
         extra_mutations = max(1, input_data.n_intersections // 200)
+        generation_size_limit = 30
         generations = 30
         children = 2
+        children_strategies = SmartRandom
     else:
         extra_mutations = max(1, input_data.n_intersections // 100)
+        generation_size_limit = 30
         generations = 20
         children = 1
+        children_strategies = SmartRandom
 
     evo_strategy = EvolutionStrategyV2(
         input_data=input_data,
@@ -85,8 +93,9 @@ def setup_evolution_strategy(file_name: str):
         # generation_size_limit=2,
         # jobs=1,
 
+        generation_size_limit=generation_size_limit,
         children_per_couple=children,
-        generation_size_limit=30,
+        children_strategies=children_strategies,
         jobs=6,
 
         # normal
@@ -106,14 +115,22 @@ if __name__ == '__main__':
 
     directory = os.path.join(THIS_PATH, 'inputs')
     for file_name in [
+
+        # a.txt: 2002
+        # b.txt: 4576202
+        # c.txt: 1328389
+        # d.txt: 3986591
+        # e.txt: 921203
+        # f.txt: 1765068
+
         # 'a.txt',  # instant
 
         # ordered by speed (as measured by V1 simulator back in the day)
-        'e.txt',  # 920k optimal current 718k
-        # 'f.txt',  # 176k optimal current 141k
-        # very close to optimal 'c.txt',  # 17s
-        # very close to optimal 'b.txt',  # 26s
-        # 'd.txt',  # 3986k optimal
+        'e.txt',  # 920k optimal, current 718k
+        # 'f.txt',  # 176k optimal, current 141k
+        # 'c.txt',  # 1328389 optimal, current 1,310,996 points
+        # 'b.txt',  # 4576202 optimal, current 4,568,491 points
+        # 'd.txt',  # 3986k optimal, current 1,974,754 points
 
     ]:
         print(f'----- Solving {file_name} -----')

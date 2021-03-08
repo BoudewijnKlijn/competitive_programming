@@ -31,7 +31,7 @@ if __name__ == '__main__':
         jobs = 6
         iteration_count = jobs * 2
 
-        strategy = PlanV2
+        strategy = Plan
 
         try:
             if profile == False:

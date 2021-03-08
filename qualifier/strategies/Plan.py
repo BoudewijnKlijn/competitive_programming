@@ -21,12 +21,13 @@ class Plan(Strategy):
             }
 
         cars = list(input_data.cars)
-        self.random.shuffle(cars)
 
         streets_where_cars_start = {car.path[0] for car in cars}
 
+        self.random.shuffle(cars)
+
         def add_street_to_schedule(street: Street, passing_time) -> int:
-            """ add the street in the optimal schedule slot if it is still empty else the first availalbe
+            """ add the street in the optimal schedule slot if it is still empty else the first available
             assumes 1 second durations
             """
             intersection = intersections[street.end]
@@ -34,7 +35,6 @@ class Plan(Strategy):
             schedule_slot = passing_time % intersection['cycle_time']
 
             if street.name in intersection['schedule']:
-                # lets hope for the best but we can improve upon this
                 given_slot = intersection['schedule'].index(street.name)
                 diff = given_slot - schedule_slot
                 if diff < 0:
@@ -53,7 +53,7 @@ class Plan(Strategy):
             add_street_to_schedule(street, passing_time=0)
 
         for car in cars:
-            time = 0
+            time = 1  # should probably be 1, because we processed the first streets in 0
             for street in car.path[1:-1]:
                 time += street.time
                 delay = add_street_to_schedule(street, time)
@@ -61,7 +61,7 @@ class Plan(Strategy):
 
         schedules = []
         for intersection_nr, intersection in intersections.items():
-            schedule = [(street, 1) for street in intersection['schedule'] if street is not None]
+            schedule = [(street, 1) for street in intersection['schedule']]
             schedules.append(Schedule(intersection_nr, tuple(schedule)))
 
         return OutputData(tuple(schedules))
