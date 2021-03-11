@@ -2,6 +2,7 @@ import time
 import os
 from collections import defaultdict
 import numpy as np
+import pandas as pd
 
 from qualifier.calculate_score import calculate_score
 from qualifier.input_data import InputData
@@ -71,6 +72,7 @@ if __name__ == '__main__':
     street_arrival_times = {street_name: value.arrival_times_car_at_light for street_name, value in streets.items()}
     # print(street_arrival_times)
 
+    # # which intersections have the biggest chance of being able to improve?
     # result = list()
     # for i, intersection in enumerate(input_data.intersections):
     #     print(i)
@@ -87,37 +89,41 @@ if __name__ == '__main__':
     #         else:
     #             result.append((len(intersection.incoming_streets), False))
     # print(result)
+    # a = pd.DataFrame(result)
+    # print(a.groupby(0).mean())
+    # print(a.groupby(0).size())
 
-    # adjust output of small intersections
-    new_schedules = list()
-    for schedule in output.schedules:
-        intersection_id = schedule.intersection
-        number_of_scheduled_streets = len(schedule.street_duration_tuples)
-        arrivals = list()
-        street_name_of_arrivals = list()
-        if number_of_scheduled_streets < 8:
-            # gather the arrival times of all streets at the intersection
-            for intersection in input_data.intersections:
-                if intersection.index != intersection_id:
-                    continue
 
-                for street in intersection.incoming_streets:
-                    if street_arrival_times[street.name]:
-                        arrivals.append(street_arrival_times[street.name])
-                        street_name_of_arrivals.append(street.name)
-
-        if arrivals and (zero_delay_schedule := get_zero_delay_schedule(arrivals)) is not None:
-            # adjust schedule
-            street_name_arrival_dict = dict(enumerate(street_name_of_arrivals))
-            schedule_with_correct_street_names = tuple([(street_name_arrival_dict[int(street_name_int)], duration)
-                                                        for street_name_int, duration in zero_delay_schedule])
-            new_schedules.append(Schedule(intersection_id, schedule_with_correct_street_names))
-        else:
-            new_schedules.append(schedule)
-
-    new_output = OutputData(tuple(new_schedules))
-
-    score, _, _ = SimulatorV4(input_data, verbose=0).run(new_output)
-    print(f'{SimulatorV4.__name__=}, {score=}')
-    save_output(new_output, file_name, score, f'boudewijn_zero_{SimulatorV4.__name__}')
+    # # adjust output of small intersections
+    # new_schedules = list()
+    # for schedule in output.schedules:
+    #     intersection_id = schedule.intersection
+    #     number_of_scheduled_streets = len(schedule.street_duration_tuples)
+    #     arrivals = list()
+    #     street_name_of_arrivals = list()
+    #     if number_of_scheduled_streets < 8:
+    #         # gather the arrival times of all streets at the intersection
+    #         for intersection in input_data.intersections:
+    #             if intersection.index != intersection_id:
+    #                 continue
+    #
+    #             for street in intersection.incoming_streets:
+    #                 if street_arrival_times[street.name]:
+    #                     arrivals.append(street_arrival_times[street.name])
+    #                     street_name_of_arrivals.append(street.name)
+    #
+    #     if arrivals and (zero_delay_schedule := get_zero_delay_schedule(arrivals)) is not None:
+    #         # adjust schedule
+    #         street_name_arrival_dict = dict(enumerate(street_name_of_arrivals))
+    #         schedule_with_correct_street_names = tuple([(street_name_arrival_dict[int(street_name_int)], duration)
+    #                                                     for street_name_int, duration in zero_delay_schedule])
+    #         new_schedules.append(Schedule(intersection_id, schedule_with_correct_street_names))
+    #     else:
+    #         new_schedules.append(schedule)
+    #
+    # new_output = OutputData(tuple(new_schedules))
+    #
+    # score, _, _ = SimulatorV4(input_data, verbose=0).run(new_output)
+    # print(f'{SimulatorV4.__name__=}, {score=}')
+    # save_output(new_output, file_name, score, f'boudewijn_zero_{SimulatorV4.__name__}')
 
