@@ -14,38 +14,34 @@ from qualifier.util import save_output
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.simulatorV2.simulator_v2 import SimulatorV2
 from qualifier.simulator.simulatorv1 import SimulatorV1
+from qualifier.strategies.PlanV4 import PlanV4
+
+from qualifier.zero_delay_schedule import get_zero_delay_schedule
 
 THIS_PATH = os.path.realpath(__file__)
 
 
-class MyStrategy(Strategy):
+def load_schedule_from_output():
+    file_name = 'd_002488632_b_and_m-RandomStrategy on PlanV4.out'
+    with open(file_name, 'r') as file:
+        lines = file.readlines()
 
-    def solve(self, input):
-        schedules = []
-        all_paths = [car.path for car in input.cars]
-        street_counts = defaultdict(int)
-        for path in all_paths:
-            for street in path:
-                street_counts[street.name] += 1
+    schedules = []
 
-        for intersection in input.intersections:
-            trafic_lights = []
+    intersections = int(lines.pop(0))
+    current_intersections = []
+    while (lines):
+        intersection = int(lines.pop(0).strip())
+        current_intersections.append(intersection)
+        schedule_count = int(lines.pop(0).strip())
+        street_durations = []
+        for _ in range(schedule_count):
+            street, duration = lines.pop(0).split(' ')
+            street_durations.append((street, int(duration.strip())))
 
-            min_weight = min(street_counts[street.name] / street.time for street in intersection.incoming_streets)
-            any_non_zero_weight = False
-            for street in intersection.incoming_streets:
-                if min_weight == 0:
-                    continue
-                weight = round(street_counts[street.name] / street.time / min_weight)
-                if weight > 0:
-                    any_non_zero_weight = True
-                print((intersection.index, street.name, weight))
-                trafic_lights.append((street.name, weight))
-            if any_non_zero_weight:
-                schedule = Schedule(intersection.index, trafic_lights)
-                schedules.append(schedule)
+        schedules.append(Schedule(intersection, tuple(street_durations)))
 
-        return OutputData(schedules)
+    return OutputData(tuple(schedules))
 
 
 if __name__ == '__main__':
@@ -55,17 +51,73 @@ if __name__ == '__main__':
     for file_name in os.listdir(directory):
         if single_file is not None:
             file_name = single_file
-        input_data = InputData(os.path.join(directory, file_name))
+        input_data = InputData(os.path.join(directory, file_name)) # 'qualifier',
 
-        my_strategy = RandomPeriods(seed=1)  # FixedPeriods()
+        my_strategy = PlanV4(seed=2)  # FixedPeriods()
 
-        output = my_strategy.solve(input_data)
+        # output = my_strategy.solve(input_data)
+
+        output = load_schedule_from_output()
 
         sims = [SimulatorV4]  # Simulator, SimulatorV2,
         for sim in sims:
-            score, _ = sim(input_data, verbose=0).run(output)
+            score, _, streets = sim(input_data, verbose=0).run(output)
             print(f'{sim.__name__=}, {score=}')
             save_output(output, file_name, score, f'boudewijn_{sim.__name__}')
 
         if single_file is not None:
             break
+
+    street_arrival_times = {street_name: value.arrival_times_car_at_light for street_name, value in streets.items()}
+    # print(street_arrival_times)
+
+    # result = list()
+    # for i, intersection in enumerate(input_data.intersections):
+    #     print(i)
+    #     arrivals = list()
+    #     # print('number of incoming streets', len(intersection.incoming_streets))
+    #     for street in intersection.incoming_streets:
+    #         if street_arrival_times[street.name]:
+    #             arrivals.append(street_arrival_times[street.name])
+    #
+    #     # print(arrivals)
+    #     if arrivals:
+    #         if get_zero_delay_schedule(arrivals) is not None:
+    #             result.append((len(intersection.incoming_streets), True))
+    #         else:
+    #             result.append((len(intersection.incoming_streets), False))
+    # print(result)
+
+    # adjust output of small intersections
+    new_schedules = list()
+    for schedule in output.schedules:
+        intersection_id = schedule.intersection
+        number_of_scheduled_streets = len(schedule.street_duration_tuples)
+        arrivals = list()
+        street_name_of_arrivals = list()
+        if number_of_scheduled_streets < 8:
+            # gather the arrival times of all streets at the intersection
+            for intersection in input_data.intersections:
+                if intersection.index != intersection_id:
+                    continue
+
+                for street in intersection.incoming_streets:
+                    if street_arrival_times[street.name]:
+                        arrivals.append(street_arrival_times[street.name])
+                        street_name_of_arrivals.append(street.name)
+
+        if arrivals and (zero_delay_schedule := get_zero_delay_schedule(arrivals)) is not None:
+            # adjust schedule
+            street_name_arrival_dict = dict(enumerate(street_name_of_arrivals))
+            schedule_with_correct_street_names = tuple([(street_name_arrival_dict[int(street_name_int)], duration)
+                                                        for street_name_int, duration in zero_delay_schedule])
+            new_schedules.append(Schedule(intersection_id, schedule_with_correct_street_names))
+        else:
+            new_schedules.append(schedule)
+
+    new_output = OutputData(tuple(new_schedules))
+
+    score, _, _ = SimulatorV4(input_data, verbose=0).run(new_output)
+    print(f'{SimulatorV4.__name__=}, {score=}')
+    save_output(new_output, file_name, score, f'boudewijn_zero_{SimulatorV4.__name__}')
+

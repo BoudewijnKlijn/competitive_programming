@@ -54,6 +54,7 @@ class SimulatorV4(Simulator):
         self.cars = [SimulatorCarV4(path=deque(car.path)) for car in self.cars_input]
         for car in self.cars:
             starting_street_name = car.path.popleft()
+            self.streets[starting_street_name].arrival_times_car_at_light.append(car.time_passed)
             while True:
                 try:
                     passing_time = self.streets[starting_street_name].passing_times.popleft()
@@ -85,6 +86,7 @@ class SimulatorV4(Simulator):
                     self.finished[car.time_passed] += 1
                     continue
 
+                self.streets[street_name].arrival_times_car_at_light.append(car.time_passed)
                 while True:
                     try:
                         passing_time = self.streets[street_name].passing_times.popleft()
@@ -108,4 +110,4 @@ class SimulatorV4(Simulator):
                 new_schedule.append((street[0], street[1], self.streets[street[0]].sum_waiting_time))
             evaluated_schedule.append(EvaluatedSchedule(schedule.intersection, tuple(new_schedule)))
 
-        return int(np.dot(self.finished, self.points)), OutputData(tuple(evaluated_schedule))
+        return int(np.dot(self.finished, self.points)), OutputData(tuple(evaluated_schedule)), self.streets

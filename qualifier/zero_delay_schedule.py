@@ -7,7 +7,7 @@ from itertools import chain
 from collections import defaultdict
 
 
-D = 8071  # duration of D
+D = 1000 #8071  # duration of D
 
 
 def get_zero_delay_schedule(arrivals: List[List[int]]):
