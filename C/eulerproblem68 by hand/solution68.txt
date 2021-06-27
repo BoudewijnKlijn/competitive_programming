@@ -1,0 +1,30 @@
+Just use pen, paper and logic, as some other have noted as well.
+
+1) First observe that 10 must be in outer ring to get 16 digits.
+2) Since the first digit of the string needs to be as high as possible, and the first digit is the lowest number in the outer ring, ideally this is 6, hence 6-10 in outer ring, 1-5 in inner ring
+3) Outer ring is used once for total sum, inner ring twice, so total sum = 10+9+8+7+6 + 2*(5+4+3+2+1) = 70. 
+4) Hence, sum of each 3-digit combi must be 70/5=14
+5) We can now construct all combinations that total 14, keeping in mind the inner and outer ring digit possibilities (outer ring as first digit)
+
+10-1-3
+10-3-1
+9-1-4
+9-4-1
+9-2-3
+9-3-2
+8-1-5
+8-5-1
+8-2-4
+8-4-2
+7-2-5
+7-5-2
+7-3-4
+7-4-3
+6-3-5
+6-5-3
+
+6) Since we know the first digit must be 6, and we want to maximize the second digit, we take 6-5-3 to start with. From here it is simple to fill in the rest.
+7) Moving clockwise, next set must be 10-3-1, otherwise we cannot fill that in anywhere.
+8) Moving clockwise, next set must be 9-1-4, since 8-1-5 is not possible here. (5 is already used and not yet back there)
+9) Inner ring 4 of 5 places filled in so last free position must be 2.
+10) With the inner ring filled, we can complete the outer ring to create 8-4-2 and 7-2-5.
