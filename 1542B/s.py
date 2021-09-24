@@ -1,7 +1,6 @@
 import sys
 import os
 
-from collections import deque
 
 # Read from stdin.
 # input = iter(sys.stdin.readlines()).__next__
@@ -14,86 +13,33 @@ if len(sys.argv) > 1:
             input = iter(f.readlines()).__next__
 
 
-def is_solvable(n, a, b):
-    """Brute force v2: Start from n and see if we can go back to 1."""
-    numbers = deque([n])
-    while numbers:
-        number = numbers.popleft()
-        if number == 1:
-            return True
-        if a != 1 and number % a == 0:
-            numbers.append(number // a)
-        if number - b >= 1:
-            numbers.append(number - b)
-    return False
-
-
-def is_solvable_v2(n, a, b):
-    """Brute force v2: Start from 1 and see if we can reach n."""
-    numbers = [1]
-    number_set = {1}
-    idx = 0
-    while True:
-        try:
-            number = numbers[idx]
-            idx += 1
-        except IndexError:
-            return False
-
-        if a > 1:
-            new = number * a
-            if new == n:
-                return True
-            elif new <= n and new not in number_set:
-                numbers.append(new)
-                number_set.add(new)
-
-        new = number + b
-        if new == n:
-            return True
-        elif new <= n and new not in number_set:
-            numbers.append(new)
-            number_set.add(new)
-
-
 def is_solvable_v3(n, a, b):
-    """Smart way: Analyze numbers in modulo form."""
+    """Smart way: Analyze numbers in modulo form.
+    If remainder goal is 1, we can just keep adding b to get to n.
+    Otherwise, make more remainders from starting point (which is 1).
+    Adding b doesn't change the remainder (since we do mod b). Multiplying with a might change the remainder."""
     # What is the remainder we need to achieve
     remainder_goal = n % b
 
-    # If 1, we can just keep adding b to get to n.
-    if remainder_goal == 1:
-        return True
-
-    # Otherwise, make more remainders from starting point (which is 1).
-    remainders = [1]
-    remainders_set = {1}
-    idx = 0
-
-    # Keep track of number
+    # Keep track of number and remainders that are checked already.
     number = 1
+    remainders_checked = set()
     while True:
-        # If we run out of numbers or remainders to check, it's not possible
-        try:
-            remainder = remainders[idx]
-            idx += 1
-        except IndexError:
+        remainder = number % b
+
+        if remainder_goal == remainder:
+            return True
+
+        # If remainder already checked, it's impossible.
+        if remainder in remainders_checked:
             return False
+        else:
+            remainders_checked.add(remainder)
 
         # We need to arrive at correct remainder before numbers are bigger than the goal.
         number *= a
         if number > n:
             return False
-
-        # Adding b doesn't change the remainder (since we do mod b). Multiplying with a might change the remainder.
-        new = (remainder * a) % b
-        # If remainder correct, return True
-        if new == remainder_goal:
-            return True
-        # If remainder already checked, we don't need to check again.
-        elif new not in remainders_set:
-            remainders.append(new)
-            remainders_set.add(new)
 
 
 def main():
