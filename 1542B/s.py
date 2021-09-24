@@ -58,26 +58,42 @@ def is_solvable_v2(n, a, b):
 
 def is_solvable_v3(n, a, b):
     """Smart way: Analyze numbers in modulo form."""
+    # What is the remainder we need to achieve
     remainder_goal = n % b
+
+    # If 1, we can just keep adding b to get to n.
     if remainder_goal == 1:
         return True
+
+    # Otherwise, make more remainders from starting point (which is 1).
     remainders = [1]
     remainders_set = {1}
     idx = 0
+
+    # Keep track of number
+    number = 1
     while True:
+        # If we run out of numbers or remainders to check, it's not possible
         try:
             remainder = remainders[idx]
             idx += 1
         except IndexError:
             return False
 
-        if a > 1:
-            new = (remainder * a) % b
-            if new == remainder_goal:
-                return True
-            elif new not in remainders_set:
-                remainders.append(new)
-                remainders_set.add(new)
+        # We need to arrive at correct remainder before numbers are bigger than the goal.
+        number *= a
+        if number > n:
+            return False
+
+        # Adding b doesn't change the remainder (since we do mod b). Multiplying with a might change the remainder.
+        new = (remainder * a) % b
+        # If remainder correct, return True
+        if new == remainder_goal:
+            return True
+        # If remainder already checked, we don't need to check again.
+        elif new not in remainders_set:
+            remainders.append(new)
+            remainders_set.add(new)
 
 
 def main():
