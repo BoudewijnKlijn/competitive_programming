@@ -15,12 +15,10 @@ if len(sys.argv) > 1:
 
 
 def is_solvable(n, a, b):
-    """Start from n and see if we can go back to 1."""
+    """Brute force v2: Start from n and see if we can go back to 1."""
     numbers = deque([n])
     while numbers:
         number = numbers.popleft()
-        print(numbers)
-        print(number)
         if number == 1:
             return True
         if a != 1 and number % a == 0:
@@ -31,7 +29,7 @@ def is_solvable(n, a, b):
 
 
 def is_solvable_v2(n, a, b):
-    """Start from 1 and see if we can reach n."""
+    """Brute force v2: Start from 1 and see if we can reach n."""
     numbers = [1]
     number_set = {1}
     idx = 0
@@ -45,7 +43,6 @@ def is_solvable_v2(n, a, b):
         if a > 1:
             new = number * a
             if new == n:
-                print(numbers)
                 return True
             elif new <= n and new not in number_set:
                 numbers.append(new)
@@ -53,18 +50,41 @@ def is_solvable_v2(n, a, b):
 
         new = number + b
         if new == n:
-            print(numbers)
             return True
         elif new <= n and new not in number_set:
             numbers.append(new)
             number_set.add(new)
 
 
+def is_solvable_v3(n, a, b):
+    """Smart way: Analyze numbers in modulo form."""
+    remainder_goal = n % b
+    if remainder_goal == 1:
+        return True
+    remainders = [1]
+    remainders_set = {1}
+    idx = 0
+    while True:
+        try:
+            remainder = remainders[idx]
+            idx += 1
+        except IndexError:
+            return False
+
+        if a > 1:
+            new = (remainder * a) % b
+            if new == remainder_goal:
+                return True
+            elif new not in remainders_set:
+                remainders.append(new)
+                remainders_set.add(new)
+
+
 def main():
     t = int(input())
     for _ in range(t):
         n, a, b = map(int, input().split())
-        if is_solvable_v2(n, a, b):
+        if is_solvable_v3(n, a, b):
             print("Yes")
         else:
             print("No")
