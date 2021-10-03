@@ -16,29 +16,37 @@ def main():
     t = int(input())
     for _ in range(t):
         n = int(input())
-        s = input().strip()
+        s = list(map(int, input().strip()))
 
         # Init
         subsequences = [0] * n
-        prev_char_of_subsequence = dict()
-        prev_char = None
+        max_subsequence = 0
+        last_used_zero = list()  # store subsequences where zero was used as last number
+        last_used_one = list()  # store subsequences where one was used as last number
         for i, char in enumerate(s):
-            # Different character. Try subsequences starting from 1.
-            if char != prev_char:
-                subsequence = 1
-            # Same character. Try subsequences starting from last subsequence plus 1.
+            if char == 0:
+                try:
+                    # Get a subsequence where a one was used as last number.
+                    subsequence = last_used_one.pop()
+                except IndexError:
+                    # If no subsequence has a one as last, make a new subsequence. It must not exist yet, so take max
+                    # and increase with 1.
+                    subsequence = max_subsequence + 1
+                    max_subsequence += 1
+                last_used_zero.append(subsequence)
+            # Same approach for ones.
+            elif char == 1:
+                try:
+                    subsequence = last_used_zero.pop()
+                except IndexError:
+                    subsequence = max_subsequence + 1
+                    max_subsequence += 1
+                last_used_one.append(subsequence)
             else:
-                subsequence += 1
+                raise ValueError()
 
-            # If subsequence already used, the last character in that subsequence has to be different from
-            # the current character. Otherwise, increase subsequence to try that one.
-            while prev_char_of_subsequence.get(subsequence) == char:
-                subsequence += 1
-
-            # Store values and prepare for next char.
+            # Store value.
             subsequences[i] = subsequence
-            prev_char_of_subsequence[subsequence] = char
-            prev_char = char
 
         # Return answer.
         print(max(subsequences))
