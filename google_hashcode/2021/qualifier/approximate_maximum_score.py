@@ -1,0 +1,2 @@
+class ApproximateMaximumScore:
+    pass

@@ -1,0 +1,1 @@
+set PYTHONPATH=C:\Users\ADMINT580\Desktop\Work\Projects\202102_google_hashcode\2021-google-hash-code
