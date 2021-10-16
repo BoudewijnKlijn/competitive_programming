@@ -31,10 +31,17 @@ for t in range(1, T + 1):
         object_coordinates = tuple(map(int, input().split()))
         objects.append(object_coordinates)
 
+    # get bounds from objects
+    first_x, first_y, second_x, second_y = zip(*objects)
+    min_x = min(first_x)
+    max_x = max(second_x)
+    min_y = min(first_y)
+    max_y = max(second_y)
+
     # Brute force for test set 1
     minimum_sum = None
     best = None
-    for bottle_coordinates in product(range(-100, 101), range(-100, 101)):
+    for bottle_coordinates in product(range(min_x, max_x+1), range(min_y, max_y+1)):
         total_sum = 0
         for object_coordinates in objects:
             total_sum += get_distance(object_coordinates, bottle_coordinates)
