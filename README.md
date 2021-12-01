@@ -1,2 +1,2 @@
-# Valcon_AoC_2021
-Valcon Advent of Code 2021
+# Valcon_AoC_2022
+Valcon Advent of Code 2022
