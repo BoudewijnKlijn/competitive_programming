@@ -14,8 +14,8 @@ class Scorer2019Q(Scorer):
 
     def calculate(self, slides: Slides) -> int:
         score = 0
-        for i, slide in enumerate(slides.slides[:-1]):
-            score += self._calculate_transition(slides.slides[i + 1], slide)
+        for slide_a, slide_b in zip(slides.slides[:-1], slides.slides[1:]):
+            score += self._calculate_transition(slide_a, slide_b)
         return score
 
     def __init__(self, input_data: InputData):
