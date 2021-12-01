@@ -1,15 +1,23 @@
+import os
+
 import valcon
 import HC_2019_Qualification
+from HC_2019_Qualification.baseline_solver import BaseLineStrategy
+from HC_2019_Qualification.input_data_2019_q import Pictures
+from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
+
+THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 if __name__ == '__main__':
-    input_data = InputData(os.path.join(directory, file_name))
+    directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
+    input_data = Pictures(os.path.join(directory, 'a_example.txt'))
 
-    my_strategy = StartFirstGreen(seed=random.randint(0, 1_000_000))
-    # my_strategy = RandomStrategy(StartFirstGreen, seed=random.randint(0, 1_000_000), tries=10)
-    # my_strategy = setup_evolution_strategy(file_name)
+    strategy = BaseLineStrategy()
+    solution = strategy.solve(input_data)
 
-    print(f'Solving with strategy {my_strategy.name}...')
-    output = my_strategy.solve(input_data)
+    scorer = Scorer2019Q(input_data)
+    score = scorer.calculate(solution)
 
-    print(f'Running solution trough simulator...')
-    score, _ = SimulatorV4(input_data, verbose=0).run(output)
+    print(f'Score: {score}')
+
+    pass
