@@ -1,4 +1,5 @@
 from HC_2019_Qualification.input_data_2019_q import Pictures
+from HC_2019_Qualification.picture import Orientation
 from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
 from valcon.strategy import Strategy
@@ -11,10 +12,10 @@ class SortByNPicturesStrategy(Strategy):
 
         vertical_picture = None
 
-        input_data.pictures = sorted(input_data.pictures, key=lambda x: x.number_of_tags)
+        input_data.pictures = sorted(input_data.pictures, key=lambda x: x.number_of_tags, reverse=True)
 
         for picture in input_data.pictures:
-            if picture.orientation == picture.HORIZONTAL:
+            if picture.orientation == Orientation.HORIZONTAL:
                 slides.append(Slide([picture]))
             elif vertical_picture:
                 slides.append(Slide([vertical_picture, picture]))
