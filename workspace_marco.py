@@ -4,15 +4,16 @@ import valcon
 import HC_2019_Qualification
 from HC_2019_Qualification.baseline_solver import BaseLineStrategy
 from HC_2019_Qualification.input_data_2019_q import Pictures
+from HC_2019_Qualification.random_solver import RandomStrategy
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
-    input_data = Pictures(os.path.join(directory, 'a_example.txt'))
+    input_data = Pictures(os.path.join(directory, 'b_lovely_landscapes.txt'))
 
-    strategy = BaseLineStrategy()
+    strategy = RandomStrategy(None)
     solution = strategy.solve(input_data)
 
     scorer = Scorer2019Q(input_data)
