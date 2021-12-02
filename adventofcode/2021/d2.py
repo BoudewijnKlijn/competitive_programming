@@ -2,14 +2,14 @@ import re
 from typing import List, Tuple
 
 
-def load_data(filename) -> List[Tuple[str, int]]:
+def load_data(filename) -> List[Tuple[str, str]]:
     with open(filename, 'r') as f:
         lines = f.read().strip()
         pattern = re.compile(r'([a-z]+) (\d+)')
         return re.findall(pattern, lines)
 
 
-def part1(input_data: List[Tuple[str, int]]) -> int:
+def part1(input_data: List[Tuple[str, str]]) -> int:
     h = 0
     v = 0
 
@@ -27,7 +27,7 @@ def part1(input_data: List[Tuple[str, int]]) -> int:
     return h * v
 
 
-def part2(input_data: List[Tuple[str, int]]) -> int:
+def part2(input_data: List[Tuple[str, str]]) -> int:
     h = 0
     v = 0
     aim = 0
