@@ -8,8 +8,8 @@ class Scorer2019Q(Scorer):
     @staticmethod
     def _calculate_transition(slide_a, slide_b):
         intersection_size = len(slide_a.tags & slide_b.tags)
-        set_minus_size = len(slide_a.tags - slide_b.tags)
-        set_minus_size_2 = len(slide_b.tags - slide_a.tags)
+        set_minus_size = slide_a.n_tags - intersection_size
+        set_minus_size_2 = slide_b.n_tags - intersection_size
         return min(intersection_size, set_minus_size, set_minus_size_2)
 
     def calculate(self, slides: Slides) -> int:

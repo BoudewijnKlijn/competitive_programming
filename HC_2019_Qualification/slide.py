@@ -8,3 +8,7 @@ class Slide:
     @property
     def tags(self):
         return set().union(*[p.tags for p in self.pictures])
+
+    @property
+    def n_tags(self):
+        return len(self.tags)
