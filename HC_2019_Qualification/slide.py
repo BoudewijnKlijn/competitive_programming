@@ -5,10 +5,13 @@ class Slide:
     def __init__(self, pictures: [Picture]):
         self.pictures = pictures
 
+    def __str__(self):
+        return 'Slide:\n\t' + '\n\t'.join([str(p) for p in self.pictures])
+
     @property
     def tags(self):
         return set().union(*[p.tags for p in self.pictures])
 
     @property
-    def n_tags(self):
+    def number_of_tags(self):
         return len(self.tags)

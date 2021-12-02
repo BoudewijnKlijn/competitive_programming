@@ -9,3 +9,6 @@ class Slides(OutputData):
 
     def __init__(self, slides: [Slide]):
         self.slides = slides
+
+    def __str__(self):
+        return '\n'.join(str(slide) for slide in self.slides)

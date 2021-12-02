@@ -29,8 +29,8 @@ class RandomSortFlipStrategy(Strategy):
 
         # Change order of slides (flip), two at a time, if they have the same number of tags.
         # In total no more than n_flips.
-        for position_picture_a, position_picture_b in zip(range(input_data.n_pictures - 1),
-                                                          range(1, input_data.n_pictures)):
+        n_slides = len(solution.slides)
+        for position_slide_a, position_slide_b in zip(range(n_slides - 1), range(1, n_slides)):
 
             # Stop if we have reached the maximum number of flips.
             if self.n_flips <= 0:
@@ -41,30 +41,45 @@ class RandomSortFlipStrategy(Strategy):
             print(self.n_flips, score)
 
             # Only flip if the two pictures have the same number of tags.
-            if input_data.pictures[position_picture_a].number_of_tags != \
-                    input_data.pictures[position_picture_b].number_of_tags:
+            if solution.slides[position_slide_a].number_of_tags != \
+                    solution.slides[position_slide_b].number_of_tags:
                 continue
 
-            # Flip.
-            input_data.pictures[position_picture_a], input_data.pictures[position_picture_b] = \
-                input_data.pictures[position_picture_b], input_data.pictures[position_picture_a]
+            # Determine impact on score due to the flip. If we flip adjacent slides, only the scores of two transitions
+            # are affected (only the score of the transition of the first slide and the slide before that, and the score
+            # of the transition of the last slide and the slide after that are affected). Instead of recalculating
+            # n_picture - 1 transitions, we can just recalculate the transition of the first slide and the transition of
+            # the last slide and add the difference to the score.
+            transition_a_score_delta = 0
+            if position_slide_a > 0:
+                before = scorer._calculate_transition(
+                    solution.slides[position_slide_a - 1],
+                    solution.slides[position_slide_a]
+                )
+                after = scorer._calculate_transition(
+                    solution.slides[position_slide_a - 1],
+                    solution.slides[position_slide_b]
+                )
+                transition_a_score_delta = after - before
+            transition_b_score_delta = 0
+            if (position_slide_b + 1) < n_slides:
+                before = scorer._calculate_transition(
+                    solution.slides[position_slide_b],
+                    solution.slides[position_slide_b + 1]
+                )
+                after = scorer._calculate_transition(
+                    solution.slides[position_slide_a],
+                    solution.slides[position_slide_b + 1]
+                )
+                transition_b_score_delta = after - before
+            score_delta = transition_a_score_delta + transition_b_score_delta
 
-            # Recalculate score.
-            candidate_solution = strategy.solve(input_data)
-            candidate_score = scorer.calculate(candidate_solution)
+            # Update the solution and score, if the score_delta is non-negative.
+            if score_delta >= 0:
+                solution.slides[position_slide_a], solution.slides[position_slide_b] = \
+                    solution.slides[position_slide_b], solution.slides[position_slide_a]
 
-            # If score improved, keep the solution.
-            if candidate_score > score:
-                solution = candidate_solution
-                score = candidate_score
-            else:
-                # If score did not improve, flip back.
-                input_data.pictures[position_picture_a], input_data.pictures[position_picture_b] = \
-                    input_data.pictures[position_picture_b], input_data.pictures[position_picture_a]
-
-                # Recalculate score.
-                candidate_solution = strategy.solve(input_data)
-                candidate_score = scorer.calculate(candidate_solution)
-                assert candidate_score == score, "Flip is reversed, so score should not change."
+            assert score == scorer.calculate(solution), \
+                "Score calculated via deltas should match with complete calculation."
 
         return solution

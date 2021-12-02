@@ -11,7 +11,10 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
-    input_data = Pictures(os.path.join(directory, 'b_lovely_landscapes.txt'))
+    input_data = Pictures(os.path.join(directory,
+                                       # 'a_example.txt'
+                                       'b_lovely_landscapes.txt'
+                                       ))
 
     # strategy = SortByNTagsStrategy()
     # strategy = RandomStrategy(None)
