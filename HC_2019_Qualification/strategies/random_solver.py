@@ -4,6 +4,7 @@ from HC_2019_Qualification.input_data_2019_q import Pictures
 from HC_2019_Qualification.picture import Orientation
 from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
+from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
 from valcon.strategy import Strategy
 
 
@@ -13,20 +14,7 @@ class RandomStrategy(Strategy):
 
     def solve(self, input_data: Pictures) -> Slides:
 
-        slides = []
-
         rng = Random(self.seed)
+        rng.shuffle(input_data.pictures)
 
-        vertical_picture = None
-
-        for picture in input_data.pictures:
-            if picture.orientation == Orientation.HORIZONTAL:
-                slides.append(Slide([picture]))
-            elif vertical_picture:
-                slides.append(Slide([vertical_picture, picture]))
-                vertical_picture = None
-            else:
-                vertical_picture = picture
-
-        rng.shuffle(slides)
-        return Slides(slides)
+        return BaseLineStrategy().solve(input_data)
