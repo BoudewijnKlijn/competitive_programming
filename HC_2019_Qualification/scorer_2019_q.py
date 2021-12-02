@@ -1,10 +1,13 @@
 from HC_2019_Qualification.slides import Slides
 from valcon import InputData, OutputData
-from valcon.Scorer import Scorer
+from valcon.scorer import Scorer
 from functools import lru_cache
 
 
 class Scorer2019Q(Scorer):
+    """
+    Validate inmput (slide with only 1 V should raise error)
+    """
 
     @staticmethod
     @lru_cache(maxsize=None)  # careful with this
