@@ -2,6 +2,7 @@ import os
 
 from HC_2019_Qualification.strategies.SortByNTags_solver import SortByNTagsStrategy
 from HC_2019_Qualification.strategies.random_solver import RandomStrategy
+from HC_2019_Qualification.strategies.RandomThenSortByNTags_solver import RandomThenSortByNTagsStrategy
 from HC_2019_Qualification.input_data_2019_q import Pictures
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
 
@@ -12,7 +13,8 @@ if __name__ == '__main__':
     input_data = Pictures(os.path.join(directory, 'b_lovely_landscapes.txt'))
 
     # strategy = SortByNTagsStrategy()
-    strategy = RandomStrategy(None)
+    # strategy = RandomStrategy(None)
+    strategy = RandomThenSortByNTagsStrategy(None)
     solution = strategy.solve(input_data)
 
     scorer = Scorer2019Q(input_data)
