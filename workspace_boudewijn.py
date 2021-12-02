@@ -3,6 +3,7 @@ import os
 from HC_2019_Qualification.strategies.sort_by_n_tags import SortByNTagsStrategy
 from HC_2019_Qualification.strategies.random_solver import RandomStrategy
 from HC_2019_Qualification.strategies.random_into_sort import RandomThenSortByNTagsStrategy
+from HC_2019_Qualification.strategies.random_sort_flip import RandomSortFlipStrategy
 from HC_2019_Qualification.input_data_2019_q import Pictures
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
 
@@ -14,7 +15,8 @@ if __name__ == '__main__':
 
     # strategy = SortByNTagsStrategy()
     # strategy = RandomStrategy(None)
-    strategy = RandomThenSortByNTagsStrategy(None)
+    # strategy = RandomThenSortByNTagsStrategy(None)
+    strategy = RandomSortFlipStrategy(0)
     solution = strategy.solve(input_data)
 
     scorer = Scorer2019Q(input_data)
