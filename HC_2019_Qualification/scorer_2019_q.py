@@ -1,11 +1,13 @@
 from HC_2019_Qualification.slides import Slides
 from valcon import InputData, OutputData
 from valcon.Scorer import Scorer
+from functools import lru_cache
 
 
 class Scorer2019Q(Scorer):
 
     @staticmethod
+    @lru_cache(maxsize=100_000)
     def _calculate_transition(slide_a, slide_b):
         intersection_size = len(slide_a.tags & slide_b.tags)
         set_minus_size = slide_a.n_tags - intersection_size

@@ -1,9 +1,8 @@
+from random import Random
+
 from HC_2019_Qualification.input_data_2019_q import Pictures
-from HC_2019_Qualification.picture import Orientation
-from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
 from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
-from random import Random
 from valcon.strategy import Strategy
 
 
