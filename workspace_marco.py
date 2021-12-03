@@ -16,6 +16,10 @@ import random
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
+def flatten(t):
+    return [item for sublist in t for item in sublist]
+
+
 class DivideAndConquerStrategy(Strategy):
     """ TODO: merge V slides
     can be made efficent by not calculating the entire score but the score change by merging slides
@@ -46,7 +50,8 @@ class DivideAndConquerStrategy(Strategy):
 class IslandStrategy(Strategy):
     """ and island is either a single picture or a set of pictures that have a transition with a score >= 1"""
 
-    def __init__(self, seed=None, iterations=10):
+    def __init__(self, seed=None, iterations=10, break_probability=0):
+        self.break_probability = break_probability
         self.iterations = iterations
         self.rng = random.Random()
         self.rng.seed(seed)
@@ -71,8 +76,17 @@ class IslandStrategy(Strategy):
 
         solution = BaseLineStrategy().solve(input_data)
 
+        def break_island(slides: Slides):
+            if self.rng.random() < self.break_probability:
+                return [Slides(slide) for slide in slides.slides]
+            else:
+                return [slides]
+
         for _ in tqdm(range(self.iterations)):
             islands = self.get_islands(solution)
+
+            islands = flatten([break_island(island) for island in islands])
+
             self.rng.shuffle(islands)
             solution = Slides(islands)
 
@@ -80,10 +94,11 @@ class IslandStrategy(Strategy):
 
 
 if __name__ == '__main__':
+    problem_file = 'b_lovely_landscapes.txt'
     directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
-    pictures = Pictures(os.path.join(directory, 'b_lovely_landscapes.txt'))
+    pictures = Pictures(os.path.join(directory, problem_file))
 
-    strategy = IslandStrategy(seed=1, iterations=100)
+    strategy = IslandStrategy(seed=27, iterations=2000)
     start = time.perf_counter()
     solution = strategy.solve(pictures)
     duration = time.perf_counter() - start
@@ -91,7 +106,7 @@ if __name__ == '__main__':
     scorer = Scorer2019Q(pictures)
     score = scorer.calculate(solution)
 
-    print(f'Score: {score} ({duration:0.0f}s)')
+    print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
     # print(f'Slides: {solution}')
 
     pass

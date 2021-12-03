@@ -10,9 +10,13 @@ class Scorer2019Q(Scorer):
     """
 
     @staticmethod
-    @lru_cache(maxsize=None)  # careful with this
+    @lru_cache(maxsize=2 ** 17)  # ~ 1 million, =None broke my pc
     def calculate_transition(slide_a, slide_b):
         intersection_size = len(slide_a.tags & slide_b.tags)
+
+        if intersection_size == 0:
+            return 0
+
         set_minus_size = slide_a.number_of_tags - intersection_size
         set_minus_size_2 = slide_b.number_of_tags - intersection_size
         return min(intersection_size, set_minus_size, set_minus_size_2)
