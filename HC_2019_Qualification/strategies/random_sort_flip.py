@@ -1,6 +1,6 @@
 from random import Random
 
-from HC_2019_Qualification.input_data_2019_q import Pictures
+from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.slides import Slides
 from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
 from valcon.strategy import Strategy
@@ -52,22 +52,22 @@ class RandomSortFlipStrategy(Strategy):
             # the last slide and add the difference to the score.
             transition_a_score_delta = 0
             if position_slide_a > 0:
-                before = scorer._calculate_transition(
+                before = scorer.calculate_transition(
                     solution.slides[position_slide_a - 1],
                     solution.slides[position_slide_a]
                 )
-                after = scorer._calculate_transition(
+                after = scorer.calculate_transition(
                     solution.slides[position_slide_a - 1],
                     solution.slides[position_slide_b]
                 )
                 transition_a_score_delta = after - before
             transition_b_score_delta = 0
             if (position_slide_b + 1) < n_slides:
-                before = scorer._calculate_transition(
+                before = scorer.calculate_transition(
                     solution.slides[position_slide_b],
                     solution.slides[position_slide_b + 1]
                 )
-                after = scorer._calculate_transition(
+                after = scorer.calculate_transition(
                     solution.slides[position_slide_a],
                     solution.slides[position_slide_b + 1]
                 )

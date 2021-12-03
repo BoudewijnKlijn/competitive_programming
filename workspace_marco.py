@@ -1,18 +1,16 @@
 import os
 import time
 
-from HC_2019_Qualification.input_data_2019_q import Pictures
+from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
-from HC_2019_Qualification.strategies.random_solver import RandomStrategy
+from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
-from valcon import InputData, OutputData
+from strategies.brute_force_strategy import BruteForceSlidesStrategy
+from valcon import OutputData
 from valcon import Strategy
 
-from itertools import permutations
-
-import numpy as np
-
+from tqdm import tqdm
 import random
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -45,23 +43,47 @@ class DivideAndConquerStrategy(Strategy):
         return self.solve_subset(input_data=input_data, subset=slides)
 
 
-class BruteForceSlidesStrategy:
-    def __init__(self, scorer: Scorer2019Q):
-        self.scorer = scorer
+class IslandStrategy(Strategy):
+    """ and island is either a single picture or a set of pictures that have a transition with a score >= 1"""
 
-    def solve(self, slides: [Slides]) -> Slides:
-        all_orders = [Slides(permutation) for permutation in permutations(slides, len(slides))]
-        all_scores = [self.scorer.calculate(solution) for solution in all_orders]
+    def __init__(self, seed=None, iterations=10):
+        self.iterations = iterations
+        self.rng = random.Random()
+        self.rng.seed(seed)
 
-        index_max = np.argmax(all_scores)
-        return all_orders[index_max]
+    def get_islands(self, slides: Slides) -> [Slides]:
+        islands = []
+
+        island = [slides.slides[0]]
+        for slide in slides.slides[1:]:
+
+            score = Scorer2019Q.calculate_transition(island[-1], slide)
+            if score > 0:
+                island.append(slide)
+            else:
+                islands.append(Slides(island))
+                island = [slide]
+
+        return islands
+
+    def solve(self, input_data: Pictures) -> OutputData:
+        self.rng.shuffle(input_data.pictures)
+
+        solution = BaseLineStrategy().solve(input_data)
+
+        for _ in tqdm(range(self.iterations)):
+            islands = self.get_islands(solution)
+            self.rng.shuffle(islands)
+            solution = Slides(islands)
+
+        return solution
 
 
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
     pictures = Pictures(os.path.join(directory, 'b_lovely_landscapes.txt'))
 
-    strategy = DivideAndConquerStrategy(seed=824354, max_size=7)
+    strategy = IslandStrategy(seed=1, iterations=100)
     start = time.perf_counter()
     solution = strategy.solve(pictures)
     duration = time.perf_counter() - start

@@ -1,6 +1,6 @@
 from random import Random
 
-from HC_2019_Qualification.input_data_2019_q import Pictures
+from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.slides import Slides
 from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
 from valcon.strategy import Strategy
@@ -11,7 +11,6 @@ class RandomThenSortByNTagsStrategy(Strategy):
         self.seed = seed
 
     def solve(self, input_data: Pictures) -> Slides:
-
         rng = Random(self.seed)
         rng.shuffle(input_data.pictures)
 

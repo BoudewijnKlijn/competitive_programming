@@ -1,6 +1,6 @@
 import os
 
-from HC_2019_Qualification.input_data_2019_q import Pictures
+from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
 from HC_2019_Qualification.strategies.bruteforce_solver import BruteForceStrategy
 
