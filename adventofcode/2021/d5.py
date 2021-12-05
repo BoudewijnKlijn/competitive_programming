@@ -39,7 +39,7 @@ def solve(is_part1=True):
 
 
 if __name__ == '__main__':
-    RAW = load_data('input.txt')
+    RAW = load_data('day5.txt')
 
     # Sample data
 #     RAW = """0,9 -> 5,9
