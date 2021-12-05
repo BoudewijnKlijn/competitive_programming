@@ -47,25 +47,13 @@ def get_binary(name: str) -> str:
 
 def get_bit(name: str, zero_count: int, one_count: int) -> str:
     """Get bit or starting bit."""
-    if name == 'gamma':
-        if zero_count >= one_count:
+    if name in ['gamma', 'oxygen']:
+        if zero_count > one_count:
             return '0'
         else:
             return '1'
 
-    elif name == 'epsilon':
-        if zero_count <= one_count:
-            return '0'
-        else:
-            return '1'
-
-    elif name == 'oxygen':
-        if one_count >= zero_count:
-            return '1'
-        else:
-            return '0'
-
-    elif name == 'scrubber':
+    elif name in ['epsilon', 'scrubber']:
         if zero_count <= one_count:
             return '0'
         else:
