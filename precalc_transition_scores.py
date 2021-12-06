@@ -74,8 +74,8 @@ score_matrix = n_unique_tags_matrix.minimum(intersection_matrix)
 
 # Get the score values to calculate score statistics.
 score_values = score_matrix.data
-stats = pd.Series(score_values).describe()
-print(stats)
+pd_scores = pd.Series(score_values)
+print(pd_scores.describe())  # statistics
 
 
 score_rows, score_cols = score_matrix.nonzero()
