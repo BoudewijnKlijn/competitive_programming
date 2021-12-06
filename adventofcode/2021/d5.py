@@ -17,7 +17,7 @@ def parse_data() -> List[Tuple[int, int, int, int]]:
     return matches
 
 
-def solve(is_part1=True):
+def solve(is_part1=True) -> int:
     """Determine which points are covered and how often.
     Maintain dict with point coordinates and number of times they are covered.
     For part 1 only consider vertical and horizontal lines, so x1 = x2 or y1 = y2."""
@@ -30,7 +30,7 @@ def solve(is_part1=True):
         xs = range(x1, x2 + 1, 1) if x2 >= x1 else range(x1, x2 - 1, -1)
         ys = range(y1, y2 + 1, 1) if y2 >= y1 else range(y1, y2 - 1, -1)
 
-        # Use cycle to avoid exhausting the smaller list.
+        # Use cycle to avoid exhausting the smaller range.
         zip_list = list(zip(cycle(xs), ys) if len(ys) > len(xs) else zip(xs, cycle(ys)))
 
         for x, y in zip_list:
