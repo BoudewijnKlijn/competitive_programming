@@ -10,7 +10,7 @@ class Scorer2019Q(Scorer):
     """
 
     @staticmethod
-    @lru_cache(maxsize=None)  # careful with this
+    # @lru_cache(maxsize=None)  # careful with this
     def calculate_transition(slide_a, slide_b):
         intersection_size = len(slide_a.tags & slide_b.tags)
         set_minus_size = slide_a.number_of_tags - intersection_size
