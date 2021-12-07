@@ -3,6 +3,7 @@ Based on : https://machinelearningmastery.com/simple-genetic-algorithm-from-scra
 """
 from random import Random
 import time
+import multiprocessing
 
 import numpy as np
 from tqdm import tqdm
@@ -70,8 +71,8 @@ class GeneticStrategy(Strategy):
         scorer = Scorer2019Q(input_data)
         population = self._get_initial_population(input_data)
 
-        best_solution_score = 0
         best_solution_slides = None
+        best_solution_score = 0
         for i in tqdm(range(0, self.max_generations)):
             scores = [scorer.calculate(candidate) for candidate in population]
 
@@ -79,8 +80,9 @@ class GeneticStrategy(Strategy):
             new_max_score = max(scores)
             if new_max_score > best_solution_score:
                 idx_new_max_score = scores.index(new_max_score)
-                best_solution_slides, best_solution_score = population[idx_new_max_score], scores[idx_new_max_score]
-                print(f"Improved model at generation: {i}, current best score: {best_solution_score}")
+                best_solution_slides, best_solution_score = population[idx_new_max_score].copy(), \
+                                                            scores[idx_new_max_score]
+                print(f"Improved score at generation {i} with score: {best_solution_score}")
 
             # select parents
             selected_parents = [self._select_parents(population, scores) for _ in range(self.population_size)]
@@ -96,9 +98,10 @@ class GeneticStrategy(Strategy):
                     # store for next generation
                     children.append(child)
 
-            # replace population
             population = children
 
         elapsed_time = time.time() - start_time
-        print(f"Finished {self.max_generations} genetic generations in {elapsed_time:.2f} seconds")
+        print(f"Finished {self.max_generations} genetic generations in {elapsed_time:.2f} seconds, "
+              f"with best score: {best_solution_score}")
+
         return best_solution_slides
