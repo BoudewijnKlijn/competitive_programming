@@ -168,6 +168,8 @@ solution = Slides([Slide(pictures=[input_data.pictures[candidate]]) for candidat
 scorer = Scorer2019Q(input_data)
 score = scorer.calculate(solution)
 
-print(f'Score: {score}')
+max_score = (80000-1) * 3
+
+print(f'Score: {score} ({score / max_score * 100:.3f}% of maximum score which is {max_score})')
 
 print(f'Time: {time.time() - start_time:.2f} seconds')
