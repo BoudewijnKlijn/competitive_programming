@@ -185,19 +185,25 @@ def calc_score_for_start_slide(start_slide_id=None):
 
 
 max_score = (80000-1) * 3
-best_score = None
-for start_slide in range(299, 80000):
+best_score = 237888
+for start_slide in range(3321, 80000):
     score = calc_score_for_start_slide(start_slide)
-    # print(f"{start_slide}: {score}")
+    if start_slide % 100 == 0:
+        print(f"{start_slide}: {score}")
     if best_score is None or score > best_score:
         best_score = score
         print(f"{start_slide}: {score}")
-        # print(f"New best score: {best_score}")
+        print(f"New best score: {best_score}")
 
 print(f'Score: {best_score} ({best_score / max_score * 100:.3f}% of maximum score which is {max_score})')
 
 print(f'Time: {time.time() - start_time:.2f} seconds')
 
-# BEST RUN
+# BEST RUNS
 # 15: 237825
 # 237: 237834
+# 302: 237840
+# 527: 237846
+# 698: 237873
+# 1035: 237885
+# 3321: 237888
