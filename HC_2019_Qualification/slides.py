@@ -21,6 +21,9 @@ class Slides(OutputData):
     def __add__(self, other):
         return Slides(self.slides + other.slides)
 
+    def copy(self):
+        return Slides(self.slides.copy())
+
     def first_slide(self):
         return self.slides[0]
 
