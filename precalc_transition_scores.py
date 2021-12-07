@@ -1,6 +1,7 @@
 import operator
 import os
 import re
+import time
 from collections import Counter, defaultdict
 
 import numpy as np
@@ -12,6 +13,8 @@ from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
 from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
+
+start_time = time.time()
 
 file_path = os.path.join('HC_2019_Qualification', 'input', 'b_lovely_landscapes.txt')
 with open(file_path, 'r') as f:
@@ -77,7 +80,7 @@ score_matrix = n_unique_tags_matrix.minimum(intersection_matrix)
 # Get the score values to calculate score statistics.
 score_values = score_matrix.data
 pd_scores = pd.Series(score_values)
-print(pd_scores.describe())  # statistics
+# print(pd_scores.describe())  # statistics
 
 
 score_rows, score_cols = score_matrix.nonzero()
@@ -97,68 +100,74 @@ c2 = Counter(c.values())  # key=number of non-zero transitions, value=number of 
 
 assert sum(c2.values()) == 80000
 
-# Note: I did not use upper or lower triangle so the score rows and cols contains double pairs.
-# e.g. for the first slide
-slide_id = 0
-slides_with_non_zero = score_cols[score_rows == slide_id]
-for slide_b in slides_with_non_zero:
-    slides_with_non_zero_slide_b = score_rows[score_cols == slide_b]
-    print(slide_id, slide_b, slides_with_non_zero_slide_b)
 
-
-# Start making transitions with slides that have the minimum number of non-zero transitions.
-slides_with_2_transitions = [slide_id for slide_id, n_transitions in c.items() if n_transitions == 2]
-
-# Create dictionary with non-zero transitions. Key is slide number. Value is list of slide ids with non-zero transitions
-slides_with_non_zero_transitions = defaultdict(set)
+# Create dictionary: key=slide number. value=set with remaining slide ids with non-zero transition.
+remaining_slides_per_slide = defaultdict(set)
 for score_row, score_col in zip(score_rows, score_cols):
-    slides_with_non_zero_transitions[score_row].add(score_col)  # TODO: could be set as well, but I like to maintain order
+    remaining_slides_per_slide[score_row].add(score_col)
 
-# Sort dictionary on number of non-zero transitions.
-slides_with_non_zero_transitions = dict(sorted(slides_with_non_zero_transitions.items(), key=lambda x: len(x[1])))
+# Track how many remaining slides with non-zero transition each slide has. Later, choose slide with the  fewest options.
+# Key=slide id, value=number of remaining slides with non-zero transition.
+n_remaining_slides_per_slide = Counter(score_rows)
+
+# Track which slides have n non-zero transitions left over.
+slides_with_n_remaining_slides = {n: set() for n in range(max(c2.keys()) + 1)}
+for slide_id, n_transitions in n_remaining_slides_per_slide.items():
+    slides_with_n_remaining_slides[n_transitions].add(slide_id)
 
 
 # Init
-start_slide_id = slides_with_2_transitions[0]
-slides_ids = [start_slide_id]
-slide_set = {start_slide_id}
+slide_id = None
+slide_ids = list()
+slide_ids_set = set()
+for _ in range(80_000):
 
+    candidate_slide_ids = set()
+    if slide_id is not None:
+        # Get all remaining slides with non-zero transitions for last slide.
+        candidate_slide_ids = remaining_slides_per_slide[slide_id]
+        assert not any([candidate_slide_id in slide_ids_set for candidate_slide_id in candidate_slide_ids]), \
+            "Candidate slide id should not be already in slide_ids_set."
 
-i = 1
-while i < 80000:
-    i += 1
-    # if i > 10000:
-    #     break
-    if i % 1000 == 0:
-        print(i, len(slide_set))
+    # Find candidate with the minimum number of remaining options.
+    candidate_is_found = False
+    minimum_n_remaining_slides = None
+    for candidate_slide_id in candidate_slide_ids:
+        n_remaining_slides_candidate = n_remaining_slides_per_slide[candidate_slide_id]
+        if minimum_n_remaining_slides is None or n_remaining_slides_candidate < minimum_n_remaining_slides:
+            minimum_n_remaining_slides = n_remaining_slides_candidate
+            best_candidate_slide_id = candidate_slide_id
+            candidate_is_found = True
 
-    # Get next slide id. Loop over all connection with last slide
-    last_slide_id = slides_ids[-1]
-    candidate_slide_ids = slides_with_non_zero_transitions[last_slide_id] - slide_set
-    new_slide_added = False
-    for candidate_id in candidate_slide_ids:
-        slide_set.add(candidate_id)
-        slides_ids.append(candidate_id)
-        new_slide_added = True
-        break
+        # Remove last slide from being an option for candidate slide. Regardless of whether it is the best candidate
+        # or not. Also adjust the number of remaining slides for the candidate slide. Remove the candidate slide from
+        # the set of slides with n remaining slides. Add the candidate slide to the set of slides with n-1 remaining
+        remaining_slides_per_slide[candidate_slide_id].remove(slide_id)
+        slides_with_n_remaining_slides[n_remaining_slides_per_slide[candidate_slide_id]].remove(candidate_slide_id)
+        n_remaining_slides_per_slide[candidate_slide_id] -= 1
+        slides_with_n_remaining_slides[n_remaining_slides_per_slide[candidate_slide_id]].add(candidate_slide_id)
 
-    if not new_slide_added:
-        # No slide added, so all candidates had been added before. Choose new start slide.
-        candidate_slide_ids = set(slides_with_non_zero_transitions.keys()) - slide_set  # todo: check if this maintained order of keys
-        for candidate_id in candidate_slide_ids:
-            slide_set.add(candidate_id)
-            slides_ids.append(candidate_id)
-            break
+    if candidate_is_found:
+        new_slide_id = best_candidate_slide_id
+        slides_with_n_remaining_slides[n_remaining_slides_per_slide[new_slide_id]].remove(new_slide_id)
+    else:
+        # Get new slide which has a zero transition score.
+        n = 0  # Since we have zero transition with last slide, it could have zero remaining non-zero transitions.
+        while not slides_with_n_remaining_slides[n]:
+            n += 1
+        new_slide_id = slides_with_n_remaining_slides[n].pop()  # Just any slide.
 
-    # Code is slow to finish. Just dump the remaining 40k slides at the end and see what the score is.
-    # TODO: improve, e.g. by keeping track of how many options are left for a slide. Shuffle the slides to create randomness at start
-    if i > 40_000:
-        unused_slides = set(slides_with_non_zero_transitions.keys()) - slide_set
-        slides_ids.extend(unused_slides)
-        break
+    # Add candidate as next slide
+    slide_ids.append(new_slide_id)
+    slide_ids_set.add(new_slide_id)
 
-solution = Slides([Slide(pictures=[input_data.pictures[candidate]]) for candidate in slides_ids])
+    # set up for new iteration
+    slide_id = new_slide_id
+
+solution = Slides([Slide(pictures=[input_data.pictures[candidate]]) for candidate in slide_ids])
 scorer = Scorer2019Q(input_data)
 score = scorer.calculate(solution)
 
 print(f'Score: {score}')
+
+print(f'Time: {time.time() - start_time:.2f} seconds')
