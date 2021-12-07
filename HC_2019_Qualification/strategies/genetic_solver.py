@@ -1,20 +1,15 @@
 """
 Based on : https://machinelearningmastery.com/simple-genetic-algorithm-from-scratch-in-python/
 """
-from random import Random
 import time
-import multiprocessing
 
 import numpy as np
 from tqdm import tqdm
 
 from HC_2019_Qualification.Pictures import Pictures
-from HC_2019_Qualification.picture import Orientation
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
-from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
 from HC_2019_Qualification.strategies.random_solver import RandomStrategy
-from valcon import OutputData
 from valcon.strategy import Strategy
 
 
@@ -28,13 +23,18 @@ class GeneticStrategy(Strategy):
         self.population_size = population_size
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
+        params = {"Max_generations": max_generations,
+                  "Population_size": population_size,
+                  "Cross_over_rate": crossover_rate,
+                  "Mutation_rate": mutation_rate}
+        print(f"Initialized GeneticStrategy with params: {params}")
 
     def _get_initial_population(self, input_data: Pictures):
         return [RandomStrategy(self.start_seed + self.current_generation).solve(input_data) for _ in
                 range(0, self.population_size)]
 
     @staticmethod
-    def _select_parents(population, scores, k=3):
+    def _select_parents(population: [Slides], scores: [int], k=3):
         # first random selection
         selection_ix = np.random.randint(len(population))
         for ix in np.random.randint(0, len(population), k - 1):
@@ -43,7 +43,7 @@ class GeneticStrategy(Strategy):
                 selection_ix = ix
         return population[selection_ix]
 
-    def cross_over(self, parent1, parent2):
+    def cross_over(self, parent1: Slides, parent2: Slides):
         # children are copies of parents by default
         children1, children2 = parent1, parent2
         # check for recombination
@@ -52,10 +52,10 @@ class GeneticStrategy(Strategy):
             pt = np.random.randint(1, len(parent1.slides) - 2)
             # perform crossover
             children1 = Slides(parent1.slides[:pt] + parent2.slides[pt:])
-            c2 = Slides(parent2.slides[:pt] + parent1.slides[pt:])
+            children2 = Slides(parent2.slides[:pt] + parent1.slides[pt:])
         return [children1, children2]
 
-    def mutation(self, child):
+    def mutation(self, child: Slides):
         """Randomly switch two consecutive slides"""
         for i in range(len(child.slides) - 1):
             current_slide = child.slides[i]
@@ -80,8 +80,8 @@ class GeneticStrategy(Strategy):
             new_max_score = max(scores)
             if new_max_score > best_solution_score:
                 idx_new_max_score = scores.index(new_max_score)
-                best_solution_slides, best_solution_score = population[idx_new_max_score].copy(), \
-                                                            scores[idx_new_max_score]
+                best_solution_slides, best_solution_score = population[idx_new_max_score].copy(), scores[
+                    idx_new_max_score]
                 print(f"Improved score at generation {i} with score: {best_solution_score}")
 
             # select parents

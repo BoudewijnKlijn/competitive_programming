@@ -28,10 +28,12 @@ def run_bruteforce_strategy():
 
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
-    input_data = Pictures(os.path.join(directory, 'c_memorable_moments.txt'))
+    input_path = os.path.join(directory, 'c_memorable_moments.txt')
+    input_data = Pictures(input_path)
 
+    print(f"Running GeneticStrategy with input path: {input_path}")
     scorer = Scorer2019Q(input_data)
-    strategy = GeneticStrategy(scorer, max_generations=100, population_size=100, mutation_rate=0.7, crossover_rate=0.5)
+    strategy = GeneticStrategy(scorer, max_generations=100, population_size=100, mutation_rate=0.5, crossover_rate=0.5)
     solution = strategy.solve(input_data)
 
     score = scorer.calculate(solution)
