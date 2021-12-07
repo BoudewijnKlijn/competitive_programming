@@ -1,6 +1,7 @@
 import operator
 import os
 import re
+from collections import Counter, defaultdict
 
 import numpy as np
 import pandas as pd
@@ -8,8 +9,9 @@ import scipy.sparse as ss
 from sklearn.feature_extraction.text import CountVectorizer
 
 from HC_2019_Qualification.Pictures import Pictures
-from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
+from HC_2019_Qualification.slide import Slide
+from HC_2019_Qualification.slides import Slides
 
 file_path = os.path.join('HC_2019_Qualification', 'input', 'b_lovely_landscapes.txt')
 with open(file_path, 'r') as f:
@@ -89,3 +91,74 @@ for score_row, score_col in zip(score_rows, score_cols):
     slide_b = Slide(pictures=[input_data.pictures[score_col]])
 
     assert Scorer2019Q.calculate_transition(slide_a, slide_b) == 3
+
+c = Counter(score_rows)  # key=slide_id, value=number of non-zero transitions
+c2 = Counter(c.values())  # key=number of non-zero transitions, value=number of slides with that number of non-zero transitions
+
+assert sum(c2.values()) == 80000
+
+# Note: I did not use upper or lower triangle so the score rows and cols contains double pairs.
+# e.g. for the first slide
+slide_id = 0
+slides_with_non_zero = score_cols[score_rows == slide_id]
+for slide_b in slides_with_non_zero:
+    slides_with_non_zero_slide_b = score_rows[score_cols == slide_b]
+    print(slide_id, slide_b, slides_with_non_zero_slide_b)
+
+
+# Start making transitions with slides that have the minimum number of non-zero transitions.
+slides_with_2_transitions = [slide_id for slide_id, n_transitions in c.items() if n_transitions == 2]
+
+# Create dictionary with non-zero transitions. Key is slide number. Value is list of slide ids with non-zero transitions
+slides_with_non_zero_transitions = defaultdict(set)
+for score_row, score_col in zip(score_rows, score_cols):
+    slides_with_non_zero_transitions[score_row].add(score_col)  # TODO: could be set as well, but I like to maintain order
+
+# Sort dictionary on number of non-zero transitions.
+slides_with_non_zero_transitions = dict(sorted(slides_with_non_zero_transitions.items(), key=lambda x: len(x[1])))
+
+
+# Init
+start_slide_id = slides_with_2_transitions[0]
+slides_ids = [start_slide_id]
+slide_set = {start_slide_id}
+
+
+i = 1
+while i < 80000:
+    i += 1
+    # if i > 10000:
+    #     break
+    if i % 1000 == 0:
+        print(i, len(slide_set))
+
+    # Get next slide id. Loop over all connection with last slide
+    last_slide_id = slides_ids[-1]
+    candidate_slide_ids = slides_with_non_zero_transitions[last_slide_id] - slide_set
+    new_slide_added = False
+    for candidate_id in candidate_slide_ids:
+        slide_set.add(candidate_id)
+        slides_ids.append(candidate_id)
+        new_slide_added = True
+        break
+
+    if not new_slide_added:
+        # No slide added, so all candidates had been added before. Choose new start slide.
+        candidate_slide_ids = set(slides_with_non_zero_transitions.keys()) - slide_set  # todo: check if this maintained order of keys
+        for candidate_id in candidate_slide_ids:
+            slide_set.add(candidate_id)
+            slides_ids.append(candidate_id)
+            break
+
+    # Code is slow to finish. Just dump the remaining 40k slides at the end and see what the score is.
+    # TODO: improve, e.g. by keeping track of how many options are left for a slide. Shuffle the slides to create randomness at start
+    if i > 40_000:
+        unused_slides = set(slides_with_non_zero_transitions.keys()) - slide_set
+        slides_ids.extend(unused_slides)
+        break
+
+solution = Slides([Slide(pictures=[input_data.pictures[candidate]]) for candidate in slides_ids])
+scorer = Scorer2019Q(input_data)
+score = scorer.calculate(solution)
+
+print(f'Score: {score}')
