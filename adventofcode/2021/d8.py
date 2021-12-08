@@ -20,7 +20,7 @@ def parse_data(raw_data: str):
         a, b = map(str.strip, line.split('|'))
         signals.append(a.split())
         outputs.append(b.split())
-    #     ern = re.pattern = r'([a-z]+) | ([a-z]+)'
+    #     ern = re.pattern = r'([a-z]+)\s| ([a-z]+)'
     # signals, outputs = re.findall(pattern, raw_data)
 
     return signals, outputs
@@ -42,7 +42,7 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     RAW = """acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"""
 
     data = parse_data(RAW)
-    print(data)
+    # print(data)
 
     # Assert solution is correct
     pass
@@ -99,7 +99,7 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
         lengths = defaultdict(list)
         for i, s in enumerate(signal):
             lengths[len(s)].append(s)
-        print(lengths)
+        # print(lengths)
 
         output_to_signal = dict()
         signal_to_output = dict()
@@ -152,24 +152,24 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
         assert len(tmp) == 1, 'D length must be 1'
         mapping['d'] = tmp.pop()
 
-        print(mapping)
+        # print(mapping)
         reverse_mapping = {v: k for k, v in mapping.items()}
 
         # with the mapping we can convert the outputs
         string_digit = ''
         for out in output:
-            print('out', out)
+            # print('out', out)
             # convert letters in output via mapping to real letters
             real_letters = ''.join([reverse_mapping[l] for l in out])
-            print(real_letters)
+            # print(real_letters)
 
             # convert real letters to a digit
             sorted_letters = ''.join(sorted(list(real_letters)))
-            print('sorted', sorted_letters)
+            # print('sorted', sorted_letters)
             string_digit += digit_mapping[sorted_letters]
 
         sum_ += int(string_digit)
-        print(sum_)
+        # print(sum_)
 
     answer += sum_
 
