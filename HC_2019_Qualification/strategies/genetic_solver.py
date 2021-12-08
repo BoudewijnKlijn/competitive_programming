@@ -16,6 +16,19 @@ from valcon.strategy import Strategy
 class GeneticStrategy(Strategy):
     def __init__(self, scorer: Scorer2019Q, start_seed=1, max_generations=1000, population_size=2, crossover_rate=0.5,
                  mutation_rate=0.5):
+        """
+        Initializes a GeneticStrategy solver
+
+        todo: improve computational speed and score performance
+
+        Args:
+            scorer (HC_2019_Qualification.scorer_2019_q.Scorer2019Q): Scorer to calculate score of slides
+            start_seed (int): Random seed used for generating random numbers
+            max_generations (int): Maximum generations for genetic solver
+            population_size (int): Population size per generation
+            crossover_rate (float): Cross over rate (i.e. how much of the slides to use from parent1 and parent2)
+            mutation_rate (float: Mutation rate (i.e. the probability of mutations per slide transition)
+        """
         self.scorer = scorer
         self.start_seed = start_seed
         self.max_generations = max_generations
@@ -29,12 +42,33 @@ class GeneticStrategy(Strategy):
                   "Mutation_rate": mutation_rate}
         print(f"Initialized GeneticStrategy with params: {params}")
 
-    def _get_initial_population(self, input_data: Pictures):
+    def _generate_initial_population(self, input_data: Pictures) -> [Slides]:
+        """
+        Generates an initial population by generating Random slides (i.e. slidedecks)
+
+        Args:
+            input_data (HC_2019_Qualification.Pictures): Pictures to use for slides
+
+        Returns:
+            [HC_2019_Qualification.slides]: List of slides (i.e. list of slidedecks)
+        """
         return [RandomStrategy(self.start_seed + self.current_generation).solve(input_data) for _ in
                 range(0, self.population_size)]
 
     @staticmethod
     def _select_parents(population: [Slides], scores: [int], k=3):
+        """
+        Select parents from a population by taking a random candidate,
+        then uses a tournament selection to get the best scoring candidate
+
+        Args:
+            population ([HC_2019_Qualification.slides]): Population of Slides
+            scores ([int]): List of scores belonging to population
+            k (int): Number of random candidates to use in tournament selection
+
+        Returns:
+            [HC_2019_Qualification.slides]: Two Slides objects
+        """
         # first random selection
         selection_ix = np.random.randint(len(population))
         for ix in np.random.randint(0, len(population), k - 1):
@@ -43,20 +77,35 @@ class GeneticStrategy(Strategy):
                 selection_ix = ix
         return population[selection_ix]
 
-    def cross_over(self, parent1: Slides, parent2: Slides):
+    def _cross_over(self, parent1: Slides, parent2: Slides) -> [Slides]:
+        """
+        Applies cross over to two parents by selecting
+
+        Args:
+            parent1 (HC_2019_Qualification.slides.Slides): Parent1 slide deck
+            parent2 (HC_2019_Qualification.slides.Slides): Parent2 slide deck
+
+        Returns:
+            [HC_2019_Qualification.slides.Slides]: Two children slide decks
+        """
         # children are copies of parents by default
         children1, children2 = parent1, parent2
         # check for recombination
         if np.random.rand() < self.crossover_rate:
-            # select crossover point that is not on the end of the string
+            # select crossover point that is not on the end of the slide deck
             pt = np.random.randint(1, len(parent1.slides) - 2)
             # perform crossover
             children1 = Slides(parent1.slides[:pt] + parent2.slides[pt:])
             children2 = Slides(parent2.slides[:pt] + parent1.slides[pt:])
         return [children1, children2]
 
-    def mutation(self, child: Slides):
-        """Randomly switch two consecutive slides"""
+    def _mutation(self, child: Slides):
+        """
+        Mutate slides by randomly switching two consecutive slides
+
+        Args:
+            child (HC_2019_Qualification.slides.Slides): Slide deck
+        """
         for i in range(len(child.slides) - 1):
             current_slide = child.slides[i]
             next_slide = child.slides[i + 1]
@@ -67,9 +116,26 @@ class GeneticStrategy(Strategy):
                 child.slides[i + 1] = current_slide
 
     def solve(self, input_data: Pictures) -> Slides:
+        """
+        Solves the problem by applying a genetic solver that applies the following step:
+            1. Create initial population of slide decks
+            2. Iterate over generations:
+                2.1 Calculate score for every candidate in population
+                2.2 Check best candidate in population (and keep this in memory)
+                2.3 Select parent couples by applying a tournament strategy
+                2.4 Apply crossover randomly (i.e. combine slides of parents two generate a child)
+                2.5 Apply mutations randomly (i.e. switch slide transitions of children)
+                2.6 Use the generated children as new population
+
+        Args:
+            input_data (HC_2019_Qualification.Pictures): Pictures to use for slides
+
+        Returns:
+            HC_2019_Qualification.slides.Slides: Slide deck with solution
+        """
         start_time = time.time()
         scorer = Scorer2019Q(input_data)
-        population = self._get_initial_population(input_data)
+        population = self._generate_initial_population(input_data)
 
         best_solution_slides = None
         best_solution_score = 0
@@ -92,9 +158,9 @@ class GeneticStrategy(Strategy):
                 # get selected parents in pairs
                 parent1, parent2 = selected_parents[k], selected_parents[k + 1]
                 # crossover and mutation
-                for child in self.cross_over(parent1, parent2):
+                for child in self._cross_over(parent1, parent2):
                     # mutation
-                    self.mutation(child)
+                    self._mutation(child)
                     # store for next generation
                     children.append(child)
 
