@@ -39,7 +39,7 @@ bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbg
 egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
 gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"""
 
-    # RAW = """acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"""
+    RAW = """acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"""
 
     data = parse_data(RAW)
     print(data)
@@ -48,8 +48,8 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     pass
 
     # Actual data
-    # RAW = load_data('input.txt')
-    # data = parse_data(RAW)
+    RAW = load_data('input.txt')
+    data = parse_data(RAW)
 
     # Part 1
     signals, outputs = data
@@ -110,29 +110,47 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
         signal_to_output[7] = lengths[3][0]
         signal_to_output[8] = lengths[7][0]
 
+        # print(signal_to_output)
+        # exit()
+
         # A: get mapping for a: not in signal 7, but in signal 1
         mapping['a'] = (set(signal_to_output[7]) - set(signal_to_output[1])).pop()
 
         counts = Counter(''.join([*signal]))
 
         # B: get mapping for b: it occurs 6 times in all signals
-        mapping['b'] = [k for k, v in counts.items() if v == 6].pop()
+        tmp = [k for k, v in counts.items() if v == 6]
+        assert len(tmp) == 1, 'B length must be 1'
+        mapping['b'] = tmp.pop()
 
         # E: get mapping for e: it occurs 4 times in all signals
-        mapping['e'] = [k for k, v in counts.items() if v == 4].pop()
+        tmp = [k for k, v in counts.items() if v == 4]
+        assert len(tmp) == 1, 'E length must be 1'
+        mapping['e'] = tmp.pop()
 
         # F: get mapping for f: it occurs 9 times in all signals
-        mapping['f'] = [k for k, v in counts.items() if v == 9].pop()
+        tmp = [k for k, v in counts.items() if v == 9]
+        assert len(tmp) == 1, 'F length must be 1'
+        mapping['f'] = tmp.pop()
 
         # C: get mapping for c: it occurs 8 times in all signals, and it cannot be A
         eights_counts = set([k for k, v in counts.items() if v == 8])
-        mapping['c'] = (eights_counts - {mapping['a']}).pop()
+        assert len(eights_counts) == 2, 'C length must be 2'
+        tmp = eights_counts - {mapping['a']}
+        assert len(tmp) == 1, 'C2 length must be 1'
+        mapping['c'] = tmp.pop()
 
-        # D: get mapping for d: it occurs 7 times in all signals, and it cannot be signal with length 4
+        # G: get mapping for g: it occurs 7 times in all signals, and it cannot be signal with length 4
         seven_counts = set([k for k, v in counts.items() if v == 7])
-        mapping['g'] = (seven_counts - {signal_to_output[4]}).pop()
+        assert len(seven_counts) == 2, 'G length must be 2'
+        tmp = seven_counts - set(list(signal_to_output[4]))
+        assert len(tmp) == 1, 'G2 length must be 1'
+        mapping['g'] = tmp.pop()
 
-        mapping['d'] = (seven_counts - {mapping['g']}).pop()
+        # D: get mapping for d: it occurs 7 times in all signals, and it cannot be g
+        tmp = seven_counts - {mapping['g']}
+        assert len(tmp) == 1, 'D length must be 1'
+        mapping['d'] = tmp.pop()
 
         print(mapping)
         reverse_mapping = {v: k for k, v in mapping.items()}
