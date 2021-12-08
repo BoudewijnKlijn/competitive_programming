@@ -38,6 +38,9 @@ dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbc
 bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
 egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
 gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"""
+
+    # RAW = """acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"""
+
     data = parse_data(RAW)
     print(data)
 
@@ -45,19 +48,111 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     pass
 
     # Actual data
-    RAW = load_data('input.txt')
-    data = parse_data(RAW)
+    # RAW = load_data('input.txt')
+    # data = parse_data(RAW)
 
     # Part 1
     signals, outputs = data
     sum_ = 0
     for signal, output in zip(signals, outputs):
-        print(signal, output)
-
         for i, o in enumerate(output):
             if len(Counter(o)) in [2, 3, 4, 7]:
                 sum_ += 1
     print(sum_)
-    print(Counter(signal))
+
     # Part 2
 
+
+    #  aaaa
+    # b    c
+    # b    c
+    #  dddd
+    # e    f
+    # e    f
+    #  gggg
+
+    # make mapping: use positions above and map each letter to a number
+
+
+    signals, outputs = data
+
+    sum_ = 0
+
+    digit_mapping = {
+        'abcefg': '0',
+        'cf': '1',
+        'acdeg': '2',
+        'acdfg': '3',
+        'bcdf': '4',
+        'abdfg': '5',
+        'abdefg': '6',
+        'acf': '7',
+        'abcdefg': '8',
+        'abcdfg': '9',
+    }
+    answer = 0
+
+    # First decode easy number to get letters in mapping
+    for signal, output in zip(signals, outputs):
+        mapping = {letter: None for letter in list('abcdefg')}
+        # print(mapping)
+        lengths = defaultdict(list)
+        for i, s in enumerate(signal):
+            lengths[len(s)].append(s)
+        print(lengths)
+
+        output_to_signal = dict()
+        signal_to_output = dict()
+
+        # the easy input length
+        signal_to_output[1] = lengths[2][0]
+        signal_to_output[4] = lengths[4][0]
+        signal_to_output[7] = lengths[3][0]
+        signal_to_output[8] = lengths[7][0]
+
+        # A: get mapping for a: not in signal 7, but in signal 1
+        mapping['a'] = (set(signal_to_output[7]) - set(signal_to_output[1])).pop()
+
+        counts = Counter(''.join([*signal]))
+
+        # B: get mapping for b: it occurs 6 times in all signals
+        mapping['b'] = [k for k, v in counts.items() if v == 6].pop()
+
+        # E: get mapping for e: it occurs 4 times in all signals
+        mapping['e'] = [k for k, v in counts.items() if v == 4].pop()
+
+        # F: get mapping for f: it occurs 9 times in all signals
+        mapping['f'] = [k for k, v in counts.items() if v == 9].pop()
+
+        # C: get mapping for c: it occurs 8 times in all signals, and it cannot be A
+        eights_counts = set([k for k, v in counts.items() if v == 8])
+        mapping['c'] = (eights_counts - {mapping['a']}).pop()
+
+        # D: get mapping for d: it occurs 7 times in all signals, and it cannot be signal with length 4
+        seven_counts = set([k for k, v in counts.items() if v == 7])
+        mapping['g'] = (seven_counts - {signal_to_output[4]}).pop()
+
+        mapping['d'] = (seven_counts - {mapping['g']}).pop()
+
+        print(mapping)
+        reverse_mapping = {v: k for k, v in mapping.items()}
+
+        # with the mapping we can convert the outputs
+        string_digit = ''
+        for out in output:
+            print('out', out)
+            # convert letters in output via mapping to real letters
+            real_letters = ''.join([reverse_mapping[l] for l in out])
+            print(real_letters)
+
+            # convert real letters to a digit
+            sorted_letters = ''.join(sorted(list(real_letters)))
+            print('sorted', sorted_letters)
+            string_digit += digit_mapping[sorted_letters]
+
+        sum_ += int(string_digit)
+        print(sum_)
+
+    answer += sum_
+
+    print(answer)
