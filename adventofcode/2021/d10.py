@@ -24,46 +24,35 @@ COUNTERPART = {
     }
 
 
-def determine_type(line: str) -> Tuple[bool, str]:
-    # an illegal line has a __wrong__ character at some place
-    # an incomplete line has a __missing__ character
-    # - it might consist of only opening tags
-    # remove correct characters iteratvely
-    # correct characters are combinations of counterparts
+def determine_line_type_and_simplify(line: str) -> Tuple[str, str]:
+    """A corrupt line has a __wrong__ character at some place.
+    An incomplete line has a __missing__ character. It might consist of only opening tags.
+    Remove correct characters iteratively. Correct characters are combinations of counterpart keys and values."""
 
-    line = line.strip()
-    i = 0
     while line:
-        remove_chars = False
+        # Incomplete line consists of only opening tags.
         if all(char in COUNTERPART.keys() for char in line):
-            return ('incomplete', line)
-        i += 1
-        # if i > 10:
-        #     break
-        print(f'before {i}: {line}')
-        # simplify line
+            return 'incomplete', line
+
+        # Simplify line by removing correct characters.
         for i1, (char1, char2) in enumerate(zip(line[:-1], line[1:])):
-            if char1 not in COUNTERPART.keys():
-                return ('corrupt', line)
             if COUNTERPART[char1] == char2:
-                # remove correct characters
-                print(i1, char1, char2)
+                # Remove correct characters, a combination of counterpart key and value.
                 line = line[:i1] + line[i1+2:]
-                print(f'after {i}: {line}')
-                remove_chars = True
                 break
+            elif char2 in COUNTERPART.values():
+                # Corrupt line: char2 is a closing char (because COUNTERPART value), but it not the correct counterpart.
+                return 'corrupt', line
 
-        if not remove_chars:
-            return ('corrupt', line)
-    print('error')
+    raise ValueError('Should never get here. Line is correct but it should be corrupt or incomplete.')
 
 
-def find_corrupt_char(line: str) -> str:
-    # the first corrupt char has to be a closing char, but not matching the opening char
+def find_corrupt_char_and_simplify(line: str) -> Tuple[str, str]:
+    """The first corrupt char has to be a closing char that doesn't match the opening char."""
     for i1, (char1, char2) in enumerate(zip(line[:-1], line[1:])):
-        if char2 not in COUNTERPART.values():
+        if char2 in COUNTERPART.keys():
             continue
-        #remove the corrupt char and the opening char and return the line
+        # Remove the corrupt char and the preceding opening char and return the remaining line.
         return char2, line[:i1] + line[i1+2:]
 
 
@@ -75,62 +64,50 @@ POINTS = {
 }
 
 POINTS2 = {
-    '(': 1,
-    '[': 2,
-    '{': 3,
-    '<': 4,
+    ')': 1,
+    ']': 2,
+    '}': 3,
+    '>': 4,
 }
 
+
 def part1():
-    # find incomplete and corrupt lines
+    """Determine line type, either corrupt or incomplete.
+    Do nothing with incomplete lines.
+    Correct corrupt lines and calculate score based on corrupt characters."""
     score = 0
     for line in data:
         while line:
-            print(line)
-            line_type, line = determine_type(line)
-            print(line_type)
-            print(line)
+            line_type, line = determine_line_type_and_simplify(line)
             if line_type == 'corrupt':
-                corrupt_char, line = find_corrupt_char(line)
+                # Make the line correct by removing the corrupt characters.
+                corrupt_char, line = find_corrupt_char_and_simplify(line)
                 score += POINTS[corrupt_char]
-                print(line)
             if line_type == 'incomplete':
-                print(line)
-                print('stop')
+                # Ignore incomplete lines. Continue with the next line.
                 break
-    print(score)
     return score
 
 
 def part2():
-    # remove corrupt lines and complete the incomplete lines
-    # since we only got opening tags we can reverse the order
+    """Remove corrupt lines and complete the incomplete lines.
+    Incomplete lines can easily be completed by adding the counterparts in reverse order."""
     scores = list()
     for line in data:
         score = 0
         while line:
-            print(line)
-            line_type, line = determine_type(line)
-            print(line_type)
-            print(line)
+            line_type, line = determine_line_type_and_simplify(line)
             if line_type == 'corrupt':
-                corrupt_char, line = find_corrupt_char(line)
-                print(line)
-                print('stop')
+                # Remove the corrupt lines, which is the same as score += 0 and continue with the next line.
                 break
             if line_type == 'incomplete':
-                reversed_line = line[::-1]
-                for closing_char in reversed_line:
-                    score = score * 5 + POINTS2[closing_char]
-                print('stop')
+                # Loop through line characters in reverse order
+                for closing_char in line[::-1]:
+                    score = score * 5 + POINTS2[COUNTERPART[closing_char]]
                 scores.append(score)
                 break
 
-    print(scores)
-    ans = sorted(scores)[len(scores) // 2]
-
-    print(ans)
-    return ans
+    return sorted(scores)[len(scores) // 2]
 
 
 if __name__ == '__main__':
@@ -148,14 +125,15 @@ if __name__ == '__main__':
     data = parse_data(RAW)
 
     # Assert solution is correct
-    part1() == 26397
+    assert part1() == 26397
+    assert part2() == 288957
 
     # Actual data
     RAW = load_data('input.txt')
     data = parse_data(RAW)
 
     # Part 1
-    part1()
+    print(f'Part 1: {part1()}')
 
     # Part 2
-    part2()
+    print(f'Part 2: {part2()}')
