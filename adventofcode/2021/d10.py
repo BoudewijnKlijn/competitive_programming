@@ -74,6 +74,12 @@ POINTS = {
     '>': 25137,
 }
 
+POINTS2 = {
+    '(': 1,
+    '[': 2,
+    '{': 3,
+    '<': 4,
+}
 
 def part1():
     # find incomplete and corrupt lines
@@ -94,6 +100,37 @@ def part1():
                 break
     print(score)
     return score
+
+
+def part2():
+    # remove corrupt lines and complete the incomplete lines
+    # since we only got opening tags we can reverse the order
+    scores = list()
+    for line in data:
+        score = 0
+        while line:
+            print(line)
+            line_type, line = determine_type(line)
+            print(line_type)
+            print(line)
+            if line_type == 'corrupt':
+                corrupt_char, line = find_corrupt_char(line)
+                print(line)
+                print('stop')
+                break
+            if line_type == 'incomplete':
+                reversed_line = line[::-1]
+                for closing_char in reversed_line:
+                    score = score * 5 + POINTS2[closing_char]
+                print('stop')
+                scores.append(score)
+                break
+
+    print(scores)
+    ans = sorted(scores)[len(scores) // 2]
+
+    print(ans)
+    return ans
 
 
 if __name__ == '__main__':
@@ -121,3 +158,4 @@ if __name__ == '__main__':
     part1()
 
     # Part 2
+    part2()
