@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import re
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Dict, Set
 from collections import defaultdict
 from itertools import cycle, product
 from collections import Counter
@@ -17,7 +17,7 @@ def parse_data(raw_data: str) -> List[str]:
     return raw_data.strip().splitlines()
 
 
-def get_grid():
+def get_grid() -> Dict[Tuple[int, int], int]:
     grid = dict()
     for row_i, row in enumerate(data):
         for col_i, col in enumerate(row):
@@ -26,19 +26,22 @@ def get_grid():
     return grid
 
 
-def get_neighbors(grid):
+def get_neighbors(grid: Dict[Tuple[int, int], int]) -> Dict[Tuple[int, int], Set[Tuple[int, int]]]:
     neighbors = defaultdict(set)
     delta = (-1, 0, 1)
     for (r, c) in grid.keys():
         for dr, dc in product(delta, repeat=2):
+            # Position itself is not a neighbor.
             if dr == 0 and dc == 0:
                 continue
+            # Neighbor has to be on the grid.
             if (r + dr, c + dc) in grid.keys():
                 neighbors[(r, c)].add((r + dr, c + dc))
     return neighbors
 
 
-def print_grid(grid):
+def print_grid(grid: Dict[Tuple[int, int], int]) -> None:
+    """Print visual representation of the grid."""
     sorted_keys = sorted(grid.keys())
     for i, (r, c) in enumerate(sorted_keys):
         if i % 10 == 0:
@@ -46,32 +49,44 @@ def print_grid(grid):
         print(grid[(r, c)], end='')
 
 
-def one_step(grid):
+def one_step(grid: Dict[Tuple[int, int], int]) -> Tuple[Dict[Tuple[int, int], int], int]:
+    """Perform one step:
+    - First, the energy level of each octopus increases by 1.
+    - Then, any octopus with an energy level greater than 9 flashes. This increases the energy level of all adjacent
+    octopuses by 1, including octopuses that are diagonally adjacent. If this causes an octopus to have an energy level
+    greater than 9, it also flashes. This process continues as long as new octopuses keep having their energy level
+    increased beyond 9. (An octopus can only flash at most once per step.)
+    - Finally, any octopus that flashed during this step has its energy level set to 0, as it used all of its energy to
+    flash."""
     neighbors = get_neighbors(grid)
     n_flashes = 0
 
-    # increase value with 1
+    # Increase value with 1
     for pos, value in grid.items():
         grid[pos] = value + 1
 
+    # Flash until no more flashes.
     flashed_positions = set()
     while True:
         flashed_anything = False
         for pos, value in grid.items():
+
+            # Don't flash same position twice.
             if pos in flashed_positions:
-                # don't flash same position twice
                 continue
+
             if value > 9:
-                # flash and inrease value of neighbors
+                # Flash and increase value of neighbors.
                 n_flashes += 1
                 flashed_anything = True
                 flashed_positions.add(pos)
                 for neighbor in neighbors[pos]:
                     grid[neighbor] += 1
+
         if not flashed_anything:
             break
 
-    # reset flashed positions to zero
+    # Reset flashed positions to zero.
     for position in flashed_positions:
         grid[position] = 0
 
@@ -79,10 +94,11 @@ def one_step(grid):
 
 
 def part1():
+    """Perform 100 steps and count total flashes in all steps."""
     grid = get_grid()
 
     n_flashes = 0
-    for step in range(100):
+    for _ in range(100):
         grid, n_flashes_step = one_step(grid)
         n_flashes += n_flashes_step
 
@@ -90,6 +106,8 @@ def part1():
 
 
 def part2():
+    """Perform steps until all positions flash in the same step.
+    Return that step number."""
     grid = get_grid()
     n_keys = len(grid)
 
@@ -99,35 +117,6 @@ def part2():
         grid, n_flashes_step = one_step(grid)
         if n_flashes_step == n_keys:
             return n_steps
-
-
-    #     # flash positions if value <= 9. this decreases value of neighbors by 1.
-    #     # have to start flashing from the lowest values because this might increase value of neighbors which then
-    #     # have to be flashed as well.
-    #     q = PriorityQueue()
-    #     for position, val in grid.items():
-    #         # priority is minus the value, because highest numbers should go first but priority queue is sorts ascending
-    #         q.put((val, position))
-    #
-    #     # flash logic
-    #     flashed_positions = set()
-    #     while not q.empty():
-    #         current_priority, current_position = q.get()
-    #         if current_priority <= -9:
-    #             # flash if priority is below -9. add it to flashed positions
-    #             flashed_positions.add(current_position)
-    #
-    #             # decrease value of neighbors by 1
-    #             current_neighbors = neighbors[current_position]
-    #             for neighbor in current_neighbors:
-    #                 grid[neighbor] -= 1
-    #                 q.put((grid[neighbor], neighbor))
-    #
-    # # loop through queue
-    # # get highest value
-    # # get neighbors
-    # # if neighbor is not in queue, add it with value of highest value
-
 
 
 if __name__ == '__main__':
