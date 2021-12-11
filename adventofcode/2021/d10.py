@@ -129,7 +129,7 @@ if __name__ == '__main__':
     assert part2() == 288957
 
     # Actual data
-    RAW = load_data('input.txt')
+    RAW = load_data('day10.txt')
     data = parse_data(RAW)
 
     # Part 1
