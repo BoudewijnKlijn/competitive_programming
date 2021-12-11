@@ -1,3 +1,4 @@
+import itertools
 import sys
 import os
 from itertools import product
@@ -21,6 +22,52 @@ def get_distance(object_coordinates, bottle_coordinates):
     return x_dist + y_dist
 
 
+def get_coordinate_distance(coordinate, min_coordinate, max_coordinate):
+    if coordinate > max_coordinate:
+        return max_coordinate - coordinate
+    elif coordinate < min_coordinate:
+        return min_coordinate - coordinate
+    else:
+        return 0
+
+
+def get_distances(x, y):
+    x_distances = list()
+    y_distances = list()
+    for x1, y1, x2, y2 in objects:
+        x_dist = get_coordinate_distance(x, x1, x2)
+        x_distances.append(x_dist)
+        y_dist = get_coordinate_distance(y, y1, y2)
+        y_distances.append(y_dist)
+    return x_distances, y_distances
+
+
+def get_median_distance(distances):
+    distances = [d for d in distances if d != 0]
+    if len(distances) == 0:
+        return 0
+    elif len(distances) % 2 == 0:
+        return sorted(distances)[len(distances) // 2 - 1]
+    else:
+        return sorted(distances)[len(distances) // 2]
+
+
+def brute_force(x_range, y_range):
+    """Of all possible locations with x in x_range and y in y_range, determine the location with the lowest distance."""
+    minimum_distance = None
+    best_pos = None
+    for (x, y) in product(x_range, y_range):
+        total_distance = 0
+        for x1, y1, x2, y2 in objects:
+            total_distance += abs(get_coordinate_distance(x, x1, x2))
+            total_distance += abs(get_coordinate_distance(y, y1, y2))
+
+        if minimum_distance is None or total_distance < minimum_distance:
+            minimum_distance = total_distance
+            best_pos = (x, y)
+    return best_pos, minimum_distance
+
+
 T = int(input())
 for t in range(1, T + 1):
 
@@ -31,25 +78,27 @@ for t in range(1, T + 1):
         object_coordinates = tuple(map(int, input().split()))
         objects.append(object_coordinates)
 
-    # get bounds from objects
-    first_x, first_y, second_x, second_y = zip(*objects)
-    min_x = min(first_x)
-    max_x = max(second_x)
-    min_y = min(first_y)
-    max_y = max(second_y)
+    min_x = min(x for (x, _, _, _) in objects)
+    min_y = min(y for (_, y, _, _) in objects)
 
-    # Brute force for test set 1
-    minimum_sum = None
-    best = None
-    for bottle_coordinates in product(range(min_x, max_x+1), range(min_y, max_y+1)):
-        total_sum = 0
-        for object_coordinates in objects:
-            total_sum += get_distance(object_coordinates, bottle_coordinates)
+    # Iterate to find approximate best position.
+    alpha = 0.3
+    bottle_pos = (min_x, min_y)  # Start at min x and min y
+    distance = None
+    while True:
+        x_distances, y_distances = get_distances(*bottle_pos)
+        medians = (get_median_distance(x_distances) * alpha, get_median_distance(y_distances) * alpha)
+        new_distance = sum(map(abs, x_distances)) + sum(map(abs, y_distances))
+        new_pos = tuple(map(sum, zip(bottle_pos, medians)))
+        bottle_pos = new_pos
+        if distance is not None and abs(new_distance - distance) < 0.01:
+            break
+        distance = new_distance
 
-        if minimum_sum is None or total_sum < minimum_sum:
-            minimum_sum = total_sum
-            best = bottle_coordinates
+    # Do brute force around approximate position.
+    best_pos, minimum_distance = brute_force(range(int(bottle_pos[0]) - 2, int(bottle_pos[0]) + 3),
+                                             range(int(bottle_pos[1]) - 2, int(bottle_pos[1]) + 3))
 
-    # print answer
-    best_x, best_y = best
+    # Print answer.
+    best_x, best_y = best_pos
     print(f'Case #{t}: {best_x} {best_y}')
