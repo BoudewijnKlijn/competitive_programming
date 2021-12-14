@@ -37,20 +37,11 @@ def calc_grid_sum(grid):
 
 def print_grid():
     # find min and max coordinates
-    min_r = None
-    max_r = None
-    min_c = None
-    max_c = None
-    for coordinates in grid.keys():
-        r, c = coordinates
-        if min_r is None or r < min_r:
-            min_r = r
-        if max_r is None or r > max_r:
-            max_r = r
-        if min_c is None or c < min_c:
-            min_c = c
-        if max_c is None or c > max_c:
-            max_c = c
+    rs, cs = zip(*grid.keys())
+    min_r = min(rs)
+    max_r = max(rs)
+    min_c = min(cs)
+    max_c = max(cs)
 
     # loop over grid and print
     # for r in range(min_r, max_r + 1):
@@ -68,7 +59,7 @@ def part1():
     # use grid and perform the first fold
     for plane, digit in fold_instructions:
         coordinates_to_check = set(grid.keys())
-        print(plane, digit)
+        # print(plane, digit)
         if plane == 'x':
             # fold where y == r == digit, so all c remain the same, all r below change
             # perform fold
@@ -127,7 +118,7 @@ if __name__ == '__main__':
 fold along y=7
 fold along x=5"""
     coordinates, fold_instructions = parse_data(RAW)
-    print(coordinates, fold_instructions)
+    # print(coordinates, fold_instructions)
 
     grid = create_grid()
     # print(grid)
@@ -145,7 +136,7 @@ fold along x=5"""
 
     # Part 1
     coordinates, fold_instructions = parse_data(RAW)
-    print(coordinates, fold_instructions)
+    # print(coordinates, fold_instructions)
 
     grid = create_grid()
     print(calc_grid_sum(grid))
