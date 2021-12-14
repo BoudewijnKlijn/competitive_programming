@@ -1,10 +1,7 @@
-from dataclasses import dataclass
 import re
-from typing import List, Tuple, Union
-from collections import defaultdict
-from itertools import cycle
 from collections import Counter
-import numpy as np
+from collections import defaultdict
+from typing import Dict, Tuple
 
 
 def load_data(filename: str) -> str:
@@ -12,13 +9,61 @@ def load_data(filename: str) -> str:
         return f.read()
 
 
-def parse_data(raw_data: str):
+def parse_data(raw_data: str) -> Tuple[str, Dict[str, str]]:
     start, insertion_rules = raw_data.strip().split('\n\n')
 
     pattern = re.compile(r'([A-Z]+) -> ([A-Z]+)')
     pairs = re.findall(pattern, insertion_rules.strip())
 
     return start, dict(pairs)
+
+
+def step(old_pair_counts: Dict[str, int]) -> Dict[str, int]:
+    new_pair_counts = defaultdict(int)
+    for pair, count in old_pair_counts.items():
+        insertion = pair_insertion_rules.get(pair)
+        if insertion is None:
+            new_pair_counts[pair] += count
+        else:
+            new_pair_counts[pair[0] + insertion] += count
+            new_pair_counts[insertion + pair[1]] += count
+    return new_pair_counts
+
+
+def init_pair_counts() -> Dict[str, int]:
+    pairs = list()
+    for first_letter, second_letter in zip(polymer_template[:-1], polymer_template[1:]):
+        pairs.append(first_letter + second_letter)
+    return Counter(pairs)
+
+
+def count_individual_letters_in_pairs(pair_counts):
+    letter_counts = defaultdict(int)
+    for pair, count in pair_counts.items():
+        first_letter = pair[0]
+        letter_counts[first_letter] += count
+
+    # We count the first letter of each pair, so we have to +1 the count of the last letter of the polymer, since it
+    # is never the first letter.
+    letter_counts[polymer_template[-1]] += 1
+
+    return Counter(letter_counts)
+
+
+def solve(n_steps: int) -> int:
+    # Initialize pair counts.
+    pair_counts = init_pair_counts()
+
+    # Run n_steps.
+    for _ in range(n_steps):
+        pair_counts = step(pair_counts)
+
+    # Determine number of occurrences of individual letters.
+    letter_counts = count_individual_letters_in_pairs(pair_counts)
+    most_common = letter_counts.most_common()[0][1]
+    least_common = letter_counts.most_common()[-1][1]
+
+    return most_common - least_common
 
 
 if __name__ == '__main__':
@@ -41,71 +86,21 @@ BB -> N
 BC -> B
 CC -> N
 CN -> C"""
+
+    # Assert solution is correct
+    polymer_template, pair_insertion_rules = parse_data(RAW)
+    assert solve(10) == 1588
+    assert solve(40) == 2188189693529
+    print('Tests pass.')
+
     # Actual data
-    RAW = load_data('input.txt')
-    # data = parse_data(RAW)
+    RAW = load_data('day14.txt')
 
-    start, pairs = parse_data(RAW)
-    print(start, pairs)
+    # Parse data
+    polymer_template, pair_insertion_rules = parse_data(RAW)
 
-    # # part 1
-    # def next_step1(start):
-    #     new = ''
-    #     for x, y in zip(start[:-1], start[1:]):
-    #         # print(x, y)
-    #         insertion = pairs.get(x+y, '')
-    #         new += x + insertion
-    #     return new + start[-1]
-    #
-    # for step in range(10):
-    #     start = next_step1(start)
-    #
-    # c = Counter(start)
-    # print(c)
-    #
-    # a = c.most_common()[0][1]
-    # b = c.most_common()[-1][1]
-    #
-    # # answer part 1
-    # print(a - b)
+    # Part 1
+    print('Part 2:', solve(10))
 
-    # part 2
-    #
-    def next_step(counter_xy):
-        new = defaultdict(int)
-        for k, v in counter_xy.items():
-            insertion = pairs.get(k)
-            if insertion is None:
-                new[k] += v
-            else:
-                new[k[0]+insertion] += v
-                new[insertion+k[1]] += v
-        return new
-
-    xy = list()
-    for x, y in zip(start[:-1], start[1:]):
-        xy.append(x + y)
-    pair_counts = Counter(xy)
-    print(pair_counts)
-
-    for step in range(40):
-        pair_counts = next_step(pair_counts)
-
-    print(pair_counts)
-
-    final_dict = defaultdict(int)
-    final_dict[start[0]] -= 1
-    final_dict[start[-1]] = 1
-    for k, v in pair_counts.items():
-        final_dict[k[0]] += v
-        # final_dict[k[1]] += v
-    print(final_dict)
-
-    c = Counter(final_dict)
-    print(c)
-
-    a = c.most_common()[0][1]
-    b = c.most_common()[-1][1]
-
-    # answer part 1
-    print(a - b)
+    # Part 2
+    print('Part 2:', solve(40))
