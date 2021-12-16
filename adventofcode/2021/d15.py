@@ -1,6 +1,7 @@
 from collections import defaultdict
 from queue import PriorityQueue
 from typing import List, Tuple, Dict, Set
+import time
 
 
 def load_data(filename: str) -> str:
@@ -126,6 +127,8 @@ if __name__ == '__main__':
     print('Part 1:', shortest_path())
 
     # Part 2
+    start_time = time.time()
     grid = get_grid(is_part2=True)
     neighbors = get_neighbors()
     print('Part 2:', shortest_path())
+    print(time.time() - start_time)
