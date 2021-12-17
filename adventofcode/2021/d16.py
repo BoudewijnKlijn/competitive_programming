@@ -7,10 +7,6 @@ def load_data(filename: str) -> str:
         return f.read()
 
 
-def parse_data(raw_data: str) -> List[int]:
-    return list(map(int, raw_data.strip().split(',')))
-
-
 HEX_TO_BIN_MAPPING = {
     '0': '0000',
     '1': '0001',
