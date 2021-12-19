@@ -1,13 +1,6 @@
-from dataclasses import dataclass
-import re
-from typing import List, Tuple, Union, Iterable
-from collections import defaultdict
-from itertools import cycle
-from collections import Counter
-import numpy as np
-from itertools import chain
 from copy import deepcopy
-
+from dataclasses import dataclass
+from typing import List, Union
 
 
 def load_data(filename: str) -> str:
@@ -17,43 +10,6 @@ def load_data(filename: str) -> str:
 
 def parse_data(raw_data: str) -> List[int]:
     return list(map(int, raw_data.strip().split(',')))
-
-
-# def reduce(data):
-#     """To reduce a snailfish number, you must repeatedly do the first action in this list that applies to the snailfish
-#     number:
-#     - If any pair is nested inside four pairs, the leftmost such pair explodes.
-#     - If any regular number is 10 or greater, the leftmost such regular number splits."""
-#     # # check if we need to explode
-#     # string = str(data)
-#     # pointer = 0
-#     # depth = 0
-#     # while pointer < len(string):
-#     #     if string[pointer] == '[':
-#     #         depth += 1
-#     #     elif string[pointer] == ']':
-#     #         depth -= 1
-#     #     pointer += 1
-#     #     if depth > 4:
-#     #         print('We must explode')
-#     #         break
-
-
-    # # check if we need to split
-    # regular_numbers = re.findall(r'\d+', str(data))
-    # if any(int(regular_number) >= 10 for regular_number in regular_numbers):
-    #     print('We must split')
-
-
-# def explode(data):
-#     """To explode a pair, the pair's left value is added to the first regular number to the left of the exploding pair
-#     (if any), and the pair's right value is added to the first regular number to the right of the exploding pair (if
-#     any). Exploding pairs will always consist of two regular numbers. Then, the entire exploding pair is replaced with
-#     the regular number 0."""
-#     depth = 0
-#     while depth < 4:
-#         left, right = data
-#         depth += 1
 
 
 @dataclass
@@ -104,36 +60,6 @@ def build_binary_tree(data_in, depth=0):
     else:
         raise ValueError(f'Unknown type {type(right)}')
     return Pair(left, right, depth)
-
-
-# def get_leaves(pair):
-#     leaves = list()
-#     if isinstance(pair.left, Leaf):
-#         leaves.append(pair.left)
-#     elif isinstance(pair.left, Pair):
-#         leaves.extend(get_leaves(pair.left))
-#     else:
-#         raise ValueError(f'Unknown type {type(pair.left)}')
-#     if isinstance(pair.right, Leaf):
-#         leaves.append(pair.right)
-#     elif isinstance(pair.right, Pair):
-#         leaves.extend(get_leaves(pair.right))
-#     else:
-#         raise ValueError(f'Unknown type {type(pair.right)}')
-#     return leaves
-
-
-# def build_binary_tree(data, depth=0):
-#     tree = Pair(data[0], data[1], depth)
-#     if isinstance(tree.left, list):
-#         tree.left = build_binary_tree(tree.left, depth+1)
-#     else:
-#         tree.left = Leaf(tree.left, depth)
-#     if isinstance(tree.right, list):
-#         tree.right = build_binary_tree(tree.right, depth+1)
-#     else:
-#         tree.right = Leaf(tree.right, depth)
-#     return tree
 
 
 def explode(leaves):
@@ -208,7 +134,21 @@ def parse_all(data):
 
 
 def get_magnitude(leaves):
-
+    max_depth = 3
+    leaves = deepcopy(leaves)
+    while len(leaves) > 1:
+        removed = False
+        for i, (leaf1, leaf2) in enumerate(zip(leaves[:-1], leaves[1:])):
+            if leaf1.depth == max_depth and leaf2.depth == max_depth:
+                new_value = 3 * leaf1.value + 2 * leaf2.value
+                leaves.remove(leaf1)
+                leaves.remove(leaf2)
+                leaves.insert(i, Leaf(new_value, leaf1.depth - 1))
+                removed = True
+                break
+        if not removed:
+            max_depth -= 1
+    return leaves[0].value
 
 
 if __name__ == '__main__':
@@ -286,10 +226,44 @@ if __name__ == '__main__':
         assert result == expected
     print("All tests pass.")
 
+    # Assert get_magnitude is correct
+    SAMPLES = [
+        ("[[1,2],[[3,4],5]]", 143),
+        ("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]", 1384),
+        ("[[[[1,1],[2,2]],[3,3]],[4,4]]", 445),
+        ("[[[[3,0],[5,3]],[4,4]],[5,5]]", 791),
+        ("[[[[5,0],[7,4]],[5,5]],[6,6]]", 1137),
+        ("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]", 3488),
+    ]
+    for data_in, expected in SAMPLES:
+        leaves = build_binary_tree(eval(data_in)).get_leaves()
+        assert get_magnitude(leaves) == expected
+    print("All magnitude tests pass.")
+
+    # Assert solution is correct
+    RAW = load_data('day18_sample.txt')
+    result = parse_all(RAW)
+    assert get_magnitude(result) == 4140
+    print("Test on complete sample passes.")
+
     # Actual data
-    # RAW = load_data('input.txt')
-    # data = parse_data(RAW)
+    RAW = load_data('day18.txt')
+    result = parse_all(RAW)
 
     # Part 1
+    print(f"Part 1: {get_magnitude(result)}.")
 
     # Part 2
+    snailfish_numbers = RAW.strip().split('\n')
+    largest_magnitude = 0
+    for i, a in enumerate(snailfish_numbers):
+        for j, b in enumerate(snailfish_numbers):
+            if i == j:
+                continue
+            leaves_a = build_binary_tree(eval(a)).get_leaves()
+            leaves_b = build_binary_tree(eval(b)).get_leaves()
+            result = reduce(addition(leaves_a, leaves_b))
+            magnitude = get_magnitude(result)
+            if magnitude > largest_magnitude:
+                largest_magnitude = magnitude
+    print(f"Part 2: {largest_magnitude}.")
