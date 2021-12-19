@@ -100,7 +100,7 @@ def get_location_and_orientation(scanner_a: int, scanner_b: int, scanner_locatio
             # A and B should have 11 remaining overlapping vectors, since we already assume the reference point overlaps
             # if less than 11, then the reference point does not overlap, pick another reference point
             if len(coordinates_a_adjusted.intersection(coordinates_b_adjusted)) >= 11:
-                # based on the reference point we can calculate the location of the scanner
+                # based on the scanner location of a and the reference points we can calculate the new location of b
                 location_b = tuple([a + b - c
                                     for a, b, c in
                                     zip(scanner_a_location, reference_coordinate_a, reference_coordinate_b)])
@@ -109,7 +109,7 @@ def get_location_and_orientation(scanner_a: int, scanner_b: int, scanner_locatio
     return False, None
 
 
-def get_scanner_locations():
+def get_scanner_location_and_orientation():
     scanner_location_and_orientation = dict()
     unresolved_scanners = set(range(len(data)))
     found_scanners = {(0, ((0, 0, 0), (1, 2, 3)))}
@@ -132,16 +132,25 @@ def get_scanner_locations():
     return scanner_location_and_orientation
 
 
-def part1():
-    scanner_locations = get_scanner_locations()
+def part1(scanner_location_and_orientation):
     beacons = set()
-    for scanner_i, location_and_orientation in scanner_locations.items():
+    for scanner_i, location_and_orientation in scanner_location_and_orientation.items():
         scanner_location, scanner_orientation = location_and_orientation
         beacon_coordinates_relative_to_scanner_location = change_orientations(data[scanner_i], scanner_orientation)
         for c in beacon_coordinates_relative_to_scanner_location:
             beacon_coordinates = tuple([a + b for a, b in zip(scanner_location, c)])
             beacons.add(beacon_coordinates)
     return len(beacons)
+
+
+def part2(scanner_location_and_orientation):
+    largest_distance = 0
+    for scanner_location_a, _ in scanner_location_and_orientation.values():
+        for scanner_location_b, _ in scanner_location_and_orientation.values():
+            distance = sum(abs(a - b) for a, b in zip(scanner_location_a, scanner_location_b))
+            if distance > largest_distance:
+                largest_distance = distance
+    return largest_distance
 
 
 if __name__ == '__main__':
@@ -334,14 +343,18 @@ if __name__ == '__main__':
 
     # Assert solution is correct
     data = parse_data(RAW)
-    assert part1() == 79
-    print('Answer for sample is correct.')
+    scanner_location_and_orientation = get_scanner_location_and_orientation()
+    assert part1(scanner_location_and_orientation) == 79  # part 1
+    assert part2(scanner_location_and_orientation) == 3621  # part 2
+    print('Answers for sample are correct.')
 
     # Actual data
     RAW = load_data('input.txt')
     data = parse_data(RAW)
+    scanner_location_and_orientation = get_scanner_location_and_orientation()
 
     # Part 1
-    print(f'Part 1: {part1()}')
+    print(f'Part 1: {part1(scanner_location_and_orientation)}')
 
     # Part 2
+    print(f'Part 2: {part2(scanner_location_and_orientation)}')
