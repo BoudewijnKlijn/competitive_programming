@@ -1,11 +1,6 @@
-from dataclasses import dataclass
 import re
+from itertools import product
 from typing import List, Tuple, Union
-from collections import defaultdict
-from itertools import cycle, permutations, product, cycle
-from collections import Counter
-import numpy as np
-from copy import deepcopy
 
 
 def load_data(filename: str) -> str:
@@ -13,16 +8,12 @@ def load_data(filename: str) -> str:
         return f.read()
 
 
-def parse_data(raw_data: str) -> List[List[Union[Tuple[int, ]]]]:
+def parse_data(raw_data: str) -> List[List[Union[Tuple[int, int, int]]]]:
     scanners_data = raw_data.strip().split('\n\n')
     all_coordinates = []
     for scanner_i in scanners_data:
-        scanner_coordinates = []
-        for line in scanner_i.split('\n'):
-            line_coordinates = tuple(map(int, re.findall(r'[-]*\d+', line)))
-            if len(line_coordinates) < 2:
-                continue
-            scanner_coordinates.append(line_coordinates)
+        scanner_coordinates = [(int(x), int(y), int(z))
+                               for x, y, z in re.findall(r'([\-\d]+),([\-\d]+),([\-\d]+)', scanner_i)]
         all_coordinates.append(scanner_coordinates)
     return all_coordinates
 
@@ -55,20 +46,28 @@ ORIENTATIONS = {
 }
 
 
-def change_orientation(coordinates: List[Tuple[int, ]], orientation: Tuple[int, int, int]):
-    """Change orientation of coordinates.
+def change_orientation(coordinate: Tuple[int, int, int], orientation: Tuple[int, int, int]) -> Tuple[int, int, int]:
+    """Change orientation of one coordinate.
     Orientation consists of the dimension and its sign."""
     dimensions = tuple(map(lambda o: abs(o) - 1, orientation))
     signs = tuple(map(lambda x: 1 if x > 0 else -1, orientation))
+    new_coordinate = signs[0] * coordinate[dimensions[0]], signs[1] * coordinate[dimensions[1]], signs[2] * \
+                     coordinate[dimensions[2]]
+    return new_coordinate
+
+
+def change_orientations(coordinates: List[Tuple[int, int, int]], orientation: Tuple[int, int, int]) -> \
+        List[Tuple[int, int, int]]:
+    """Change orientation of many coordinates.
+    Orientation consists of the dimension and its sign."""
     new_coordinates = []
     for coordinate in coordinates:
-        new_coordinate = signs[0] * coordinate[dimensions[0]], signs[1] * coordinate[dimensions[1]], signs[2] * \
-                         coordinate[dimensions[2]]
+        new_coordinate = change_orientation(coordinate, orientation)
         new_coordinates.append(new_coordinate)
     return new_coordinates
 
 
-def compare_coordinates(coordinates_a: List[Tuple[int, ]], coordinates_b: List[Tuple[int, ]]) -> bool:
+def get_location_and_orientation(scanner_a: int, scanner_b: int, scanner_location_and_orientation: dict):
     """Coordinates of the beacons are relative to the scanner and one out of 24 random orientations.
     The orientation of the scanner remains the same, so we can apply a change of orientation to all the coordinates.
     We are searching for beacons that the scanners have in common. There should be 12 of them overlapping.
@@ -83,11 +82,13 @@ def compare_coordinates(coordinates_a: List[Tuple[int, ]], coordinates_b: List[T
     # if none of the reference points overlap, then the scanners are not in the same orientation
     # if with none of the orientations we can find a suitable reference point and 11 other overlapping vectors, the
     # scanner scan no overlapping region."""
+    scanner_a_location, scanner_a_orientation = scanner_location_and_orientation[scanner_a]
+    coordinates_a = change_orientations(data[scanner_a], scanner_a_orientation)
 
     for orientation in ORIENTATIONS:
         # Leave orientation of coordinates of A as is and change orientation of the coordinates of B. Assume both
         # scanners now have the same orientation.
-        coordinates_b = change_orientation(coordinates_b, orientation)
+        coordinates_b = change_orientations(data[scanner_b], orientation)
 
         for reference_coordinate_a, reference_coordinate_b in product(coordinates_a, coordinates_b):
             # Assume that the reference point is the same for both scanners.
@@ -99,9 +100,48 @@ def compare_coordinates(coordinates_a: List[Tuple[int, ]], coordinates_b: List[T
             # A and B should have 11 remaining overlapping vectors, since we already assume the reference point overlaps
             # if less than 11, then the reference point does not overlap, pick another reference point
             if len(coordinates_a_adjusted.intersection(coordinates_b_adjusted)) >= 11:
-                print(reference_coordinate_a, reference_coordinate_b)
-                return True, orientation
+                # based on the reference point we can calculate the location of the scanner
+                location_b = tuple([a + b - c
+                                    for a, b, c in
+                                    zip(scanner_a_location, reference_coordinate_a, reference_coordinate_b)])
+                location_and_orientation = (location_b, orientation)
+                return True, location_and_orientation
     return False, None
+
+
+def get_scanner_locations():
+    scanner_location_and_orientation = dict()
+    unresolved_scanners = set(range(len(data)))
+    found_scanners = {(0, ((0, 0, 0), (1, 2, 3)))}
+    while True:
+        resolved_scanner = found_scanners.pop()
+        scanner_i, location_and_orientation = resolved_scanner
+        scanner_location_and_orientation[scanner_i] = location_and_orientation
+        unresolved_scanners.remove(scanner_i)
+        if not unresolved_scanners:
+            break
+
+        print(len(unresolved_scanners))
+        for scanner_j in unresolved_scanners:
+            found_one, found_location_and_orientation = get_location_and_orientation(
+                scanner_i, scanner_j, scanner_location_and_orientation
+            )
+            if found_one:
+                found_scanners.add((scanner_j, found_location_and_orientation))
+
+    return scanner_location_and_orientation
+
+
+def part1():
+    scanner_locations = get_scanner_locations()
+    beacons = set()
+    for scanner_i, location_and_orientation in scanner_locations.items():
+        scanner_location, scanner_orientation = location_and_orientation
+        beacon_coordinates_relative_to_scanner_location = change_orientations(data[scanner_i], scanner_orientation)
+        for c in beacon_coordinates_relative_to_scanner_location:
+            beacon_coordinates = tuple([a + b for a, b in zip(scanner_location, c)])
+            beacons.add(beacon_coordinates)
+    return len(beacons)
 
 
 if __name__ == '__main__':
@@ -149,12 +189,11 @@ if __name__ == '__main__':
     data = parse_data(RAW)
     all_possible_coordinates = list()
     for i, orientation in enumerate(ORIENTATIONS):
-        possible = change_orientation(data[0], orientation)
+        possible = change_orientations(data[0], orientation)
         all_possible_coordinates.append(possible)
     for i in range(len(data)):
         assert data[i] in all_possible_coordinates
     print('Change orientation tests pass.')
-
 
     RAW = """--- scanner 0 ---
 404,-588,-901
@@ -292,23 +331,17 @@ if __name__ == '__main__':
 891,-625,532
 -652,-548,-490
 30,-46,-14"""
+
+    # Assert solution is correct
+    data = parse_data(RAW)
+    assert part1() == 79
+    print('Answer for sample is correct.')
+
+    # Actual data
+    RAW = load_data('input.txt')
     data = parse_data(RAW)
 
-    # Manual check if correct scanners see each other.
-    for scanner_i, scanner_j in product(range(len(data)), repeat=2):
-        if scanner_i == scanner_j:
-            continue
-        see_each_other, orientation = compare_coordinates(data[scanner_i], data[scanner_j])
-        if see_each_other:
-            print(f'Scanner {scanner_i} and {scanner_j} see each other. {orientation=}')
+    # Part 1
+    print(f'Part 1: {part1()}')
 
-#
-#     # Assert solution is correct
-#
-#     # Actual data
-#     # RAW = load_data('input.txt')
-#     # data = parse_data(RAW)
-#
-#     # Part 1
-#
-#     # Part 2
+    # Part 2
