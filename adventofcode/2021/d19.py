@@ -40,6 +40,46 @@ def change_orientation(coordinates: List[Tuple[int, ]],):
     pass
 
 
+def rotate_around_one_axis(orientation, angle):
+    if angle == 0:
+        return orientation[0], orientation[1]
+    elif angle == 90:
+        return -1 * orientation[1], orientation[0]
+    elif angle == 180:
+        return -1 * orientation[0], -1 * orientation[1]
+    elif angle == 270:
+        return -1 * orientation[1], -1 * orientation[0]
+
+
+def create_orientations(orientations):
+    new_orientations = set()
+    for orientation in orientations:
+        for dimension in range(3):
+            for angle in [0, 90, 180, 270]:
+                # Keep one dimension fixed and rotate the others around the fixed one.
+                if dimension == 0:
+                    rotated_dimensions = rotate_around_one_axis((orientation[1], orientation[2]), angle)
+                    new_orientation = orientation[dimension], rotated_dimensions[0], rotated_dimensions[1]
+                elif dimension == 1:
+                    rotated_dimensions = rotate_around_one_axis((orientation[0], orientation[2]), angle)
+                    new_orientation = rotated_dimensions[0], orientation[dimension], rotated_dimensions[1]
+                else:
+                    rotated_dimensions = rotate_around_one_axis((orientation[0], orientation[1]), angle)
+                    new_orientation = rotated_dimensions[0], rotated_dimensions[1], orientation[dimension]
+                new_orientations.add(new_orientation)
+    return new_orientations
+
+
+ORIENTATIONS = create_orientations({(0, 1, 2)})
+print(len(ORIENTATIONS))
+ORIENTATIONS = create_orientations(ORIENTATIONS)
+print(len(ORIENTATIONS))
+ORIENTATIONS = create_orientations(ORIENTATIONS)
+print(len(ORIENTATIONS))
+print(ORIENTATIONS)
+
+
+
 def compare_coordinates(coordinates_a: List[Tuple[int, ]], coordinates_b: List[Tuple[int, ]]) -> bool:
     """Coordinates of the beacons are relative to the scanner and one out of 24 random orientations.
     The orientation of the scanner remains the same, so we can apply a change of orientation to all the coordinates.
