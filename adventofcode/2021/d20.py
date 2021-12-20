@@ -1,7 +1,6 @@
-from typing import Tuple, Set
-from collections import defaultdict
 from itertools import product
-from typing import Tuple, List
+from typing import Set
+from typing import Tuple, List, Dict
 
 
 def load_data(filename: str) -> str:
@@ -23,12 +22,17 @@ def get_enhancements(enhancement_data: str) -> Set[int]:
     return enhancements
 
 
-def make_grid(image_data: str) -> Set[Tuple[int, int]]:
-    grid = set()
+def make_grid(image_data: str) -> Dict[Tuple[int, int], int]:
+    grid = dict()
     for r, line in enumerate(image_data.strip().split('\n')):
         for c, char in enumerate(line):
             if char == '#':
-                grid.add((r, c))
+                grid[(r, c)] = 1
+            else:
+                grid[(r, c)] = 0
+
+    # add border of zeros
+    grid = add_border_grid(grid, fill_value=0)
     return grid
 
 
@@ -40,47 +44,59 @@ def get_neighbors(position: Tuple[int, int]) -> List[Tuple[int, int]]:
     return neighbors
 
 
-def enhance(grid, enhancements):
-    """Any value that has at least one non-zero neighbor can become one."""
-    possible_non_zero = set()
+def enhance(grid: Dict[Tuple[int, int], int], enhancements: Set[int], fill_value: int) -> dict:
+    new_grid = dict()
     for position in grid:
-        possible_non_zero.update(get_neighbors(position))
-
-    new_grid = set()
-    for position in possible_non_zero:
         binary_value = ''
         for n in get_neighbors(position):
-            if n in grid:
-                binary_value += '1'
+            if FILLER == 1:
+                binary_value += str(grid.get(n, 1 - fill_value))
             else:
-                binary_value += '0'
+                binary_value += str(grid.get(n, 0))
 
         sum_neighbors = int(binary_value, 2)
-        if sum_neighbors in enhancements:
-            new_grid.add(position)
+        new_grid[position] = 1 if sum_neighbors in enhancements else 0
+
+    # add border
+    new_grid = add_border_grid(new_grid, fill_value)
     return new_grid
 
 
-def part1():
+def add_border_grid(grid, fill_value):
+    min_r, min_c = map(min, zip(*grid))
+    max_r, max_c = map(max, zip(*grid))
+
+    for c in range(min_c - 1, max_c + 2):
+        # top and bottom border
+        grid[(min_r - 1, c)] = fill_value
+        grid[(max_r + 1, c)] = fill_value
+    for r in range(min_r - 1, max_r + 2):
+        # left and right border
+        grid[(r, min_c - 1)] = fill_value
+        grid[(r, max_c + 1)] = fill_value
+    return grid
+
+
+def part1(steps: int) -> int:
     enhancement_data, image_data = parse_data(RAW)
     enhancements = get_enhancements(enhancement_data)
     grid = make_grid(image_data)
-    print(len(grid))
-    print_grid(grid)
-    for _ in range(2):
-        grid = enhance(grid, enhancements)
-        print(len(grid))
-        print_grid(grid)
-    return len(grid)
+    for s in range(steps):
+        print(s)
+        fill_value = 0
+        if FILLER == 1 and (s % 2) == 0:
+            fill_value = 1
+        grid = enhance(grid, enhancements, fill_value)
+    return sum(grid.values())
 
 
-def print_grid(grid: Set[Tuple[int, int]]):
+def print_grid(grid: Dict[Tuple[int, int], int]):
     """Make visual representation of grid."""
     min_r, min_c = map(min, zip(*grid))
     max_r, max_c = map(max, zip(*grid))
     for r in range(min_r, max_r + 1):
         for c in range(min_c, max_c + 1):
-            if (r, c) in grid:
+            if grid[(r, c)] == 1:
                 print('#', end='')
             else:
                 print('.', end='')
@@ -96,11 +112,14 @@ if __name__ == '__main__':
 ##..#
 ..#..
 ..###"""
+    FILLER = 0 if RAW[0] == '.' else 1
+
     # Assert solution is correct
-    assert part1() == 35
+    assert part1(steps=2) == 35
 
     # Actual data
     RAW = load_data('input.txt')
+    FILLER = 0 if RAW[0] == '.' else 1
 
-    # # Part 1
-    print(part1())
+    # Part 1
+    print(part1(steps=50))
