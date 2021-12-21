@@ -118,7 +118,7 @@ if __name__ == '__main__':
     assert part1(steps=2) == 35
 
     # Actual data
-    RAW = load_data('input.txt')
+    RAW = load_data('day20.txt')
     FILLER = 0 if RAW[0] == '.' else 1
 
     # Part 1
