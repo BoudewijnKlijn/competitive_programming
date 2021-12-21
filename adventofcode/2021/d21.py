@@ -87,26 +87,50 @@ def determine_turns_to_end_game(start):
             return turn_counter
 
 
+def do_turn(state_counts):
+    """Should only receive states that are not finished yet."""
+    new_state_counts = Counter()
+    for player_state, count in state_counts.items():
+        for sum_throws, n_possible_ways_to_throw_sum in DIRAC_SUM_THROWS.items():
+            new_state = deepcopy(player_state)
+            new_state.move(sum_throws)
+            new_state.increase_score()
+            new_state_counts += Counter({new_state: count * n_possible_ways_to_throw_sum})
+    return new_state_counts
+
+
 def part2():
     """For both players, run every possible game scenario, and stop them when they reach 21. Then compare the turns it
     took to get to 21. If turns tie, player 1 wins. Use counter to combine game and avoid explosion of number of games.
     """
     players = [Player(i, p) for i, p in enumerate(data)]
-    turns = list()
-    for player_i, player in enumerate(players):
-        turn_counter = determine_turns_to_end_game(player)
-        turns.append(turn_counter)
-    print(turns)
-
-    # Compare all turns of one player to end the game with that of the other player.
+    unfinished_states_p1 = Counter([players[0]])
+    unfinished_states_p2 = Counter([players[1]])
     game_wins = Counter({'p1': 0, 'p2': 0})
-    for p1_turns, p1_count in turns[0].items():
-        for p2_turns, p2_count in turns[1].items():
-            if p1_turns <= p2_turns:
-                game_wins['p1'] += p1_count * p2_count
-            else:
-                game_wins['p2'] += p1_count * p2_count
-    print(game_wins)
+    while unfinished_states_p1 and unfinished_states_p2:
+        state_counts_p1 = do_turn(unfinished_states_p1)
+        unfinished_states_p1 = Counter()
+        for player_state, count in state_counts_p1.items():
+            if player_state.score >= 21:
+                game_wins['p1'] += sum(unfinished_states_p2.values()) * count
+                continue
+            unfinished_states_p1 += Counter({player_state: count})
+
+        state_counts_p2 = do_turn(unfinished_states_p2)
+
+        # Simplify state_counts_p1 and state_counts_p2.
+        # If player reached 21, remove those states and calculate how many resulted in a win.
+        # Since player 1 is first, player 1 wins versus all states that have equal or more turns. Remove that number of
+        # states from player 2. Same for player 2, except player 2 needs strictly fewer turns than player 1.
+
+        unfinished_states_p2 = Counter()
+        for player_state, count in state_counts_p2.items():
+            if player_state.score >= 21:
+                game_wins['p2'] += sum(unfinished_states_p1.values()) * count
+                continue
+            unfinished_states_p2 += Counter({player_state: count})
+
+    return max(game_wins.values())
 
 
 if __name__ == '__main__':
@@ -117,12 +141,11 @@ Player 2 starting position: 8"""
 
     # Assert solution is correct
     assert play_game() == 739785
+    assert part2() == 444356092776315
 
     # Actual data
-    # RAW = load_data('input.txt')
-    # data = parse_data(RAW)
-
-
+    RAW = load_data('input.txt')
+    data = parse_data(RAW)
 
     # Part 1
     print(f'Part 1: {play_game()}')
