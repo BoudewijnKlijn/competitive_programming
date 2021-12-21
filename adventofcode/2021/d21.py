@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 import re
-from typing import List, Tuple, Union
-from collections import defaultdict
+from dataclasses import dataclass
 from itertools import cycle
+from typing import Tuple
 from collections import Counter
-import numpy as np
 
 
 def load_data(filename: str) -> str:
@@ -12,10 +10,9 @@ def load_data(filename: str) -> str:
         return f.read()
 
 
-def parse_data(raw_data: str) -> List[int]:
+def parse_data(raw_data: str) -> Tuple[int, int]:
     pattern = r'starting position: (\d+)'
-    starting_positions = tuple(map(int, re.findall(pattern, raw_data)))
-    return starting_positions
+    return tuple(map(int, re.findall(pattern, raw_data)))
 
 
 @dataclass
@@ -32,6 +29,12 @@ class Player:
     def increase_score(self):
         self.score += self.position
 
+    def __eq__(self, other):
+        return self.id == other.id and self.position == other.position and self.score == other.score
+
+    def __hash__(self):
+        return hash((self.id, self.position, self.score))
+
 
 class Dice:
     def __init__(self):
@@ -44,22 +47,32 @@ class Dice:
 
 
 def play_game():
-    print(data)
     players = [Player(i, p) for i, p in enumerate(data)]
-    stop_game = False
     dice = Dice()
-    while not stop_game:
+    while True:
         for player in players:
-            if stop_game:
-                break
             sum_throws = sum(dice.roll() for _ in range(3))
             player.move(sum_throws)
             player.increase_score()
             if player.score >= 1000:
-                stop_game = True
-            print(player)
+                return min(p.score for p in players) * dice.turns
 
-    return min(p.score for p in players) * dice.turns
+
+def part2():
+    """For both players, run every possible game scenario, and stop them when they reach 21. Then compare the turns it
+    took to get to 21. If turns tie, player 1 wins. Use counter to combine game and avoid explosion of number of games.
+    """
+    players = [Player(i, p) for i, p in enumerate(data)]
+    player1_counts = Counter([players[0]])
+    player2_counts = Counter([players[1]])
+
+    for player in players:
+        # one turn creates three universes
+        p = [Player(0, data[0]) for _ in range(3)]
+        a = Counter(p)
+        print(a)
+
+
 
 
 if __name__ == '__main__':
@@ -69,9 +82,14 @@ Player 2 starting position: 8"""
     data = parse_data(RAW)
 
     # Assert solution is correct
+    assert play_game() == 739785
 
     # Actual data
     RAW = load_data('input.txt')
     data = parse_data(RAW)
 
-    print(play_game())
+    # Part 1
+    print(f'Part 1: {play_game()}')
+
+    # Part 2
+    print(f'Part 2: {part2()}')
