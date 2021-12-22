@@ -66,17 +66,13 @@ class Cube:
         return (self.x2 - self.x1 + 1) * (self.y2 - self.y1 + 1) * (self.z2 - self.z1 + 1)
 
     def subtract(self, other: 'Cube') -> Set['Cube']:
-        """Subtract another Cube from this Cube. Return the seven smaller remaining cubes.
-        If subtracted cube lies within original, then 26 cubes are created.
-         6 narrow pipes on top of each facet of the smaller inner cube.
-         12 flat cubes between the 6 pipes. 4 pipes are in one dimension and since we have 3 dimensons: 3 * 4
-         8 cubic cubes in each corner
-         """
-        # If other doesn't overlap anywhere, return list with just self.
+        """Subtract another Cube from this Cube. Return all resulting cubes."""
+        # If other doesn't overlap anywhere, return set with self.
         if other.x2 < self.x1 or self.x2 < other.x1 or other.y2 < self.y1 or self.y2 < other.y1 or \
                 other.z2 < self.z1 or self.z2 < other.z1:
             return {self}
 
+        new_cubes = set()
         other = deepcopy(other)
 
         # Adjust bounds of other cube, to be at most as large as this cube.
@@ -96,8 +92,6 @@ class Cube:
         front = (self.z1, other.z1 - 1)
         mid_z = (other.z1, other.z2)
         back = (other.z2 + 1, self.z2)
-
-        new_cubes = set()
         for x, y, z in product([left, mid_x, right], [bottom, mid_y, top], [front, mid_z, back]):
             if x == mid_x and y == mid_y and z == mid_z:
                 # Do not add the other cube.
@@ -106,12 +100,6 @@ class Cube:
             # Only add a cube if all dimensions are non-negative.
             if x[0] <= x[1] and y[0] <= y[1] and z[0] <= z[1]:
                 new_cubes.add(Cube(*x, *y, *z))
-
-        # print(' n', len(new_cubes))
-        # if len(new_cubes) == 1:
-        #     print(self, other, new_cubes[0], mid_x, mid_y, mid_z)
-        #
-        # assert len(new_cubes) in [0, 1, 3, 7]
 
         return new_cubes
 
@@ -123,58 +111,23 @@ assert Cube(0, 2, 0, 2, 0, 2).volume() == 27
 assert Cube(0, 0, 0, 0, 0, 0).subtract(Cube(0, 0, 0, 0, 0, 0)) == set()
 assert Cube(0, 0, 0, 0, 0, 0).subtract(Cube(1, 1, 1, 1, 1, 1)) == {Cube(0, 0, 0, 0, 0, 0)}
 
-        # # Assume the subtracted cube is smaller and lies completely within the original cube.
-        # # 6 pipes
-        # Cube(other.x2, self.x2, other.y1, other.y2, other.z1, other.z2)  # right
-        # Cube(other.x1, other.x2, other.y1, other.y2, other.z2, self.z2)  # back
-        # Cube(self.x1, other.x1, other.y1, other.y2, other.z1, other.z2)  # left
-        # Cube(other.x1, other.x2, other.y1, other.y2, self.z1, other.z1)  # front
-        # Cube(other.x1, other.x2, other.y2, self.y2, other.z1, other.z2)  # top
-        # Cube(other.x1, other.x2, self.y1, other.y1, other.z1, other.z2)  # bottom
-        #
-        # # 12 flat cubes
-        # Cube(self.x1, other.x1, other.y2, self.y2, other.z1, other.z2)  # x-y plane top left
-        # Cube(other.x2, self.x2, other.y2, self.y2, other.z1, other.z2)  # x-y plane top right
-        # Cube(other.x2, self.x2, self.y1, other.y1, other.z1, other.z2)  # x-y plane bottom right
-        # Cube(self.x1, other.x1, self.y1, other.y1, other.z1, other.z2)  # x-y plane bottom left
-        #
-        # Cube(self.x1, other.x1, other.y1, other.y2, other.z2, self.z2)  # x-z plane back left
-        # Cube(other.x2, self.x2, other.y1, other.y2, other.z2, self.z2)  # x-z plane back right
-        # Cube(other.x2, self.x2, other.y1, other.y2, self.z1, other.z1)  # x-z plane front right
-        # Cube(self.x1, other.x1, other.y1, other.y2, self.z1, other.z1)  # x-z plane front left
-        #
-        # Cube(other.x1, other.x2, other.y2, self.y2, self.z1, other.z1)  # y-z plane front up
-        # Cube(other.x1, other.x2, other.y2, self.y2, other.z2, self.z2)  # y-z plane back up
-        # Cube(other.x1, other.x2, self.y1, other.y1, other.z2, self.z2)  # y-z plane back down
-        # Cube(other.x1, other.x2, self.y1, other.y1, self.x1, other.z1)  # y-z plane back down
-        #
-        # # 8 corner cubes
-        # Cube(self.x1, other.x1, other.y2, self.y2, other.z1, self.z2)  # left up back
-        #
-        # # Ignore cubes with zero or 'negative' volume (where min > max).
-
 
 def part2():
-    print('part2')
     on_cubes = set()
     for i, line in enumerate(data):
-        print(i)
-        # print(len(on_cubes))
         new_cube = Cube(*map(int, line[1:]))
         if not on_cubes:
             on_cubes.add(new_cube)
             continue
 
         new_on_cubes = set()
+        # Even when we add a new cube, we have to subtract that from the existing cubes, to avoid double counting.
+        for on_cube in on_cubes:
+            new_on_cubes.update(on_cube.subtract(new_cube))
         if line[0] == 'on':
-            # When we add a new cube, we also have to subtract that from the existing cubes, to avoid double counting.
-            for on_cube in on_cubes:
-                new_on_cubes.update(on_cube.subtract(new_cube))
-            # Finally add the new cube.
+            # Add the new cube.
             new_on_cubes.add(new_cube)
-        elif line[0] == 'off':
-            for on_cube in on_cubes:
-                new_on_cubes.update(on_cube.subtract(new_cube))
+
         on_cubes = new_on_cubes
     return sum(c.volume() for c in on_cubes)
 
@@ -213,19 +166,21 @@ on x=-41..9,y=-7..43,z=-33..15"""
 # on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
 # on x=967..23432,y=45373..81175,z=27513..53682"""
 
-
     # Assert solution is correct
     data = parse_data(RAW)
     assert part1() == 590784
-    assert part1() == part2()
+
+    RAW = load_data('day22_sample.txt')
+    data = parse_data(RAW)
+    assert part2() == 2758514936282235
+    print('All tests pass.')
 
     # Actual data
-    RAW = load_data('input.txt')
+    RAW = load_data('day22.txt')
     data = parse_data(RAW)
 
-    print(part1())
-    print(part2())
-
     # Part 1
+    print(f'Part 1 {part1()}')
 
     # Part 2
+    print(f'Part 2 {part2()}')
