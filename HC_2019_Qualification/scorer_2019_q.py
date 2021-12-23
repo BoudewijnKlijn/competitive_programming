@@ -42,7 +42,17 @@ def get_non_zero_slide_transitions(slides: Slides, validate=True) -> Tuple[List[
     pattern = r'([a-z\d]+)'
     tags_of_slides = [' '.join(slide.tags) for slide in slides.slides]
     number_of_tags_of_slides = [slide.number_of_tags for slide in slides.slides]
+    n_tags_all_slides = sum(number_of_tags_of_slides)
     unique_tags = list(set(itertools.chain.from_iterable(map(str.split, tags_of_slides))))
+    density = n_tags_all_slides / (len(tags_of_slides) * len(unique_tags))
+    sparse = True if density < 1 / 1000 else False
+
+    if validate:
+        print(f'Number of slides: {len(tags_of_slides)}\n'
+              f'Sum of number of tags on all slides {n_tags_all_slides}\n'
+              f'Most tags on one slide: {max(number_of_tags_of_slides)}\n'
+              f'Number of unique tags {len(unique_tags)}\n'
+              f'Density: {density}')
 
     cv = CountVectorizer(vocabulary=unique_tags, token_pattern=pattern)
 
