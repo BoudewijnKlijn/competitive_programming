@@ -3,6 +3,8 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from queue import PriorityQueue
+from copy import deepcopy
 
 
 def load_data(filename: str) -> str:
@@ -110,10 +112,12 @@ class Alu:
         self.z = 0
         self.w = 0
         self.commands = commands
+        self.command_i = 0
         self.inputs = inputs
+        self.input_i = 0
 
     def __repr__(self):
-        return f"{self.x}, {self.y}, {self.z}, {self.w}"
+        return f'{self.x=}\n{self.y=}\n{self.z=}\n{self.w=}'
 
     @staticmethod
     def add(a, b):
@@ -142,11 +146,24 @@ class Alu:
         return (a == b) * 1
 
     def execute_commands(self):
-        for cmd in self.commands:
+        while True:
+            if self.command_i >= len(self.commands):
+                if self.z == 0:
+                    print(self)
+                    exit(0)
+                else:
+                    return False
+            cmd = self.commands[self.command_i]
             instruction = cmd[0]
             var = cmd[1]
             if instruction == 'inp':
-                value = self.inputs.pop(0)
+                try:
+                    value = self.inputs[self.input_i]
+                except IndexError:
+                    # decrease command index by 1 to start from there next time
+                    self.command_i -= 1
+                    return True
+                self.input_i += 1
                 assert 1 <= value <= 9, f"{value} is not in range"
                 setattr(self, var, value)
             elif instruction in ['add', 'mul', 'mod', 'div', 'eql']:
@@ -158,12 +175,13 @@ class Alu:
 
                 try:
                     setattr(self, var, func(getattr(self, var), value))
-                except ValueError as e:
-                    # print(e)
-                    self.z = 999
-                    break
+                except ValueError:
+                    return False
             else:
                 raise ValueError(f"Unknown instruction {instruction}.")
+
+            # increase command index
+            self.command_i += 1
 
 
 def is_valid(fourteen_digit_number):
@@ -213,34 +231,34 @@ def create_dataset(n: int = int(1e3)):
 
 
 if __name__ == '__main__':
-    # Sample data
-    SAMPLES = ("""inp x
-mul x -1""",
-               """inp z
-inp x
-mul z 3
-eql z x""",
-               """inp w
-add z w
-mod z 2
-div w 2
-add y w
-mod y 2
-div w 2
-add x w
-mod x 2
-div w 2
-mod w 2""")
-    for sample in SAMPLES:
-        commands = parse_data(sample)
-        alu = Alu(commands, inputs=[3, 3])
-        alu.execute_commands()
-        print(alu.z)
-
-    n = 13579246899999
-    inputs = map(int, str(n))
-    result = is_valid(inputs)
-    print(f'{n} is valid??', result)
+#     # Sample data
+#     SAMPLES = ("""inp x
+# mul x -1""",
+#                """inp z
+# inp x
+# mul z 3
+# eql z x""",
+#                """inp w
+# add z w
+# mod z 2
+# div w 2
+# add y w
+# mod y 2
+# div w 2
+# add x w
+# mod x 2
+# div w 2
+# mod w 2""")
+#     for sample in SAMPLES:
+#         commands = parse_data(sample)
+#         alu = Alu(commands, inputs=[3, 3])
+#         alu.execute_commands()
+#         print(alu.z)
+#
+#     n = 13579246899999
+#     inputs = map(int, str(n))
+#     result = is_valid(inputs)
+#     print(f'{n} is valid??', result)
 
     # Actual data
     RAW = load_data('input.txt')
@@ -254,24 +272,52 @@ mod w 2""")
     # plt.savefig('test.png')
     # print(pd.Series(y).describe())
 
-    # Part 1
-    alu = StringAlu(commands=commands)
-    alu.execute_commands()
-    print(alu.z)
-    print(len(alu.z))
+    # We know that each input can only be in range(1, 10)
+    # use each one as input and see how values for each of x, y, z, w change. possible maybe are the same for each input
+    pq = PriorityQueue()
+    alu = Alu(commands, inputs=list())
+    pq.put((0, alu))
+    digits = list(range(9, 0, -1))
+    digit_i = 0
+    n_checked = 0
+    while pq:
+        _, alu = pq.get()
 
-    for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
-        print(i, l)
+        # add another digit to the object with the best priority
+        for digit in digits:
+            new_object = deepcopy(alu)
+            new_object.inputs.append(digit)
+            runs_correct = new_object.execute_commands()
 
-s = 'adventofcode'
-len(s)
-from collections import Counter
+            if n_checked % 10000 == 0:
+                print(n_checked)
+                print(new_object.inputs)
+            n_checked += 1
 
-Counter(s)
-for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
-    print(i, l)
-
-        # part1()
+            if runs_correct:
+                prio = -1 * int(''.join(map(str, new_object.inputs)))
+                pq.put((prio, new_object))
 
 
-    # Part 2
+    # for i in product(range(1, 10), repeat=2):
+    #     print(i)
+    #
+    #     alu.execute_commands()
+    #     print(alu)
+
+    # # Part 1
+    # alu = StringAlu(commands=commands)
+    # alu.execute_commands()
+    # print(alu.z)
+    # print(len(alu.z))
+
+#     for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
+#         print(i, l)
+#
+# s = 'adventofcode'
+# len(s)
+# from collections import Counter
+#
+# Counter(s)
+# for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
+#     print(i, l)
