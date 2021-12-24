@@ -1,3 +1,4 @@
+import re
 from itertools import product
 from typing import List
 import numpy as np
@@ -45,6 +46,10 @@ class StringAlu:
             return b
         elif b == '1':
             return a
+        elif a == '0':
+            return '0'
+        elif b == '0':
+            return '0'
         return f'({a} * {b})'
 
     @staticmethod
@@ -65,12 +70,40 @@ class StringAlu:
 
     @staticmethod
     def eql(a, b):
-        if b.startswith('INP'):
-            out = f'({a} in range(1, 10))'
-            try:
-                return str(eval(out) * 1)
-            except:
-                pass
+        # equal is a bit more complex to evaluate if it contains an input. input can be between 1 and 9. we can try
+        # all options and if they all yield the same value, then we return that
+        base_out = f'({a} == {b})'
+        # print('base', base_out)
+        answers = list()
+        pattern = re.compile(r'INP_\d{2}')
+        inputs = list(set(pattern.findall(base_out)))
+        if inputs:
+            print(len(inputs))
+            for substitutions in product(range(1, 10), repeat=len(inputs)):
+                # print(substitutions)
+                try:
+                    adjusted = base_out
+                    # loop over all inputs that need to be substituted
+                    for sub_i, sub in enumerate(substitutions):
+                        adjusted = adjusted.replace(inputs[sub_i], str(sub))
+                    # all inputs are adjusted, now evaluate the expression
+                    answer = eval(adjusted)
+                except Exception as e:
+                    print(e)
+                    print(base_out, '\n', adjusted)
+                    return base_out
+                answers.append(answer)
+            # print(answers)
+            if all(answers):
+                print(all(answers))
+                return '1'
+            elif not any(answers):
+                print(all(answers))
+                return '0'
+            else:
+                print('mix of true and false')
+                print(answers)
+
         return f'({a} == {b})'
 
     def execute_commands(self):
@@ -100,9 +133,8 @@ class StringAlu:
                 setattr(self, var, result)
             else:
                 raise ValueError(f"Unknown instruction {instruction}.")
-            print(self)
-            print(alu.z)
-            input()
+            # print(self)
+            # input()
 
 
 class Alu:
@@ -230,6 +262,40 @@ def create_dataset(n: int = int(1e3)):
     return X, y
 
 
+def part1_via_prio_queue():
+    # We know that each input can only be in range(1, 10)
+    # use each one as input and see how values for each of x, y, z, w change. possible maybe are the same for each input
+    pq = PriorityQueue()
+    alu = Alu(commands, inputs=list())
+    pq.put((0, alu))
+    digits = list(range(9, 0, -1))
+    n_checked = 0
+    while pq:
+        _, alu = pq.get()
+
+        # add another digit to the object with the best priority
+        for digit in digits:
+            new_object = deepcopy(alu)
+            new_object.inputs.append(digit)
+            runs_correct = new_object.execute_commands()
+
+            if n_checked % 10000 == 0:
+                print(n_checked)
+                print(new_object.inputs)
+            n_checked += 1
+
+            if runs_correct:
+                prio = -1 * int(''.join(map(str, new_object.inputs)))
+                pq.put((prio, new_object))
+
+
+def part1_via_string_alu():
+    alu = StringAlu(commands=commands)
+    alu.execute_commands()
+    print(alu.z)
+    print(len(alu.z))
+
+
 if __name__ == '__main__':
 #     # Sample data
 #     SAMPLES = ("""inp x
@@ -272,52 +338,6 @@ if __name__ == '__main__':
     # plt.savefig('test.png')
     # print(pd.Series(y).describe())
 
-    # We know that each input can only be in range(1, 10)
-    # use each one as input and see how values for each of x, y, z, w change. possible maybe are the same for each input
-    pq = PriorityQueue()
-    alu = Alu(commands, inputs=list())
-    pq.put((0, alu))
-    digits = list(range(9, 0, -1))
-    digit_i = 0
-    n_checked = 0
-    while pq:
-        _, alu = pq.get()
+    # part1_via_prio_queue()
 
-        # add another digit to the object with the best priority
-        for digit in digits:
-            new_object = deepcopy(alu)
-            new_object.inputs.append(digit)
-            runs_correct = new_object.execute_commands()
-
-            if n_checked % 10000 == 0:
-                print(n_checked)
-                print(new_object.inputs)
-            n_checked += 1
-
-            if runs_correct:
-                prio = -1 * int(''.join(map(str, new_object.inputs)))
-                pq.put((prio, new_object))
-
-
-    # for i in product(range(1, 10), repeat=2):
-    #     print(i)
-    #
-    #     alu.execute_commands()
-    #     print(alu)
-
-    # # Part 1
-    # alu = StringAlu(commands=commands)
-    # alu.execute_commands()
-    # print(alu.z)
-    # print(len(alu.z))
-
-#     for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
-#         print(i, l)
-#
-# s = 'adventofcode'
-# len(s)
-# from collections import Counter
-#
-# Counter(s)
-# for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
-#     print(i, l)
+    part1_via_string_alu()
