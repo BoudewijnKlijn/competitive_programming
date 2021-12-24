@@ -17,6 +17,92 @@ def parse_data(raw_data: str):
     return commands
 
 
+class StringAlu:
+    def __init__(self, commands: List[List[str]]):
+        self.x = '0'
+        self.y = '0'
+        self.z = '0'
+        self.w = '0'
+        self.commands = commands
+        self.inputs = [f'INP_' + str(i).zfill(2) for i in range(14)]
+
+    def __repr__(self):
+        return f'{self.x=}\n{self.y=}\n{self.z=}\n{self.w=}'
+
+    @staticmethod
+    def add(a, b):
+        if a == '0':
+            return b
+        elif b == '0':
+            return a
+        return f'({a} + {b})'
+
+    @staticmethod
+    def mul(a, b):
+        if a == '1':
+            return b
+        elif b == '1':
+            return a
+        return f'({a} * {b})'
+
+    @staticmethod
+    def div(a, b):
+        if a == '0':
+            return a
+        if b == '1':
+            return a
+        elif b == '0':
+            return 'ERROR'
+        return f'({a} // {b})'
+
+    @staticmethod
+    def mod(a, b):
+        if b == 1:
+            return a
+        return f'({a} % {b})'
+
+    @staticmethod
+    def eql(a, b):
+        if b.startswith('INP'):
+            out = f'({a} in range(1, 10))'
+            try:
+                return str(eval(out) * 1)
+            except:
+                pass
+        return f'({a} == {b})'
+
+    def execute_commands(self):
+        for j, cmd in enumerate(self.commands):
+            print(f'{j}: {cmd}')
+            instruction = cmd[0]
+            var = cmd[1]
+            if instruction == 'inp':
+                value = self.inputs.pop(0)
+                setattr(self, var, value)
+            elif instruction in ['add', 'mul', 'mod', 'div', 'eql']:
+                func = getattr(self, instruction)
+                try:
+                    value = int(cmd[2])
+                except ValueError:
+                    value = getattr(self, cmd[2])
+                value = str(value)
+
+                # evaluate the expression
+                result = func(getattr(self, var), value)
+                try:
+                    tmp = eval(result)
+                    if isinstance(tmp, int):
+                        result = str(int(tmp))
+                except:
+                    pass
+                setattr(self, var, result)
+            else:
+                raise ValueError(f"Unknown instruction {instruction}.")
+            print(self)
+            print(alu.z)
+            input()
+
+
 class Alu:
     def __init__(self, commands: List[List[str]], inputs: List[int]):
         self.x = 0
@@ -25,7 +111,6 @@ class Alu:
         self.w = 0
         self.commands = commands
         self.inputs = inputs
-        # print(int(''.join(map(str, self.inputs))))
 
     def __repr__(self):
         return f"{self.x}, {self.y}, {self.z}, {self.w}"
@@ -170,7 +255,23 @@ mod w 2""")
     # print(pd.Series(y).describe())
 
     # Part 1
-    part1()
+    alu = StringAlu(commands=commands)
+    alu.execute_commands()
+    print(alu.z)
+    print(len(alu.z))
+
+    for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
+        print(i, l)
+
+s = 'adventofcode'
+len(s)
+from collections import Counter
+
+Counter(s)
+for i, l in enumerate('abcdefghijklmnopqrstuvwxyz'):
+    print(i, l)
+
+        # part1()
 
 
     # Part 2
