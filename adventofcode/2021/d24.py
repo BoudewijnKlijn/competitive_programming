@@ -1,5 +1,5 @@
-from typing import List, Tuple
 from itertools import product
+from typing import List
 
 
 def load_data(filename: str) -> str:
@@ -22,6 +22,7 @@ class Alu:
         self.w = 0
         self.commands = commands
         self.inputs = inputs
+        # print(int(''.join(map(str, self.inputs))))
 
     def __repr__(self):
         return f"{self.x}, {self.y}, {self.z}, {self.w}"
@@ -38,7 +39,7 @@ class Alu:
     def div(a, b):
         if b == 0:
             raise ValueError(f"{b} is zero")
-        return a // b
+        return int(a / b)  # using // does not truncate towards zero
 
     @staticmethod
     def mod(a, b):
@@ -71,22 +72,28 @@ class Alu:
                 raise ValueError(f"Unknown instruction {instruction}.")
 
 
+def is_valid(fourteen_digit_number):
+    alu = Alu(commands=commands, inputs=list(fourteen_digit_number))
+    alu.execute_commands()
+    valid = alu.z == 0
+    if valid:
+        print('input', fourteen_digit_number)
+        print('z', alu.z)
+    return valid
+
+
 def part1():
-    commands = parse_data(RAW)
-    max_number = None
-    for i, fourteen_digit_number in enumerate(product(range(1, 10), repeat=14)):
-        if i < 1514000:
+    max_valid_number = None
+    start = 0
+    for i, fourteen_digit_number in enumerate(product(range(2, 10), repeat=14), start=0):
+        if i < start:
             continue
         if i % 1000 == 0:
             print(i)
-        alu = Alu(commands, inputs=list(fourteen_digit_number))
-        alu.execute_commands()
-        print('z', alu.z)
-        if alu.z == 0:
-            # Valid fourteen digit number
+        if is_valid(fourteen_digit_number):
             number = int(''.join(map(str, fourteen_digit_number)))
-            if max_number is None or number > max_number:
-                max_number = number
+            if max_valid_number is None or number > max_valid_number:
+                max_valid_number = number
                 print(f"{number} is the new max")
 
 
@@ -113,12 +120,18 @@ mod w 2""")
         commands = parse_data(sample)
         alu = Alu(commands, inputs=[3, 3])
         alu.execute_commands()
+        print(alu.z)
+
+    n = 13579246899999
+    inputs = map(int, str(n))
+    result = is_valid(inputs)
+    print(f'{n} is valid??', result)
 
     # Actual data
     RAW = load_data('input.txt')
-    data = parse_data(RAW)
-    part1()
+    commands = parse_data(RAW)
 
     # Part 1
+    part1()
 
     # Part 2
