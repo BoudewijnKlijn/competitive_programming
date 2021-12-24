@@ -1,5 +1,8 @@
 from itertools import product
 from typing import List
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def load_data(filename: str) -> str:
@@ -67,7 +70,13 @@ class Alu:
                     value = int(cmd[2])
                 except ValueError:
                     value = getattr(self, cmd[2])
-                setattr(self, var, func(getattr(self, var), value))
+
+                try:
+                    setattr(self, var, func(getattr(self, var), value))
+                except ValueError as e:
+                    # print(e)
+                    self.z = 999
+                    break
             else:
                 raise ValueError(f"Unknown instruction {instruction}.")
 
@@ -82,10 +91,19 @@ def is_valid(fourteen_digit_number):
     return valid
 
 
+def gen_fourteen_digit_number(n: int = int(1e5)):
+    # this is sorted and does not change output
+    # return product(range(1, 10), repeat=14)
+
+    # this is random, yields more insights
+    return np.random.randint(1, 10, size=(n, 14))
+
+
 def part1():
     max_valid_number = None
     start = 0
-    for i, fourteen_digit_number in enumerate(product(range(2, 10), repeat=14), start=0):
+    for i, fourteen_digit_number in enumerate(iter(gen_fourteen_digit_number()), start=0):
+        print(i, fourteen_digit_number)
         if i < start:
             continue
         if i % 1000 == 0:
@@ -95,6 +113,18 @@ def part1():
             if max_valid_number is None or number > max_valid_number:
                 max_valid_number = number
                 print(f"{number} is the new max")
+
+
+def create_dataset(n: int = int(1e3)):
+    X = gen_fourteen_digit_number(n)
+    y = np.zeros((n))
+    for i, fourteen_digit_number in enumerate(iter(X)):
+        if i % 1000 == 0:
+            print(i)
+        alu = Alu(commands=commands, inputs=list(fourteen_digit_number))
+        alu.execute_commands()
+        y[i] = alu.z
+    return X, y
 
 
 if __name__ == '__main__':
@@ -132,6 +162,15 @@ mod w 2""")
     commands = parse_data(RAW)
 
     # Part 1
+    # X, y = create_dataset()
+    # plt.plot(y)
+    # fig, ax = plt.subplots(1, 1)
+    # plt.semilogy(y, ax=ax)
+    # plt.savefig('test.png')
+    # print(pd.Series(y).describe())
+
+    # Part 1
     part1()
+
 
     # Part 2
