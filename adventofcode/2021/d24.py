@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from queue import PriorityQueue
 from copy import deepcopy
+from collections import Counter
 
 
 def load_data(filename: str) -> str:
@@ -59,11 +60,18 @@ class StringAlu:
         if b == '1':
             return a
         elif b == '0':
-            return 'ERROR'
-        return f'({a} // {b})'
+            raise ValueError(f"{b} is zero")
+        return f'int({a} / {b})'  # NOT ENTIRELY CORRECT: using // does not truncate towards zero
 
     @staticmethod
     def mod(a, b):
+        try:
+            if eval(a) < 0:
+                raise ValueError(f"{a} is negative")
+            elif eval(b) <= 0:
+                raise ValueError(f"{b} is non-positive")
+        except NameError:
+            pass
         if b == 1:
             return a
         return f'({a} % {b})'
@@ -79,6 +87,8 @@ class StringAlu:
         inputs = list(set(pattern.findall(base_out)))
         if inputs:
             print(len(inputs))
+            # all answers have to be the same so if one is different we can no longer draw conclusions
+            first_answer = None
             for substitutions in product(range(1, 10), repeat=len(inputs)):
                 # print(substitutions)
                 try:
@@ -92,6 +102,13 @@ class StringAlu:
                     print(e)
                     print(base_out, '\n', adjusted)
                     return base_out
+
+                if first_answer is None:
+                    first_answer = answer
+                if answer != first_answer:
+                    print('v2: mix of true and false')
+                    return base_out
+
                 answers.append(answer)
             # print(answers)
             if all(answers):
@@ -101,8 +118,9 @@ class StringAlu:
                 print(all(answers))
                 return '0'
             else:
-                print('mix of true and false')
-                print(answers)
+                # can no longer get to this code
+                print('v1: mix of true and false')
+                print(Counter(answers))
 
         return f'({a} == {b})'
 
@@ -133,7 +151,7 @@ class StringAlu:
                 setattr(self, var, result)
             else:
                 raise ValueError(f"Unknown instruction {instruction}.")
-            # print(self)
+            print(self)
             # input()
 
 
