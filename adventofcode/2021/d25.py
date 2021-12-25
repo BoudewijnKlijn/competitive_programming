@@ -89,7 +89,7 @@ v.v..>>v.v
     assert part1() == 58
 
     # Actual data
-    RAW = load_data('input.txt')
+    RAW = load_data('day25.txt')
     ROWS = len(RAW.strip().split('\n'))
     COLS = len(RAW.strip().split('\n')[0])
     h_destination, v_destination = make_destinations()
