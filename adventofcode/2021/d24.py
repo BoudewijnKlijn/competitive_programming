@@ -22,13 +22,17 @@ def parse_data(raw_data: str):
 
 
 class StringAlu:
-    def __init__(self, commands: List[List[str]]):
+    def __init__(self, commands: List[List[str]], x_w_evaluations):
         self.x = '0'
         self.y = '0'
         self.z = '0'
         self.w = '0'
         self.commands = commands
         self.inputs = [f'INP_' + str(i).zfill(2) for i in range(14)]
+        self.x_w_evaluations = x_w_evaluations
+
+        # Instead of calculating all eql x w, eql x 0 lines, we can just assume that they first one is false, then the
+        # second one is true. and vice versa. this yields only 2**14 = 16384 possible combinations.
 
     def __repr__(self):
         return f'{self.x=}\n{self.y=}\n{self.z=}\n{self.w=}'
@@ -86,7 +90,7 @@ class StringAlu:
         pattern = re.compile(r'INP_\d{2}')
         inputs = list(set(pattern.findall(base_out)))
         if inputs:
-            print(len(inputs))
+            # print(len(inputs))
             # all answers have to be the same so if one is different we can no longer draw conclusions
             first_answer = None
             for substitutions in product(range(1, 10), repeat=len(inputs)):
@@ -100,7 +104,7 @@ class StringAlu:
                     answer = eval(adjusted)
                 except Exception as e:
                     print(e)
-                    print(base_out, '\n', adjusted)
+                    # print(base_out, '\n', adjusted)
                     return base_out
 
                 if first_answer is None:
@@ -124,6 +128,32 @@ class StringAlu:
 
         return f'({a} == {b})'
 
+    # all with only zeros as w==x
+    # first four times eql x w all false
+    # 5th: line 78: true if inp3 == inp4 otherwise false
+    # self.x='(((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) % 26) + -6)'
+    # self.w='INP_04'
+    # 7th: line 132: true if inp06 == (inp07 + 6) (since inp 1-9 only 3 options)
+    # self.x='((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) % 26) + 13)'
+    # self.w='INP_07'
+    # 8th line 150: true if (inp07 - 4) == inp08
+    # 150: ['eql', 'x', 'w']
+    # self.x='((((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) * 26) + (INP_07 + 12)) % 26) + -8)'
+    # self.w='INP_08'
+    # 9th: line 168: true if inp8 == inp9
+    # self.x='((((int(((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) * 26) + (INP_07 + 12)) / 26) * 26) + (INP_08 + 15)) % 26) + -15)'
+    # self.w='INP_09'
+    # 10th: line 204 true of (inp10 + 5) == inp11
+    # self.x='((((((int(((int(((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) * 26) + (INP_07 + 12)) / 26) * 26) + (INP_08 + 15)) / 26) * 26) + (INP_09 + 3)) * 26) + (INP_10 + 6)) % 26) + -11)'
+    # self.w='INP_11'
+    # 13th line 222: true if (inp11 - 11) == inp12
+    # self.x='((((int(((((int(((int(((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) * 26) + (INP_07 + 12)) / 26) * 26) + (INP_08 + 15)) / 26) * 26) + (INP_09 + 3)) * 26) + (INP_10 + 6)) / 26) * 26) + (INP_11 + 2)) % 26) + -13)'
+    # self.w='INP_12'
+    # 14th line 240: true if (inp12 + 6) == inp13
+    # self.x='((((int(((int(((((int(((int(((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) * 26) + (INP_07 + 12)) / 26) * 26) + (INP_08 + 15)) / 26) * 26) + (INP_09 + 3)) * 26) + (INP_10 + 6)) / 26) * 26) + (INP_11 + 2)) / 26) * 26) + (INP_12 + 10)) % 26) + -4)'
+    # self.w='INP_13'
+
+
     def execute_commands(self):
         for j, cmd in enumerate(self.commands):
             print(f'{j}: {cmd}')
@@ -132,6 +162,10 @@ class StringAlu:
             if instruction == 'inp':
                 value = self.inputs.pop(0)
                 setattr(self, var, value)
+            elif var == 'x' and cmd[2] == 'w':
+                print(f'{self.x=}\n{self.w=}')
+                self.x = self.x_w_evaluations.pop(0)
+                print(f'X is set to: {self.x}')
             elif instruction in ['add', 'mul', 'mod', 'div', 'eql']:
                 func = getattr(self, instruction)
                 try:
@@ -152,7 +186,7 @@ class StringAlu:
             else:
                 raise ValueError(f"Unknown instruction {instruction}.")
             print(self)
-            # input()
+            input()
 
 
 class Alu:
@@ -308,10 +342,17 @@ def part1_via_prio_queue():
 
 
 def part1_via_string_alu():
-    alu = StringAlu(commands=commands)
-    alu.execute_commands()
-    print(alu.z)
-    print(len(alu.z))
+    # the first four have to be false. since for every inputs x is not w
+    all_x_w_evaluations = product(['0', '1'], repeat=10)
+    for i, x_w_evaluations in enumerate(all_x_w_evaluations):
+        print(i)
+        x_w_evaluations = ['0']*4 + list(x_w_evaluations)
+        print('ASSUMED X == W', x_w_evaluations)
+        print('')
+        alu = StringAlu(commands=commands, x_w_evaluations=x_w_evaluations)
+        alu.execute_commands()
+        print('AFTER ALL COMMANDS', alu)
+        break
 
 
 if __name__ == '__main__':
