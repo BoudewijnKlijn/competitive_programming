@@ -1,11 +1,5 @@
 import itertools
-from dataclasses import dataclass
-import re
-from typing import List, Tuple, Union
-from collections import defaultdict
-from itertools import cycle
-from collections import Counter
-import numpy as np
+from typing import Tuple
 
 
 def load_data(filename: str) -> str:
@@ -22,12 +16,11 @@ def parse_data(raw_data: str):
                 east_facing_cucumbers.add((r, c))
             elif char == 'v':
                 south_facing_cucumbers.add((r, c))
-
     return east_facing_cucumbers, south_facing_cucumbers
 
 
-def make_paths():
-    """Cucumber may only move forward and face east or south, so they only move to the right or to the bottom."""
+def make_destinations():
+    """Cucumbers only move forward and face east or south, so they only move to the right or to the bottom."""
     h_destination = dict()
     v_destination = dict()
     for r in range(ROWS):
@@ -38,25 +31,26 @@ def make_paths():
 
 
 def do_step(east_facing_cucumbers: set, south_facing_cucumbers: set) -> Tuple[set, set]:
-    """Cucumber facing the same direction all move at the same time."""
-    # first the east facing cucumbers move
+    """Cucumbers facing the same direction all move at the same time.
+    Cucumber facing east move before the ones facing south."""
+    # First the east facing cucumbers move.
     new_east_facing_cucumbers = set()
     for r, c in east_facing_cucumbers:
         destination = h_destination[(r, c)]
         if destination in south_facing_cucumbers or destination in east_facing_cucumbers:
-            # The spot is occupied. The cucumber cannot move to destination, so stays at current spot.
+            # The destination is occupied, so the cucumber cannot move and stays at current location.
             new_east_facing_cucumbers.add((r, c))
         else:
             # The spot is empty. The cucumber moves to destination.
             new_east_facing_cucumbers.add(destination)
 
-    # then the south facing cucumbers move
+    # Then the south facing cucumbers move.
     new_south_facing_cucumbers = set()
     for r, c in south_facing_cucumbers:
         destination = v_destination[(r, c)]
-        # Use the update locations of east facing cucumbers to check if the destination is occupied.
+        # Use the updated locations of east facing cucumbers to check if the destination is occupied.
         if destination in south_facing_cucumbers or destination in new_east_facing_cucumbers:
-            # The spot is occupied. The cucumber cannot move to destination, so stays at current spot.
+            # The destination is occupied, so the cucumber cannot move and stays at current location.
             new_south_facing_cucumbers.add((r, c))
         else:
             # The spot is empty. The cucumber moves to destination.
@@ -89,7 +83,7 @@ v.v..>>v.v
 ....v..v.>"""
     ROWS = len(RAW.strip().split('\n'))
     COLS = len(RAW.strip().split('\n')[0])
-    h_destination, v_destination = make_paths()
+    h_destination, v_destination = make_destinations()
 
     # Assert solution is correct
     assert part1() == 58
@@ -98,9 +92,7 @@ v.v..>>v.v
     RAW = load_data('input.txt')
     ROWS = len(RAW.strip().split('\n'))
     COLS = len(RAW.strip().split('\n')[0])
-    h_destination, v_destination = make_paths()
+    h_destination, v_destination = make_destinations()
 
     # Part 1
-    print(part1())
-
-    # Part 2
+    print(f"Part 1: {part1()}")
