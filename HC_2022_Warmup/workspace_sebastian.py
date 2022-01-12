@@ -10,6 +10,8 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'input')
+    output_directory = os.path.join(THIS_PATH, 'output')
+
     files = glob.glob(os.path.join(directory, "*.txt"))
     files = sorted(files)
     # problem_file = 'a_an_example.in.txt'
@@ -28,6 +30,11 @@ if __name__ == '__main__':
 
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
         print("----------------------")
+
+        out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-sebastian.txt'
+        print(f'Writing {out_file}')
+
+        solution.save(os.path.join(output_directory, out_file))
 
     print("----------------------")
     print("----------------------")
