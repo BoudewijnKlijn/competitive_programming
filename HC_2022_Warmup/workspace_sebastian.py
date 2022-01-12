@@ -12,7 +12,7 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'input')
     files = glob.glob(os.path.join(directory, "*.txt"))
-
+    files = sorted(files)
     #problem_file = 'a_an_example.in.txt'
     for problem_file in files:
         print(f"Trying to solve file: {problem_file}")

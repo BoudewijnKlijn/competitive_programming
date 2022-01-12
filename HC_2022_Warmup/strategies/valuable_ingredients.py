@@ -22,7 +22,7 @@ class ValuableIngredients(Strategy):
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
         valuable_ingredients = self._get_valuable_ingredients(input_data.customers)
-        print(f"Ingredient values: {valuable_ingredients}")
+        #print(f"Ingredient values: {valuable_ingredients}")
         highest_score = 0
         current_ingredients = []
         for ingredient, value in valuable_ingredients.items():
@@ -33,6 +33,6 @@ class ValuableIngredients(Strategy):
 
             if score <= highest_score:
                 break
-        print(f"Final ingredients: {current_ingredients}")
+        #print(f"Final ingredients: {current_ingredients}")
         # chosen = self.random.sample(ingredients, self.nr_ingredients)
         return PerfectPizza(current_ingredients)
