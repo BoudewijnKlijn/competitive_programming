@@ -6,7 +6,7 @@ from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
 from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
-from valcon.strategies import BruteForceSlidesStrategy
+
 from valcon import OutputData
 from valcon import Strategy
 
@@ -108,4 +108,3 @@ if __name__ == '__main__':
 
     print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
     # print(f'Slides: {solution}')
-    
