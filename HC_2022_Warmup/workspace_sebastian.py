@@ -12,14 +12,14 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'input')
     files = glob.glob(os.path.join(directory, "*.txt"))
-    
+
     #problem_file = 'a_an_example.in.txt'
     for problem_file in files:
         print(f"Trying to solve file: {problem_file}")
         demands = PizzaDemands(os.path.join(directory, problem_file))
 
         scorer = PerfectPizzaScore(demands)
-        strategy = ValuableIngredients(scorer,  seed=27, nr_ingredients=3)
+        strategy = ValuableIngredients(scorer,  seed=27)
         start = time.perf_counter()
         solution = strategy.solve(demands)
         duration = time.perf_counter() - start
