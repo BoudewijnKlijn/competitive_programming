@@ -24,4 +24,7 @@ if __name__ == '__main__':
 
     print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
 
-    solution.save(os.path.join(output_directory, f'{problem_file[0]}-{score}-boudewijn.txt'))
+    out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-boudewijn.txt'
+    print(f'Writing {out_file}')
+
+    solution.save(os.path.join(output_directory, out_file))
