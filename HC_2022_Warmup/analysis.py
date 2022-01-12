@@ -24,8 +24,10 @@ if __name__ == '__main__':
             unique_likes.update(Counter(customer.likes))
             count_likes = Counter(unique_likes.values())
             unique_dislikes.update(Counter(customer.dislikes))
+            count_dislikes = Counter(unique_dislikes.values())
 
         print(f'\n{problem_file}\n{len(unique_likes.keys()):8d} likes, {len(unique_dislikes.keys()):8d} dislikes')
         print(f'{n_most_common} most common LIKES: {unique_likes.most_common(n_most_common)}')
         print(f'{n_most_common} most common DISLIKES: {unique_dislikes.most_common(n_most_common)}')
         print(f'Occurrences of occurrences {json.dumps(dict(sorted(count_likes.items())), indent=4)}')
+        print(f'Occurrences of occurrences {json.dumps(dict(sorted(count_dislikes.items())), indent=4)}')
