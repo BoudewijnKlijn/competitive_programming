@@ -16,7 +16,7 @@ from HC_2019_Qualification.slides import Slides
 
 start_time = time.time()
 
-file_path = os.path.join('', 'input', 'b_lovely_landscapes.txt')
+file_path = os.path.join('input', 'b_lovely_landscapes.txt')
 with open(file_path, 'r') as f:
     file_contents = f.read()
 

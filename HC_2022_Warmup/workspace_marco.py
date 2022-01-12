@@ -1,6 +1,7 @@
 import os
 import time
 import glob
+from random import randint
 
 from HC_2019_Qualification.workspace_marco import flatten
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
@@ -8,6 +9,7 @@ from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
 from HC_2022_Warmup.strategies import RandomIngredients
 from valcon import Strategy, InputData, OutputData
+from valcon.utils import best_score
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -59,11 +61,15 @@ if __name__ == '__main__':
 
     files = glob.glob(os.path.join(directory, "*.txt"))
 
+    current_best = best_score(output_directory)
+
     # problem_file = 'a_an_example.in.txt'
     for problem_file in files:
+        problem = os.path.basename(problem_file)[0]
         demands = PizzaDemands(os.path.join(directory, problem_file))
         scorer = PerfectPizzaScore(demands)
-        strategy = RandomIngredients()  # ScoredIngredients(seed=27, scorer=scorer)
+        strategy = ScoredIngredients(seed=27,
+                                     scorer=scorer)  # RandomIngredients(randint(0, 100000))  # ScoredIngredients(seed=27, scorer=scorer)
         start = time.perf_counter()
         solution = strategy.solve(demands)
         duration = time.perf_counter() - start
@@ -72,7 +78,10 @@ if __name__ == '__main__':
 
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
 
-        out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-marco.txt'
+        out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-{strategy.name}.txt'
         print(f'Writing {out_file}')
 
-        solution.save(os.path.join(output_directory, out_file))
+        if current_best[problem] < score:
+            solution.save(os.path.join(output_directory, out_file))
+
+    print(best_score(output_directory))

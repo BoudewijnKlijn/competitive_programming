@@ -7,6 +7,9 @@ class PerfectPizza(OutputData):
 
     def save(self, filename: str):
         with open(filename, 'w') as file:
-            ingredients = ' '.join(self.ingredients)
+            list_form = list(self.ingredients)
+            sorted(list_form)
+
+            ingredients = ' '.join(list_form)
             count = len(self.ingredients)
             file.write(f'{count} {ingredients}')
