@@ -5,12 +5,12 @@ from valcon.utils import flatten
 
 
 class ValuableIngredients(Strategy):
-    def __init__(self, scorer, seed=None, nr_ingredients=5):
+    def __init__(self, scorer, seed=None):
         super().__init__(seed)
-        self.nr_ingredients = nr_ingredients
         self.scorer = scorer
 
-    def _get_valuable_ingredients(self, customers: [Customer]):
+    @staticmethod
+    def _get_valuable_ingredients(customers: [Customer]):
         ingredients = set(flatten(customer.likes for customer in customers))
         ingredient_counts = {}
         for ingredient in ingredients:
@@ -33,5 +33,6 @@ class ValuableIngredients(Strategy):
 
             if score <= highest_score:
                 break
+        print(f"Final ingredients: {current_ingredients}")
         # chosen = self.random.sample(ingredients, self.nr_ingredients)
         return PerfectPizza(current_ingredients)
