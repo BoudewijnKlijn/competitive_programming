@@ -18,11 +18,11 @@ class ValuableIngredients(Strategy):
             nr_dislikes = sum([1 for customer in customers if ingredient in customer.dislikes])
             ingredient_counts[ingredient] = nr_likes - nr_dislikes
 
-        return dict(sorted(ingredient_counts.items(), key=lambda item: item[1]))
+        return dict(reversed(sorted(ingredient_counts.items(), key=lambda item: item[1])))
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
         valuable_ingredients = self._get_valuable_ingredients(input_data.customers)
-
+        print(f"Ingredient values: {valuable_ingredients}")
         highest_score = 0
         current_ingredients = []
         for ingredient, value in valuable_ingredients.items():
