@@ -15,7 +15,7 @@ from valcon.strategy import Strategy
 
 class GeneticStrategy(Strategy):
     def __init__(self, scorer: Scorer2019Q, start_seed=1, max_generations=1000, population_size=2, crossover_rate=0.5,
-                 mutation_rate=0.5):
+                 mutation_rate=0.5, nr_tournament_candidates=5):
         """
         Initializes a GeneticStrategy solver
 
@@ -28,6 +28,7 @@ class GeneticStrategy(Strategy):
             population_size (int): Population size per generation
             crossover_rate (float): Cross over rate (i.e. how much of the slides to use from parent1 and parent2)
             mutation_rate (float: Mutation rate (i.e. the probability of mutations per slide transition)
+            nr_tournament_candidates (int): Number of random candidates to use in tournament selection of parents
         """
         self.scorer = scorer
         self.start_seed = start_seed
@@ -36,10 +37,12 @@ class GeneticStrategy(Strategy):
         self.population_size = population_size
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
+        self.nr_tournament_candidates = nr_tournament_candidates
         params = {"Max_generations": max_generations,
                   "Population_size": population_size,
                   "Cross_over_rate": crossover_rate,
-                  "Mutation_rate": mutation_rate}
+                  "Mutation_rate": mutation_rate,
+                  "Nr_tournament_candidates": nr_tournament_candidates}
         print(f"Initialized GeneticStrategy with params: {params}")
 
     def _generate_initial_population(self, input_data: Pictures) -> [Slides]:
@@ -55,8 +58,7 @@ class GeneticStrategy(Strategy):
         return [RandomStrategy(self.start_seed + self.current_generation).solve(input_data) for _ in
                 range(0, self.population_size)]
 
-    @staticmethod
-    def _select_parents(population: [Slides], scores: [int], k=3):
+    def _select_parents(self, population: [Slides], scores: [int]):
         """
         Select parents from a population by taking a random candidate,
         then uses a tournament selection to get the best scoring candidate
@@ -64,14 +66,13 @@ class GeneticStrategy(Strategy):
         Args:
             population ([HC_2019_Qualification.slides]): Population of Slides
             scores ([int]): List of scores belonging to population
-            k (int): Number of random candidates to use in tournament selection
 
         Returns:
             [HC_2019_Qualification.slides]: Two Slides objects
         """
         # first random selection
         selection_ix = np.random.randint(len(population))
-        for ix in np.random.randint(0, len(population), k - 1):
+        for ix in np.random.randint(0, len(population), self.nr_tournament_candidates - 1):
             # check if better (e.g. perform a tournament)
             if scores[ix] > scores[selection_ix]:
                 selection_ix = ix
