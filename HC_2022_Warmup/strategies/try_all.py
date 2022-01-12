@@ -32,4 +32,8 @@ class TryAll(Strategy):
                 best_pizza = candidate_perfect_pizza
                 best_score = score
 
+            if i > 1000:
+                print('stop after 1000 tries')
+                break
+
         return best_pizza

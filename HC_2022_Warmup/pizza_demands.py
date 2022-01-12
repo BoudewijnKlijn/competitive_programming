@@ -23,8 +23,10 @@ class PizzaDemands(InputData):
         number = int(number)
 
         self.customers = []
+        self.unique_likes = set()
 
         for _ in range(number):
             likes_count, *likes = lines.pop(0).strip().split(' ')
             dislikes_count, *dislikes = lines.pop(0).strip().split(' ')
             self.customers.append(Customer(set(likes), set(dislikes)))
+            self.unique_likes.update(likes)
