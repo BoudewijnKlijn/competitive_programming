@@ -13,8 +13,13 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 from collections import Counter
 
+import heapq
+
 
 class ScoredIngredients(Strategy):
+    def __init__(self, seed, scorer: PerfectPizzaScore):
+        super().__init__(seed)
+        self.scorer = scorer
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
         likes_counts = Counter(flatten(customer.likes for customer in input_data.customers))
@@ -22,33 +27,52 @@ class ScoredIngredients(Strategy):
 
         ingredients = set(likes_counts.keys())
 
+        super_score = pow(len(ingredients) + 1, 2)
+
         ingredients_value = dict()
         for ingredient in ingredients:
-            ingredients_value[ingredient] = likes_counts[ingredient] - dislike_counts[ingredient]
+            if dislike_counts[ingredient] == 0:
+                ingredients_value[ingredient] = super_score
+            else:
+                ingredients_value[ingredient] = pow(likes_counts[ingredient], 2) - pow(dislike_counts[ingredient], 2)
 
-        import heapq
-        best = heapq.nlargest(5, ingredients_value, key=ingredients_value.get)
+        potential = heapq.nlargest(100, ingredients_value, key=ingredients_value.get)
+
+        # self.random.shuffle(potential)
+
+        current = [potential.pop(0)]
+
+        best = current.copy()
+        best_score = self.scorer.calculate(PerfectPizza(best))
+        while potential:
+            current.append(potential.pop(0))
+            if (score := self.scorer.calculate(PerfectPizza(current))) > best_score:
+                best = current.copy()
+                best_score = score
+
         return PerfectPizza(best)
 
 
 if __name__ == '__main__':
-    problem_file = 'b_basic.in.txt'
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
-    demands = PizzaDemands(os.path.join(directory, problem_file))
 
     files = glob.glob(os.path.join(directory, "*.txt"))
 
     # problem_file = 'a_an_example.in.txt'
     for problem_file in files:
-        strategy = ScoredIngredients(seed=27)
+        demands = PizzaDemands(os.path.join(directory, problem_file))
+        scorer = PerfectPizzaScore(demands)
+        strategy = RandomIngredients()  # ScoredIngredients(seed=27, scorer=scorer)
         start = time.perf_counter()
         solution = strategy.solve(demands)
         duration = time.perf_counter() - start
 
-        scorer = PerfectPizzaScore(demands)
         score = scorer.calculate(solution)
 
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
 
-        solution.save(os.path.join(output_directory, f'{problem_file[0]}-{score}-marco.txt'))
+        out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-marco.txt'
+        print(f'Writing {out_file}')
+
+        solution.save(os.path.join(output_directory, out_file))
