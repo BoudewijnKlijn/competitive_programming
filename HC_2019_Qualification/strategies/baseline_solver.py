@@ -2,7 +2,7 @@ from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.picture import Orientation
 from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
-from valcon.strategy import Strategy
+from valcon.strategies.strategy import Strategy
 
 
 class BaseLineStrategy(Strategy):

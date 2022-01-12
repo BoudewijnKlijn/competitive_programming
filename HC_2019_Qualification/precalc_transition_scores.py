@@ -16,7 +16,7 @@ from HC_2019_Qualification.slides import Slides
 
 start_time = time.time()
 
-file_path = os.path.join('HC_2019_Qualification', 'input', 'b_lovely_landscapes.txt')
+file_path = os.path.join('', 'input', 'b_lovely_landscapes.txt')
 with open(file_path, 'r') as f:
     file_contents = f.read()
 
@@ -48,7 +48,6 @@ intersection_matrix = matrix @ matrix.transpose()
 
 # Number of intersection with itself should be the number of tags.
 assert intersection_matrix.diagonal().tolist() == list(n_tags)
-
 
 # This gives COO format...
 lower = ss.tril(intersection_matrix, 0)
@@ -96,7 +95,8 @@ for score_row, score_col in zip(score_rows, score_cols):
     assert Scorer2019Q.calculate_transition(slide_a, slide_b) == 3
 
 c = Counter(score_rows)  # key=slide_id, value=number of non-zero transitions
-c2 = Counter(c.values())  # key=number of non-zero transitions, value=number of slides with that number of non-zero transitions
+c2 = Counter(
+    c.values())  # key=number of non-zero transitions, value=number of slides with that number of non-zero transitions
 
 assert sum(c2.values()) == 80000
 
@@ -184,7 +184,7 @@ def calc_score_for_start_slide(start_slide_id=None):
     return score
 
 
-max_score = (80000-1) * 3
+max_score = (80000 - 1) * 3
 best_score = 237888
 for start_slide in range(3321, 80000):
     score = calc_score_for_start_slide(start_slide)

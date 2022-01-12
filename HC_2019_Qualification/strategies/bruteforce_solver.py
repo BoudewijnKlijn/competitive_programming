@@ -1,13 +1,10 @@
-from random import Random
 import time
 
 from HC_2019_Qualification.Pictures import Pictures
-from HC_2019_Qualification.picture import Orientation
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
-from HC_2019_Qualification.slide import Slide
 from HC_2019_Qualification.slides import Slides
-from HC_2019_Qualification.strategies.random_solver import RandomStrategy
-from valcon.strategy import Strategy
+from HC_2019_Qualification.strategies.random_solver import RandomSolver
+from valcon.strategies.strategy import Strategy
 
 
 class BruteForceStrategy(Strategy):
@@ -18,7 +15,7 @@ class BruteForceStrategy(Strategy):
         self.current_attempt = 0
 
     def _attempt_randomly(self, input_data: Pictures) -> (Slides, int):
-        solution = RandomStrategy(self.start_seed + self.current_attempt).solve(input_data)
+        solution = RandomSolver(self.start_seed + self.current_attempt).solve(input_data)
         scorer = Scorer2019Q(input_data)
         return solution, scorer.calculate(solution)
 

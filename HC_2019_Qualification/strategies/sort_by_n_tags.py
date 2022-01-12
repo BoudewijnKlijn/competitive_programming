@@ -1,7 +1,7 @@
 from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.slides import Slides
 from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
-from valcon.strategy import Strategy
+from valcon.strategies.strategy import Strategy
 
 
 class SortByNTagsStrategy(Strategy):

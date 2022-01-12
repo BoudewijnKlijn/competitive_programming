@@ -9,8 +9,8 @@ from tqdm import tqdm
 from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
 from HC_2019_Qualification.slides import Slides
-from HC_2019_Qualification.strategies.random_solver import RandomStrategy
-from valcon.strategy import Strategy
+from HC_2019_Qualification.strategies.random_solver import RandomSolver
+from valcon.strategies.strategy import Strategy
 
 
 class GeneticStrategy(Strategy):
@@ -55,7 +55,7 @@ class GeneticStrategy(Strategy):
         Returns:
             [HC_2019_Qualification.slides]: List of slides (i.e. list of slidedecks)
         """
-        return [RandomStrategy(self.start_seed + self.current_generation).solve(input_data) for _ in
+        return [RandomSolver(self.start_seed + self.current_generation).solve(input_data) for _ in
                 range(0, self.population_size)]
 
     def _select_parents(self, population: [Slides], scores: [int]):

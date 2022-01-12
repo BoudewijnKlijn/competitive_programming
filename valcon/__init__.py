@@ -2,4 +2,4 @@
 
 from .input_data import InputData
 from .output_data import OutputData
-from .strategy import Strategy
+from valcon.strategies.strategy import Strategy

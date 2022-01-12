@@ -9,7 +9,7 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 def run_bruteforce_strategy():
-    directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
+    directory = os.path.join(THIS_PATH, '', 'input')
     input_data = Pictures(os.path.join(directory, 'b_lovely_landscapes.txt'))
 
     scorer = Scorer2019Q(input_data)
@@ -23,7 +23,7 @@ def run_bruteforce_strategy():
 
 
 if __name__ == '__main__':
-    directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
+    directory = os.path.join(THIS_PATH, '', 'input')
     input_path = os.path.join(directory, 'c_memorable_moments.txt')
     input_data = Pictures(input_path)
 

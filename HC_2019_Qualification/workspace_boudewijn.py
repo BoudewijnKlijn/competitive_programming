@@ -1,7 +1,7 @@
 import os
 
 from HC_2019_Qualification.strategies.sort_by_n_tags import SortByNTagsStrategy
-from HC_2019_Qualification.strategies.random_solver import RandomStrategy
+from HC_2019_Qualification.strategies.random_solver import RandomSolver
 from HC_2019_Qualification.strategies.random_into_sort import RandomThenSortByNTagsStrategy
 from HC_2019_Qualification.strategies.random_sort_flip import RandomSortFlipStrategy
 from HC_2019_Qualification.strategies.baseline_solver import BaseLineStrategy
@@ -12,7 +12,7 @@ from HC_2019_Qualification.scorer_2019_q import Scorer2019Q, get_non_zero_slide_
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 if __name__ == '__main__':
-    directory = os.path.join(THIS_PATH, 'HC_2019_Qualification', 'input')
+    directory = os.path.join(THIS_PATH, '', 'input')
     input_data = Pictures(os.path.join(directory,
                                        # 'a_example.txt'
                                        'b_lovely_landscapes.txt'
