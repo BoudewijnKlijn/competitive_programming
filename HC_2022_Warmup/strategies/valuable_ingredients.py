@@ -31,7 +31,7 @@ class ValuableIngredients(Strategy):
             score = self.scorer.calculate(PerfectPizza(current_ingredients))
             # print(f"Current score: {score}")
 
-            if score <= highest_score:
+            if score < highest_score:
                 break
         #print(f"Final ingredients: {current_ingredients}")
         # chosen = self.random.sample(ingredients, self.nr_ingredients)
