@@ -11,6 +11,6 @@ class PerfectPizzaScore(Scorer):
     def calculate(self, output_data: PerfectPizza) -> int:
         score = 0
         for customer in self.pizza_demands.customers:
-            if customer.will_oder(output_data):
+            if customer.will_order(output_data):
                 score += 1
         return score

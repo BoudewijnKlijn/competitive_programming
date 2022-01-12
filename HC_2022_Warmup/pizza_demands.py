@@ -9,7 +9,7 @@ class Customer:
     likes: set
     dislikes: set
 
-    def will_oder(self, pizza: PerfectPizza):
+    def will_order(self, pizza: PerfectPizza):
         if len(pizza.ingredients & self.likes) > 0 and len(pizza.ingredients & self.dislikes) == 0:
             return True
         return False
