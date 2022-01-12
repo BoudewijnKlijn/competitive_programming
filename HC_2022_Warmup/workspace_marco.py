@@ -1,5 +1,6 @@
 import os
 import time
+import glob
 
 from HC_2019_Qualification.workspace_marco import flatten
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
@@ -36,14 +37,18 @@ if __name__ == '__main__':
     output_directory = os.path.join(THIS_PATH, 'output')
     demands = PizzaDemands(os.path.join(directory, problem_file))
 
-    strategy = ScoredIngredients(seed=27)
-    start = time.perf_counter()
-    solution = strategy.solve(demands)
-    duration = time.perf_counter() - start
+    files = glob.glob(os.path.join(directory, "*.txt"))
 
-    scorer = PerfectPizzaScore(demands)
-    score = scorer.calculate(solution)
+    # problem_file = 'a_an_example.in.txt'
+    for problem_file in files:
+        strategy = ScoredIngredients(seed=27)
+        start = time.perf_counter()
+        solution = strategy.solve(demands)
+        duration = time.perf_counter() - start
 
-    print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
+        scorer = PerfectPizzaScore(demands)
+        score = scorer.calculate(solution)
 
-    solution.save(os.path.join(output_directory, f'{problem_file[0]}-{score}-marco.txt'))
+        print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
+
+        solution.save(os.path.join(output_directory, f'{problem_file[0]}-{score}-marco.txt'))
