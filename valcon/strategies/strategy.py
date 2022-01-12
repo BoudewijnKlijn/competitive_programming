@@ -8,7 +8,8 @@ class Strategy(ABC):
     """ don't forget to call super().__init__()"""
 
     def __init__(self, seed=27):
-        self.random = Random(seed)
+        self.random = Random()
+        self.random.seed(seed)
 
     @abstractmethod
     def solve(self, input_data: InputData) -> OutputData:
