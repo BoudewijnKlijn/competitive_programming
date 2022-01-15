@@ -7,6 +7,7 @@ from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
 from HC_2022_Warmup.strategies.random_ingredients import RandomIngredients
+from HC_2022_Warmup.strategies.repeat_random import Repeat
 from HC_2022_Warmup.strategies.try_all import TryAll
 from HC_2022_Warmup.strategies.default import Default
 from HC_2022_Warmup.strategies.random_clients import RandomClients
@@ -26,8 +27,13 @@ if __name__ == '__main__':
     output_directory = os.path.join(THIS_PATH, 'output')
     demands = PizzaDemands(os.path.join(directory, problem_file))
 
-    # strategy = Default(n_clients=1)
+    strategies = []
+    strategy = Default(n_clients=10)
+    strategies.append(strategy)
     strategy = RandomClients(seed=1, n_clients=10)
+    strategies.append(strategy)
+    strategy = Repeat(n_repetitions=100, strategy=RandomClients(seed=1, n_clients=10))
+    strategies.append(strategy)
 
     # # strategy = TryAll(seed=27)
     # ingredient_probabilities = {ingredient: 1 for ingredient in demands.unique_likes}  # equal weight == 1
@@ -39,16 +45,17 @@ if __name__ == '__main__':
 
     # strategy = RandomProbability(ingredient_probabilities=ingredient_probabilities, seed=27)
     # strategy = RandomIngredients(seed=27)
-    start = time.perf_counter()
-    solution = strategy.solve(demands)
-    duration = time.perf_counter() - start
+    for strategy in strategies:
+        start = time.perf_counter()
+        solution = strategy.solve(demands)
+        duration = time.perf_counter() - start
 
-    scorer = PerfectPizzaScore(demands)
-    score = scorer.calculate(solution)
+        scorer = PerfectPizzaScore(demands)
+        score = scorer.calculate(solution)
 
-    print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
+        print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
 
-    out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-boudewijn.txt'
-    print(f'Writing {out_file}')
+        out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-boudewijn.txt'
+        print(f'Writing {out_file}')
 
-    solution.save(os.path.join(output_directory, out_file))
+        solution.save(os.path.join(output_directory, out_file))
