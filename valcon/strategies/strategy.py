@@ -11,7 +11,7 @@ class Strategy(ABC):
     def name(self):
         return f'{type(self).__name__}({self.seed})'
 
-    def __init__(self, seed=27):
+    def __init__(self, seed=None):
         self.seed = seed
         self.random = Random()
         self.random.seed(seed)

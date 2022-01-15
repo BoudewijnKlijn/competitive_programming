@@ -9,6 +9,7 @@ from HC_2022_Warmup.pizza_demands import PizzaDemands
 from HC_2022_Warmup.strategies.random_ingredients import RandomIngredients
 from HC_2022_Warmup.strategies.try_all import TryAll
 from HC_2022_Warmup.strategies.default import Default
+from HC_2022_Warmup.strategies.random_clients import RandomClients
 from HC_2022_Warmup.strategies.random_probabilities import RandomProbability
 from valcon import Strategy
 from scipy.special import softmax
@@ -25,7 +26,8 @@ if __name__ == '__main__':
     output_directory = os.path.join(THIS_PATH, 'output')
     demands = PizzaDemands(os.path.join(directory, problem_file))
 
-    strategy = Default(n_clients=1)
+    # strategy = Default(n_clients=1)
+    strategy = RandomClients(seed=1, n_clients=10)
 
     # # strategy = TryAll(seed=27)
     # ingredient_probabilities = {ingredient: 1 for ingredient in demands.unique_likes}  # equal weight == 1

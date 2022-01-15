@@ -4,9 +4,13 @@ from valcon import Strategy
 
 
 class Default(Strategy):
-    def __init__(self, n_clients=1):
+    def __init__(self, n_clients):
+        """
+        Use liked ingredients of the first n_clients customers.
+        :param n_clients: number of clients, must be > 0.
+        """
         super().__init__()
-        assert n_clients > 0, "Use at least one client."
+        assert n_clients > 0, "n_clients must be > 0."
         self.n_clients = n_clients
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
