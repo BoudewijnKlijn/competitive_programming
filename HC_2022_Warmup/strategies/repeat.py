@@ -1,7 +1,6 @@
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
-from HC_2022_Warmup.strategies.random_clients import RandomClients
 from valcon import Strategy
 
 

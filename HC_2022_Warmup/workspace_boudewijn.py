@@ -7,7 +7,7 @@ from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
 from HC_2022_Warmup.strategies.random_ingredients import RandomIngredients
-from HC_2022_Warmup.strategies.repeat_random import Repeat
+from HC_2022_Warmup.strategies.repeat import Repeat
 from HC_2022_Warmup.strategies.try_all import TryAll
 from HC_2022_Warmup.strategies.default import Default
 from HC_2022_Warmup.strategies.random_clients import RandomClients
