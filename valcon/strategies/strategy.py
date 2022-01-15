@@ -1,5 +1,7 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from random import Random
+
+from numpy.random import default_rng
 
 from valcon import OutputData, InputData
 
@@ -15,6 +17,7 @@ class Strategy(ABC):
         self.seed = seed
         self.random = Random()
         self.random.seed(seed)
+        self.rng = default_rng(seed)
 
     @abstractmethod
     def solve(self, input_data: InputData) -> OutputData:

@@ -5,13 +5,13 @@ from valcon import Strategy
 
 
 class Repeat(Strategy):
-    def __init__(self, n_repetitions, strategy):
+    def __init__(self, n_repetitions, strategy, seed):
         """
         Repeat a strategy n_repetitions times.
         :param n_repetitions: number of times to repeat the RandomClients strategy
         :param strategy: strategy to repeat
         """
-        super().__init__()
+        super().__init__(seed)
         self.n_repetitions = n_repetitions
         self.strategy = strategy
 

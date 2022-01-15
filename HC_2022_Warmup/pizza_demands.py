@@ -1,3 +1,4 @@
+from collections import Counter
 from dataclasses import dataclass
 
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
@@ -24,9 +25,13 @@ class PizzaDemands(InputData):
 
         self.customers = []
         self.unique_likes = set()
+        self.count_likes = Counter()
+        self.count_dislikes = Counter()
 
         for _ in range(number):
             likes_count, *likes = lines.pop(0).strip().split(' ')
             dislikes_count, *dislikes = lines.pop(0).strip().split(' ')
             self.customers.append(Customer(set(likes), set(dislikes)))
             self.unique_likes.update(likes)
+            self.count_likes.update(likes)
+            self.count_dislikes.update(dislikes)
