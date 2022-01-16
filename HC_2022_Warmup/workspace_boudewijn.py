@@ -36,7 +36,7 @@ if __name__ == '__main__':
     scorer = PerfectPizzaScore(demands)
 
     make_plot = False
-    n_repetitions = 10
+    n_repetitions = 10_000
     n_clients = len(demands.customers) // 2
 
     strategies = []
