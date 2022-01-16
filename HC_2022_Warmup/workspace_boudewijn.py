@@ -27,50 +27,52 @@ if __name__ == '__main__':
     # problem_file = 'a_an_example.in.txt'
     # problem_file = 'b_basic.in.txt'
     # problem_file = 'c_coarse.in.txt'
-    # problem_file = 'd_difficult.in.txt'
-    problem_file = 'e_elaborate.in.txt'
+    problem_file = 'd_difficult.in.txt'
+    # problem_file = 'e_elaborate.in.txt'
     problem = problem_file[0]
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
     demands = PizzaDemands(os.path.join(directory, problem_file))
     scorer = PerfectPizzaScore(demands)
 
-    make_plot = False
-    n_repetitions = 10_000
+    make_plot = True
+    n_repetitions = 100
     n_clients = len(demands.customers) // 2
 
     strategies = []
-    n_clients_iter = [n_clients]  # range(1000, len(demands.customers), 100)
+    # n_clients_iter = [n_clients]
+    n_clients_iter = range(600, 1000, 10)  # range(1, len(demands.customers) // 2, 100)  # for D
+    # n_clients_iter = range(1000, len(demands.customers), 100)  # for E
     for n_clients in n_clients_iter:
         n_clients = min(n_clients, len(demands.customers))
         strategies += [
             # Default(customer_ids=range(n_clients)),
-            # RandomClients(seed=1, n_clients=n_clients),  # Note: may contain duplicate clients
-            # RandomClientProbability(
-            #     seed=1,
-            #     n_clients=n_clients,
-            #     customer_probabilities=[1. for customer in demands.customers],  # equal probability
-            #     label='equal',
-            # ),
+            RandomClients(seed=1, n_clients=n_clients),  # Note: may contain duplicate clients
+            RandomClientProbability(
+                seed=1,
+                n_clients=n_clients,
+                customer_probabilities=[1. for customer in demands.customers],  # equal probability
+                label='equal',
+            ),
             RandomClientProbability(
                 seed=1,
                 n_clients=n_clients,
                 customer_probabilities=[1 / (1 + len(customer.dislikes)) for customer in demands.customers],
                 label='dislikes',
             ),
-            # RandomClientProbability(
-            #     seed=1,
-            #     n_clients=n_clients,
-            #     customer_probabilities=[1 / (1 + len(customer.likes)) for customer in demands.customers],
-            #     label='likes',
-            # ),
-            # RandomClientProbability(
-            #     seed=1,
-            #     n_clients=n_clients,
-            #     customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
-            #                             for customer in demands.customers],
-            #     label='likes_and_dislikes',
-            # ),
+            RandomClientProbability(
+                seed=1,
+                n_clients=n_clients,
+                customer_probabilities=[1 / (1 + len(customer.likes)) for customer in demands.customers],
+                label='likes',
+            ),
+            RandomClientProbability(
+                seed=1,
+                n_clients=n_clients,
+                customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
+                                        for customer in demands.customers],
+                label='likes_and_dislikes',
+            ),
             # TryAll(),
         ]
 
