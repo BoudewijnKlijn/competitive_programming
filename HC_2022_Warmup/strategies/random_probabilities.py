@@ -11,8 +11,8 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 class RandomClientProbability(Strategy):
-    def __init__(self, seed, n_clients, customer_probabilities):
-        super().__init__(seed)
+    def __init__(self, seed, n_clients, customer_probabilities, label=None):
+        super().__init__(seed, label=label)
         self.n_clients = n_clients
         self.customer_probabilities = np.array(customer_probabilities)
         if self.customer_probabilities.min() < 0:

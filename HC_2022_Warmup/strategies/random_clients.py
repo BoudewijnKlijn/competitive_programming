@@ -8,7 +8,7 @@ class RandomClients(Strategy):
     def __init__(self, seed: int, n_clients: int):
         """
         Draw n_clients randomly from all customers and use their ingredients.
-        NOTE: with replacement so client can occur multiple times!
+        NOTE: may contain duplicate clients!
         :param seed: random seed
         :param n_clients: number of clients
         """

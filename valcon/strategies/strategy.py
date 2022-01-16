@@ -16,7 +16,7 @@ class Strategy(ABC):
         except:
             return f'{type(self).__name__}({self.seed})'  # TODO: remove, just to make it backward compatible
 
-    def __init__(self, seed=0, repeatable=True):
+    def __init__(self, seed=0, repeatable=True, label=None):
         self.seed = seed
         self.random = Random()
         self.random.seed(seed)
@@ -25,6 +25,7 @@ class Strategy(ABC):
         self.best_seed = None
         self.best_score = None
         self.best_output = None
+        self.label = str(label)
 
     def change_seed(self, seed: int):
         self.seed = seed
