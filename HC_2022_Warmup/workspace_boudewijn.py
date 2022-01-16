@@ -36,44 +36,74 @@ if __name__ == '__main__':
     scorer = PerfectPizzaScore(demands)
 
     make_plot = True
-    n_repetitions = 100
+    n_repetitions = 10000
     n_clients = len(demands.customers) // 2
 
     strategies = []
-    # n_clients_iter = [n_clients]
-    n_clients_iter = range(600, 1000, 10)  # range(1, len(demands.customers) // 2, 100)  # for D
+    n_clients_iter = [700]
+    # n_clients_iter = range(600, 1000, 50)  # range(1, len(demands.customers) // 2, 100)  # for D
     # n_clients_iter = range(1000, len(demands.customers), 100)  # for E
     for n_clients in n_clients_iter:
         n_clients = min(n_clients, len(demands.customers))
         strategies += [
             # Default(customer_ids=range(n_clients)),
-            RandomClients(seed=1, n_clients=n_clients),  # Note: may contain duplicate clients
-            RandomClientProbability(
-                seed=1,
-                n_clients=n_clients,
-                customer_probabilities=[1. for customer in demands.customers],  # equal probability
-                label='equal',
-            ),
-            RandomClientProbability(
-                seed=1,
-                n_clients=n_clients,
-                customer_probabilities=[1 / (1 + len(customer.dislikes)) for customer in demands.customers],
-                label='dislikes',
-            ),
-            RandomClientProbability(
-                seed=1,
-                n_clients=n_clients,
-                customer_probabilities=[1 / (1 + len(customer.likes)) for customer in demands.customers],
-                label='likes',
-            ),
-            RandomClientProbability(
-                seed=1,
-                n_clients=n_clients,
-                customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
-                                        for customer in demands.customers],
-                label='likes_and_dislikes',
-            ),
             # TryAll(),
+
+            # Does NOT discriminate between ingredients
+            # RandomClients(seed=1, n_clients=n_clients),  # Note: may contain duplicate clients
+            # RandomClientProbability(
+            #     seed=1,
+            #     n_clients=n_clients,
+            #     customer_probabilities=[1. for customer in demands.customers],  # equal probability
+            #     label='equal',
+            # ),
+            # RandomClientProbability(
+            #     seed=1,
+            #     n_clients=n_clients,
+            #     customer_probabilities=[1 / (1 + len(customer.dislikes)) for customer in demands.customers],
+            #     label='dislikes',
+            # ),
+            # RandomClientProbability(
+            #     seed=1,
+            #     n_clients=n_clients,
+            #     customer_probabilities=[1 / (1 + len(customer.likes)) for customer in demands.customers],
+            #     label='likes',
+            # ),
+            # RandomClientProbability(
+            #     seed=1,
+            #     n_clients=n_clients,
+            #     customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
+            #                             for customer in demands.customers],
+            #     label='likes_and_dislikes',
+            # ),
+
+            # DOES discriminate between ingredients
+            # RandomClientProbability(
+            #     seed=1,
+            #     n_clients=n_clients,
+            #     customer_probabilities=[
+            #         1 / (1 + sum([demands.count_likes[dislike] for dislike in customer.dislikes]))
+            #         for customer in demands.customers],
+            #     label='normal',
+            # ),
+            # RandomClientProbability(
+            #     seed=1,
+            #     n_clients=n_clients,
+            #     customer_probabilities=[1 / (1 + sum([np.sqrt(demands.count_likes[dislike]) for dislike in customer.dislikes]))
+            #                             for customer in demands.customers],
+            #     label='sqrt',
+            # ),
+            RandomClientProbability(
+                seed=1,
+                n_clients=n_clients,
+                customer_probabilities=[
+                    1 / sum([
+                         sum([np.sqrt(demands.count_likes[dislike]) for dislike in customer.dislikes]),
+                         sum([np.sqrt(demands.count_dislikes[like]) for like in customer.likes]),
+                    ])
+                    for customer in demands.customers],
+                label='sqrt likes dislikes',
+            ),
         ]
 
     scores_df = pd.DataFrame()
