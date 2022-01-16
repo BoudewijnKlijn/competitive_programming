@@ -21,8 +21,8 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 if __name__ == '__main__':
     # problem_file = 'a_an_example.in.txt'
     # problem_file = 'b_basic.in.txt'
-    # problem_file = 'c_coarse.in.txt'
-    problem_file = 'd_difficult.in.txt'
+    problem_file = 'c_coarse.in.txt'
+    # problem_file = 'd_difficult.in.txt'
     # problem_file = 'e_elaborate.in.txt'
     problem = problem_file[0]
     directory = os.path.join(THIS_PATH, 'input')
@@ -34,25 +34,25 @@ if __name__ == '__main__':
     n_clients = len(demands.customers) // 2
     n_clients = min(n_clients, len(demands.customers))
     strategies = [
-        Default(customer_ids=range(n_clients)),
-        RandomClients(seed=1, n_clients=n_clients),  # Note: with replacement so client can occur multiple times
-        RandomClientProbability(
-            seed=1,
-            n_clients=n_clients,
-            customer_probabilities=[1. for customer in demands.customers]  # equal probability
-        ),
-        RandomClientProbability(
-            seed=1,
-            n_clients=n_clients,
-            customer_probabilities=[1 / (1 + len(customer.dislikes)) for customer in demands.customers]
-        ),
-        RandomClientProbability(
-            seed=1,
-            n_clients=n_clients,
-            customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
-                                    for customer in demands.customers]
-        ),
-        # TryAll(),
+        # Default(customer_ids=range(n_clients)),
+        # RandomClients(seed=1, n_clients=n_clients),  # Note: with replacement so client can occur multiple times
+        # RandomClientProbability(
+        #     seed=1,
+        #     n_clients=n_clients,
+        #     customer_probabilities=[1. for customer in demands.customers]  # equal probability
+        # ),
+        # RandomClientProbability(
+        #     seed=1,
+        #     n_clients=n_clients,
+        #     customer_probabilities=[1 / (1 + len(customer.dislikes)) for customer in demands.customers]
+        # ),
+        # RandomClientProbability(
+        #     seed=1,
+        #     n_clients=n_clients,
+        #     customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
+        #                             for customer in demands.customers]
+        # ),
+        TryAll(),
     ]
 
     for strategy in strategies:
