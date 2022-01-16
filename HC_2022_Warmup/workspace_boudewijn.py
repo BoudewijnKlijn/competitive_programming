@@ -31,10 +31,16 @@ if __name__ == '__main__':
     scorer = PerfectPizzaScore(demands)
 
     n_repetitions = 1000
-    n_clients = 3000
+    n_clients = len(demands.customers) // 2
+    n_clients = min(n_clients, len(demands.customers))
     strategies = [
         Default(customer_ids=range(n_clients)),
-        RandomClients(seed=1, n_clients=n_clients),
+        RandomClients(seed=1, n_clients=n_clients),  # Note: with replacement so client can occur multiple times
+        RandomClientProbability(
+            seed=1,
+            n_clients=n_clients,
+            customer_probabilities=[1. for customer in demands.customers]  # equal probability
+        ),
         RandomClientProbability(
             seed=1,
             n_clients=n_clients,
@@ -46,7 +52,6 @@ if __name__ == '__main__':
             customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
                                     for customer in demands.customers]
         ),
-
         # TryAll(),
     ]
 

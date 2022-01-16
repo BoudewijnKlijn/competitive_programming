@@ -5,12 +5,12 @@ from valcon import Strategy
 
 
 class RandomClients(Strategy):
-    def __init__(self, seed, n_clients):
+    def __init__(self, seed: int, n_clients: int):
         """
-        First shuffle customers list. Then apply default strategy which uses liked ingredients of first n_clients
-        in customers list.
+        Draw n_clients randomly from all customers and use their ingredients.
+        NOTE: with replacement so client can occur multiple times!
         :param seed: random seed
-        :param n_clients: number of clients, must be > 0
+        :param n_clients: number of clients
         """
         super().__init__(seed)
         self.n_clients = n_clients
