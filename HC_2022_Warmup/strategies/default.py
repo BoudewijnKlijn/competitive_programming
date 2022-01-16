@@ -1,20 +1,18 @@
+from typing import Iterable
+
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.pizza_demands import PizzaDemands
 from valcon import Strategy
 
 
 class Default(Strategy):
-    def __init__(self, n_clients):
-        """
-        Use liked ingredients of the first n_clients customers.
-        :param n_clients: number of clients, must be > 0.
-        """
+    def __init__(self, customer_ids: Iterable[int]):
+        """Use liked ingredients of selected customers."""
         super().__init__()
-        assert n_clients > 0, "n_clients must be > 0."
-        self.n_clients = n_clients
+        self.customer_ids = customer_ids
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
         ingredients = set()
-        for customer in input_data.customers[:self.n_clients]:
-            ingredients.update(customer.likes)
+        for customer_id in self.customer_ids:
+            ingredients.update(input_data.customers[customer_id].likes)
         return PerfectPizza(list(ingredients))

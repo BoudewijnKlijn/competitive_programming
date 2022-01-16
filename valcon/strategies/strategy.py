@@ -19,6 +19,11 @@ class Strategy(ABC):
         self.random.seed(seed)
         self.rng = default_rng(seed)
 
+    def change_seed(self, seed=None):
+        self.seed = seed if seed is not None else self.seed + 1
+        self.random.seed(seed)
+        self.rng = default_rng(seed)
+
     @abstractmethod
     def solve(self, input_data: InputData) -> OutputData:
         pass

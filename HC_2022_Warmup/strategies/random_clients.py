@@ -16,5 +16,5 @@ class RandomClients(Strategy):
         self.n_clients = n_clients
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
-        self.random.shuffle(input_data.customers)
-        return Default(n_clients=self.n_clients).solve(input_data)
+        random_customer_ids = self.rng.integers(len(input_data.customers), size=self.n_clients)
+        return Default(customer_ids=random_customer_ids).solve(input_data)
