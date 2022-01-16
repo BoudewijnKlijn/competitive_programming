@@ -22,8 +22,8 @@ if __name__ == '__main__':
     # problem_file = 'a_an_example.in.txt'
     # problem_file = 'b_basic.in.txt'
     # problem_file = 'c_coarse.in.txt'
-    # problem_file = 'd_difficult.in.txt'
-    problem_file = 'e_elaborate.in.txt'
+    problem_file = 'd_difficult.in.txt'
+    # problem_file = 'e_elaborate.in.txt'
     problem = problem_file[0]
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
