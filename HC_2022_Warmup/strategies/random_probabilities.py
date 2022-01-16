@@ -1,6 +1,7 @@
 import os
 
 from scipy.special import softmax
+from numpy.linalg import norm
 
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.pizza_demands import PizzaDemands
@@ -17,7 +18,9 @@ class RandomClientProbability(Strategy):
         self.customer_probabilities = customer_probabilities
         if sum(self.customer_probabilities) != 1:
             # Apply softmax to probabilities so that they sum to 1.
-            self.customer_probabilities = softmax(self.customer_probabilities)
+            # self.customer_probabilities = softmax(self.customer_probabilities)
+            sum_ = sum(self.customer_probabilities)
+            self.customer_probabilities = list(map(lambda x: x / sum_, self.customer_probabilities))
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
         random_customer_ids = self.rng.choice(
