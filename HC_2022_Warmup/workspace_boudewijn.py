@@ -30,7 +30,7 @@ if __name__ == '__main__':
     demands = PizzaDemands(os.path.join(directory, problem_file))
     scorer = PerfectPizzaScore(demands)
 
-    n_repetitions = 100
+    n_repetitions = 1000
     n_clients = 3000
     strategies = [
         Default(customer_ids=range(n_clients)),
@@ -47,7 +47,7 @@ if __name__ == '__main__':
                                     for customer in demands.customers]
         ),
 
-        TryAll(),
+        # TryAll(),
     ]
 
     for strategy in strategies:
