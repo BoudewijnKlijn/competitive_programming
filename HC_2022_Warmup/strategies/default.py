@@ -8,7 +8,7 @@ from valcon import Strategy
 class Default(Strategy):
     def __init__(self, customer_ids: Iterable[int]):
         """Use liked ingredients of selected customers."""
-        super().__init__()
+        super().__init__(repeatable=False)
         self.customer_ids = customer_ids
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:

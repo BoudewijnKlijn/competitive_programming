@@ -11,16 +11,23 @@ class Strategy(ABC):
 
     @property
     def name(self):
-        return f'{type(self).__name__}({self.seed})'
+        try:
+            return f'{type(self).__name__}({self.best_seed})'
+        except:
+            return f'{type(self).__name__}({self.seed})'  # TODO: remove, just to make it backward compatible
 
-    def __init__(self, seed=None):
+    def __init__(self, seed=0, repeatable=True):
         self.seed = seed
         self.random = Random()
         self.random.seed(seed)
         self.rng = default_rng(seed)
+        self.repeatable = repeatable
+        self.best_seed = None
+        self.best_score = None
+        self.best_output = None
 
-    def change_seed(self, seed=None):
-        self.seed = seed if seed is not None else self.seed + 1
+    def change_seed(self, seed: int):
+        self.seed = seed
         self.random.seed(seed)
         self.rng = default_rng(seed)
 

@@ -4,6 +4,7 @@ from scipy.special import softmax
 
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.pizza_demands import PizzaDemands
+from HC_2022_Warmup.strategies.default import Default
 from valcon import Strategy
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -19,13 +20,10 @@ class RandomClientProbability(Strategy):
             self.customer_probabilities = softmax(self.customer_probabilities)
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
-        customer_ids = self.rng.choice(
+        random_customer_ids = self.rng.choice(
             len(self.customer_probabilities),
             size=self.n_clients,
             replace=False,
             p=self.customer_probabilities,
         )
-        ingredients = set()
-        for customer_id in customer_ids:
-            ingredients.update(input_data.customers[customer_id].likes)
-        return PerfectPizza(list(ingredients))
+        return Default(customer_ids=random_customer_ids).solve(input_data)

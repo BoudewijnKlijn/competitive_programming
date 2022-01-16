@@ -8,8 +8,9 @@ from valcon.utils import flatten
 
 
 class TryAll(Strategy):
-    def __init__(self, seed=None):
-        super().__init__(seed)
+    def __init__(self, verbose=False):
+        super().__init__(repeatable=False)
+        self.verbose = verbose
 
     def solve(self, input_data: PizzaDemands) -> PerfectPizza:
         ingredient_list = list(set(flatten(customer.likes for customer in input_data.customers)))
@@ -19,8 +20,9 @@ class TryAll(Strategy):
         scorer = PerfectPizzaScore(input_data)
 
         for i, include_pizzas in enumerate(product(options, repeat=len(ingredient_list))):
-            if i % 100 == 0:
-                print(i, best_score)
+            if self.verbose:
+                if i % 100 == 0:
+                    print(i, best_score)
             candidate_ingredients = list()
             for ingredient, include_pizza in zip(ingredient_list, include_pizzas):
                 if include_pizza:
@@ -33,7 +35,8 @@ class TryAll(Strategy):
                 best_score = score
 
             if i > 1000:
-                print('stop after 1000 tries')
+                if self.verbose:
+                    print('stop after 1000 tries')
                 break
 
         return best_pizza

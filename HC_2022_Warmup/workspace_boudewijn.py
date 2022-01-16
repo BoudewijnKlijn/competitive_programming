@@ -1,6 +1,5 @@
 import os
 import time
-from copy import deepcopy
 
 import numpy as np
 from typing import List, Tuple, Dict, Any, Optional
@@ -8,13 +7,14 @@ from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
 from HC_2022_Warmup.strategies.random_ingredients import RandomIngredients
-from HC_2022_Warmup.strategies.repeat import Repeat
 from HC_2022_Warmup.strategies.try_all import TryAll
 from HC_2022_Warmup.strategies.default import Default
 from HC_2022_Warmup.strategies.random_clients import RandomClients
 from HC_2022_Warmup.strategies.random_probabilities import RandomClientProbability
 from valcon import Strategy
-from scipy.special import softmax
+
+from valcon.utils import best_score
+
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -24,64 +24,46 @@ if __name__ == '__main__':
     # problem_file = 'c_coarse.in.txt'
     # problem_file = 'd_difficult.in.txt'
     problem_file = 'e_elaborate.in.txt'
+    problem = problem_file[0]
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
     demands = PizzaDemands(os.path.join(directory, problem_file))
+    scorer = PerfectPizzaScore(demands)
 
-    strategies = []
-    strategy = Default(customer_ids=[0])
-    strategies.append(strategy)
-    strategy = Default(customer_ids=range(800))
-    strategies.append(strategy)
-    strategy = RandomClients(seed=1, n_clients=10)
-    strategies.append(strategy)
-    strategy = RandomClients(seed=1, n_clients=800)
-    strategies.append(strategy)
-    # for n_clients in range(1, len(demands.customers)):
+    n_repetitions = 100
+    n_clients = 3000
+    strategies = [
+        Default(customer_ids=range(n_clients)),
+        RandomClients(seed=1, n_clients=n_clients),
+        RandomClientProbability(
+            seed=1,
+            n_clients=n_clients,
+            customer_probabilities=[1 / (1 + len(customer.dislikes)) for customer in demands.customers]
+        ),
+        RandomClientProbability(
+            seed=1,
+            n_clients=n_clients,
+            customer_probabilities=[1 / (len(customer.likes) + len(customer.dislikes))
+                                    for customer in demands.customers]
+        ),
 
-    # n_clients = 3000
-    # n_repetitions = 100
-    # strategy = RandomClients(seed=1, n_clients=n_clients)
-    # strategy = Repeat(n_repetitions=n_repetitions, strategy=strategy, seed=1)
-    # strategies.append(strategy)
-    # customer_probabilities = [1 / (1 + len(customer.dislikes)) for customer in deepcopy(demands).customers]
-    # strategy = RandomClientProbability(seed=1, n_clients=n_clients, customer_probabilities=customer_probabilities)
-    # strategy = Repeat(n_repetitions=n_repetitions, strategy=strategy, seed=1)
-    # strategies.append(strategy)
-    # customer_probabilities = [1 / (len(customer.likes) + len(customer.dislikes))
-    #                           for customer in deepcopy(demands).customers]
-    # strategy = RandomClientProbability(seed=1, n_clients=n_clients, customer_probabilities=customer_probabilities)
-    # strategy = Repeat(n_repetitions=n_repetitions, strategy=strategy, seed=1)
-    # strategies.append(strategy)
+        TryAll(),
+    ]
 
-    # strategy = RandomClients(seed=1, n_clients=100)
-    # strategies.append(strategy)
-
-    # # strategy = TryAll(seed=27)
-
-    # ingredient_probabilities = {ingredient: 1 for ingredient in demands.unique_likes}  # equal weight == 1
-    # ingredient_probabilities = {ingredient: 0 for ingredient in demands.unique_likes}  # equal weight == 0
-    # change_ingredient = list(demands.unique_likes)[0]
-    # # print(change_ingredient)
-    # ingredient_probabilities[change_ingredient] = 1  # one ingredient with 100% probability
-    # # print(ingredient_probabilities)
-
-    # strategy = RandomIngredients(seed=27)
     for strategy in strategies:
         start = time.perf_counter()
-        solution = strategy.solve(demands)
+
+        if strategy.repeatable:
+            strategy = scorer.repeat_solve(strategy, n_repetitions=n_repetitions)
+        else:
+            strategy = scorer.repeat_solve(strategy, n_repetitions=1)
+
         duration = time.perf_counter() - start
+        print(f'{problem.upper()} - score: {strategy.best_score:6d} ({duration:3.0f}s) - {strategy.name}')
 
-        scorer = PerfectPizzaScore(demands)
-        score = scorer.calculate(solution)
+        current_best = best_score(output_directory)
 
-        try:
-            print(strategy.strategy.n_clients)
-        except:
-            pass
-        print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
-
-        out_file = f'{os.path.basename(problem_file)[0]}-{score:06d}-{strategy.name}.txt'
-        print(f'Writing {out_file}')
-
-        solution.save(os.path.join(output_directory, out_file))
+        if current_best[problem] < strategy.best_score:
+            out_file = f'{problem}-{strategy.best_score:06d}-{strategy.name}.txt'
+            print(f'Writing {out_file}')
+            strategy.best_output.save(os.path.join(output_directory, out_file))
