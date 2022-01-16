@@ -6,7 +6,7 @@ from HC_2022_Warmup.pizza_demands import PizzaDemands
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 if __name__ == '__main__':
-    directory = os.path.join(THIS_PATH, 'input')
+    directory = os.path.join(THIS_PATH, '../input')
     files = [
         'a_an_example.in.txt',
         'b_basic.in.txt',
