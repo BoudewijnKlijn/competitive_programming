@@ -1,12 +1,11 @@
 import os
+from typing import Iterable
 
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.pizza_demands import PizzaDemands
-from valcon import OutputData, InputData
-from valcon.scorer import Scorer
-from valcon.utils import best_score
+from valcon import OutputData
 from valcon import Strategy
-
+from valcon.scorer import Scorer
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 OUTPUT_DIRECTORY = os.path.join(THIS_PATH, 'output')
@@ -22,6 +21,9 @@ class PerfectPizzaScore(Scorer):
             if customer.will_order(output_data):
                 score += 1
         return score
+
+    def calculate_multi(self, multi_output_data: Iterable[OutputData]) -> Iterable[int]:
+        pass
 
     def repeat_solve(self, strategy: Strategy, n_repetitions: int) -> Strategy:
         for seed in range(n_repetitions):
