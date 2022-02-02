@@ -3,12 +3,16 @@ import time
 import glob
 from random import randint
 
+import mip
+
 from HC_2019_Qualification.workspace_marco import flatten
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
-from HC_2022_Warmup.strategies import RandomIngredients
+from HC_2022_Warmup.strategies import RandomIngredients, RandomSetIngredients
 from valcon import Strategy, InputData, OutputData
+from valcon.scorer import Scorer
+from valcon.strategies.bayesian_strategy import BayesianStrategy
 from valcon.utils import best_score
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -16,6 +20,39 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 from collections import Counter
 
 import heapq
+from bayes_opt import BayesianOptimization
+
+
+class MipSolverStrategy(Strategy):
+
+    def __init__(self, scorer: Scorer, seed):
+        super().__init__(seed=seed)
+        self.scorer = scorer
+
+    @staticmethod
+    def _convert_to_pizza(**kwargs) -> PerfectPizza:
+        ingredients = [keyword for keyword, argument in kwargs.items() if round(argument) == 1]
+        return PerfectPizza(ingredients)
+
+    def _black_box(self, **kwargs):
+        pizza = self._convert_to_pizza(**kwargs)
+        return self.scorer.calculate(pizza)
+
+    def solve(self, input_data: PizzaDemands) -> OutputData:
+        ingredients = list(input_data.unique_likes)
+
+        parameter_bounds = {ingredient: (0, 1) for ingredient in ingredients}
+
+        optimizer = BayesianOptimization(
+            f=self._black_box,
+            pbounds=parameter_bounds,
+            random_state=self.seed,
+        )
+
+        optimizer.maximize(n_iter=100)
+
+        print(optimizer.max)
+        return self._convert_to_pizza(**optimizer.max['params'])
 
 
 class ScoredIngredients(Strategy):
@@ -68,8 +105,7 @@ if __name__ == '__main__':
         problem = os.path.basename(problem_file)[0]
         demands = PizzaDemands(os.path.join(directory, problem_file))
         scorer = PerfectPizzaScore(demands)
-        strategy = ScoredIngredients(seed=27,
-                                     scorer=scorer)  # RandomIngredients(randint(0, 100000))  # ScoredIngredients(seed=27, scorer=scorer)
+        strategy = MipSolverStrategy(scorer, seed=27)
         start = time.perf_counter()
         solution = strategy.solve(demands)
         duration = time.perf_counter() - start

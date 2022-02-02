@@ -24,3 +24,10 @@
 ## extra todos 02/02/2022
 
 - random seed ipv range zodat als we hem 2x runnen we een andere seed hebben
+
+## Algorithms
+
+Hill climbing
+- can be used to make a good solution slightly better
+  - if multiple improved solutions are found, then you can use those as new input
+  - if __too many__ improved solutions are found, use a queue and prioritize the best scores first
