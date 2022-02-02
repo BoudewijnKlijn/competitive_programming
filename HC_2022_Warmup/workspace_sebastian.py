@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     current_best = best_score(output_directory)
 
-    NR_EXAMPLES = 10000
+    NR_EXAMPLES = 100000
     for problem_file in files:
         problem = os.path.basename(problem_file)[0]
         print(f"Trying to solve file: {problem_file}")
@@ -152,7 +152,7 @@ if __name__ == '__main__':
         df['target'] = scores
         labels = df['target']
 
-        train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.25,
+        train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.01,
                                                                                     random_state=42)
         print('Training Features Shape:', train_features.shape)
         print('Training Labels Shape:', train_labels.shape)
