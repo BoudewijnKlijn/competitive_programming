@@ -6,8 +6,6 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from HC_2019_Qualification.Pictures import Pictures
-from HC_2019_Qualification.slides import Slides
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.pizza_demands import PizzaDemands
 from HC_2022_Warmup.strategies import RandomIngredients
@@ -16,7 +14,7 @@ from valcon.strategies.strategy import Strategy
 
 
 class GeneticStrategy(Strategy):
-    def __init__(self, scorer: Scorer, start_seed=1, max_generations=1000, population_size=2, crossover_rate=0.5,
+    def __init__(self, scorer, seed=1, max_generations=1000, population_size=2, crossover_rate=0.5,
                  mutation_rate=0.5, nr_tournament_candidates=5):
         """
         Initializes a GeneticStrategy solver
@@ -25,7 +23,7 @@ class GeneticStrategy(Strategy):
 
         Args:
             scorer (valcon.Scorer): Scorer to calculate score of slides
-            start_seed (int): Random seed used for generating random numbers
+            seed (int): Random seed used for generating random numbers
             max_generations (int): Maximum generations for genetic solver
             population_size (int): Population size per generation
             crossover_rate (float): Cross over rate (i.e. how much of the slides to use from parent1 and parent2)
@@ -33,7 +31,7 @@ class GeneticStrategy(Strategy):
             nr_tournament_candidates (int): Number of random candidates to use in tournament selection of parents
         """
         self.scorer = scorer
-        self.start_seed = start_seed
+        self.start_seed = seed
         self.max_generations = max_generations
         self.current_generation = 0
         self.population_size = population_size
@@ -46,6 +44,7 @@ class GeneticStrategy(Strategy):
                   "Mutation_rate": mutation_rate,
                   "Nr_tournament_candidates": nr_tournament_candidates}
         print(f"Initialized GeneticStrategy with params: {params}")
+        super().__init__(seed)
 
     def _generate_initial_population(self, input_data: PizzaDemands) -> [PerfectPizza]:
         """
@@ -57,13 +56,6 @@ class GeneticStrategy(Strategy):
         """
         Select parents from a population by taking a random candidate,
         then uses a tournament selection to get the best scoring candidate
-
-        Args:
-            population ([HC_2019_Qualification.slides]): Population of Slides
-            scores ([int]): List of scores belonging to population
-
-        Returns:
-            [HC_2019_Qualification.slides]: Two Slides objects
         """
         # first random selection
         selection_ix = np.random.randint(len(population))
@@ -76,32 +68,37 @@ class GeneticStrategy(Strategy):
     def _cross_over(self, parent1: PerfectPizza, parent2: PerfectPizza) -> [PerfectPizza]:
         """
         Applies cross over to two parents by selecting
+
+        # todo: perhaps there are other better ways to do cross over?
         """
         # children are copies of parents by default
         children1, children2 = parent1, parent2
         # check for recombination
         if np.random.rand() < self.crossover_rate:
-            # select crossover point that is not on the end of the slide deck
-            pt = np.random.randint(1, len(parent1.ingredients) - 2)
+            # select crossover point that is not on the end of the items
+            pt = np.random.randint(1, len(parent1.ingredients))
             # perform crossover
-            children1 = Slides(parent1.ingredients[:pt] + parent2.ingredients[pt:])
-            children2 = Slides(parent2.ingredients[:pt] + parent1.ingredients[pt:])
+            # todo: use set characteristics to improve the below two lines
+            children1 = PerfectPizza(list(parent1.ingredients)[:pt] + list(parent2.ingredients)[pt:])
+            children2 = PerfectPizza(list(parent2.ingredients)[:pt] + list(parent1.ingredients)[pt:])
         return [children1, children2]
 
     def _mutation(self, child: [str]):
         """
-        Mutate slides by randomly switching
+        Mutate items by randomly switching
+
+        # todo: there are possibly other better ways of mutating items
         """
-        for i in range(len(child.slides) - 1):
-            current_slide = child.slides[i]
-            next_slide = child.slides[i + 1]
+        for i in range(len(child.ingredients) - 1):
+            current_item = list(child.ingredients)[i]
+            next_item = list(child.ingredients)[i + 1]
             # check for a mutation
             if np.random.rand() < self.mutation_rate:
-                # switch the slides
-                child.slides[i] = next_slide
-                child.slides[i + 1] = current_slide
+                # switch the items
+                list(child.ingredients)[i] = next_item
+                list(child.ingredients)[i + 1] = current_item
 
-    def solve(self, input_data: Pictures) -> Slides:
+    def solve(self, input_data: PizzaDemands) -> PerfectPizza:
         """
         Solves the problem by applying a genetic solver that applies the following step:
             1. Create initial population of slide decks
@@ -109,30 +106,23 @@ class GeneticStrategy(Strategy):
                 2.1 Calculate score for every candidate in population
                 2.2 Check best candidate in population (and keep this in memory)
                 2.3 Select parent couples by applying a tournament strategy
-                2.4 Apply crossover randomly (i.e. combine slides of parents two generate a child)
-                2.5 Apply mutations randomly (i.e. switch slide transitions of children)
+                2.4 Apply crossover randomly (i.e. combine items of parents two generate a child)
+                2.5 Apply mutations randomly (i.e. switch items transitions of children)
                 2.6 Use the generated children as new population
-
-        Args:
-            input_data (HC_2019_Qualification.Pictures): Pictures to use for slides
-
-        Returns:
-            HC_2019_Qualification.slides.Slides: Slide deck with solution
         """
         start_time = time.time()
-        scorer = Scorer(input_data)
         population = self._generate_initial_population(input_data)
 
-        best_solution_slides = None
+        best_solution = None
         best_solution_score = 0
         for i in tqdm(range(0, self.max_generations)):
-            scores = [scorer.calculate(candidate) for candidate in population]
+            scores = [self.scorer.calculate(candidate) for candidate in population]
 
             # check for new best solution
             new_max_score = max(scores)
             if new_max_score > best_solution_score:
                 idx_new_max_score = scores.index(new_max_score)
-                best_solution_slides, best_solution_score = population[idx_new_max_score].copy(), scores[
+                best_solution, best_solution_score = population[idx_new_max_score].copy(), scores[
                     idx_new_max_score]
                 print(f"Improved score at generation {i} with score: {best_solution_score}")
 
@@ -156,4 +146,4 @@ class GeneticStrategy(Strategy):
         print(f"Finished {self.max_generations} genetic generations in {elapsed_time:.2f} seconds, "
               f"with best score: {best_solution_score}")
 
-        return best_solution_slides
+        return best_solution

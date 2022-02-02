@@ -13,3 +13,6 @@ class PerfectPizza(OutputData):
             ingredients = ' '.join(list_form)
             count = len(self.ingredients)
             file.write(f'{count} {ingredients}')
+
+    def copy(self):
+        return PerfectPizza(list(self.ingredients))
