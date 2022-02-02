@@ -24,3 +24,8 @@
 ## extra todos 02/02/2022
 
 - random seed ipv range zodat als we hem 2x runnen we een andere seed hebben
+
+## Algorithms
+
+Hill climbing
+- can be used to make a good solution slightly better
