@@ -20,3 +20,7 @@
 - N rep wordt attribute
 - Vector solve maken
 - Input data ook attribute maken en reset solution seed etc wanneer nieuwe imputdata
+
+## extra todos 02/02/2022
+
+- random seed ipv range zodat als we hem 2x runnen we een andere seed hebben
