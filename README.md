@@ -27,7 +27,11 @@
 
 ## Algorithms
 
-Hill climbing
-- can be used to make a good solution slightly better
-  - if multiple improved solutions are found, then you can use those as new input
-  - if __too many__ improved solutions are found, use a queue and prioritize the best scores first
+1. First use a broad search
+2. Thereafter use **Hill climbing**
+   - can be used to make a good solution slightly better
+     - if multiple improved solutions are found, then you can use those as new input
+     - if __too many__ improved solutions are found, use a queue and prioritize the best scores first
+
+More thoughts
+- output should be perfectly reproducible. Currently, it is not entirely clear from the output filename how the output was created.

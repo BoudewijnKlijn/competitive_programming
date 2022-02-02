@@ -27,4 +27,5 @@ class RandomClientProbability(Strategy):
             replace=False,
             p=self.customer_probabilities,
         )
+        self.customer_ids = random_customer_ids  # added to use afterwards for another strategy (hillclimbing)
         return Default(customer_ids=random_customer_ids).solve(input_data)
