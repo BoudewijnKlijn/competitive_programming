@@ -40,9 +40,12 @@ class HillClimber(Strategy):
         # add customers
         if self.add:
             for customer_id in excluded_customer_ids:
-                solution = Default(customer_ids=self.customer_ids + [customer_id]).solve(input_data)
+                customer_ids_test = list(self.customer_ids) + [customer_id]  # transform to list otherwise numpy will add customer id to all values
+                solution = Default(customer_ids=customer_ids_test).solve(input_data)
                 score = self.scorer.calculate(solution)
                 if score > self.score_to_beat:
+                    self.best_score = score
+                    self.best_output = solution
                     return solution
 
             print("No better solution found")
@@ -53,8 +56,8 @@ if __name__ == '__main__':
     # problem_file = 'a_an_example.in.txt'
     # problem_file = 'b_basic.in.txt'
     # problem_file = 'c_coarse.in.txt'
-    # problem_file = 'd_difficult.in.txt'
-    problem_file = 'e_elaborate.in.txt'
+    problem_file = 'd_difficult.in.txt'
+    # problem_file = 'e_elaborate.in.txt'
     problem = problem_file[0]
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
@@ -62,10 +65,15 @@ if __name__ == '__main__':
     scorer = PerfectPizzaScore(demands)
 
     initial_strategy = RandomClientProbability(
-        seed=1,
+        seed=2479,
         n_clients=700,
-        customer_probabilities=[1. for customer in demands.customers],  # equal probability
-        label='equal',
+        customer_probabilities=[
+            1 / sum([
+                 sum([np.sqrt(demands.count_likes[dislike]) for dislike in customer.dislikes]),
+                 sum([np.sqrt(demands.count_dislikes[like]) for like in customer.likes]),
+            ])
+            for customer in demands.customers],
+        label='sqrt likes dislikes',
     )
     initial_solution = initial_strategy.solve(demands)
     initial_score = scorer.calculate(initial_solution)
@@ -75,6 +83,12 @@ if __name__ == '__main__':
     solution = strategy.solve(demands)
     score = scorer.calculate(solution)
     print(f'Score: {score}')
+
+    current_best = best_score(output_directory)
+    if current_best[problem] < strategy.best_score:
+        out_file = f'{problem}-{strategy.best_score:06d}-{strategy.name}.txt'
+        print(f'Writing {out_file}')
+        strategy.best_output.save(os.path.join(output_directory, out_file))
 
     # make_plot = True
     # n_repetitions = 100
