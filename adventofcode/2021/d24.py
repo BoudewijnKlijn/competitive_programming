@@ -22,14 +22,15 @@ def parse_data(raw_data: str):
 
 
 class StringAlu:
-    def __init__(self, commands: List[List[str]], x_w_evaluations):
+    def __init__(self, commands: List[List[str]], x_w_evaluations, inputs: List[str] = None):
         self.x = '0'
         self.y = '0'
         self.z = '0'
         self.w = '0'
         self.commands = commands
-        self.inputs = [f'INP_' + str(i).zfill(2) for i in range(14)]
+        self.inputs = [f'INP_' + str(i).zfill(2) for i in range(14)] if inputs is None else inputs
         self.x_w_evaluations = x_w_evaluations
+        self.equations = list()
 
         # Instead of calculating all eql x w, eql x 0 lines, we can just assume that they first one is false, then the
         # second one is true. and vice versa. this yields only 2**14 = 16384 possible combinations.
@@ -76,7 +77,7 @@ class StringAlu:
                 raise ValueError(f"{b} is non-positive")
         except NameError:
             pass
-        if b == 1:
+        if b == '1':
             return a
         return f'({a} % {b})'
 
@@ -110,22 +111,22 @@ class StringAlu:
                 if first_answer is None:
                     first_answer = answer
                 if answer != first_answer:
-                    print('v2: mix of true and false')
+                    # print('v2: mix of true and false')
                     return base_out
 
                 answers.append(answer)
             # print(answers)
             if all(answers):
-                print(all(answers))
+                # print(all(answers))
                 return '1'
             elif not any(answers):
-                print(all(answers))
+                # print(all(answers))
                 return '0'
             else:
                 # can no longer get to this code
-                print('v1: mix of true and false')
-                print(Counter(answers))
-
+                # print('v1: mix of true and false')
+                # print(Counter(answers))
+                pass
         return f'({a} == {b})'
 
     # all with only zeros as w==x
@@ -136,7 +137,7 @@ class StringAlu:
     # 7th: line 132: true if inp06 == (inp07 + 6) (since inp 1-9 only 3 options)
     # self.x='((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) % 26) + 13)'
     # self.w='INP_07'
-    # 8th line 150: true if (inp07 - 4) == inp08
+    # 8th line 150: true if (inp07 + 4) == inp08
     # 150: ['eql', 'x', 'w']
     # self.x='((((((((int(((int((((((((INP_00 + 1) * 26) + (INP_01 + 9)) * 26) + (INP_02 + 12)) * 26) + (INP_03 + 6)) / 26) * 26) + (INP_04 + 9)) / 26) * 26) + (INP_05 + 15)) * 26) + (INP_06 + 7)) * 26) + (INP_07 + 12)) % 26) + -8)'
     # self.w='INP_08'
@@ -160,12 +161,16 @@ class StringAlu:
             instruction = cmd[0]
             var = cmd[1]
             if instruction == 'inp':
-                value = self.inputs.pop(0)
+                value = str(int(input('input...')))
+                # value = self.inputs.pop(0)
                 setattr(self, var, value)
-            elif var == 'x' and cmd[2] == 'w':
-                print(f'{self.x=}\n{self.w=}')
-                self.x = self.x_w_evaluations.pop(0)
-                print(f'X is set to: {self.x}')
+            # elif var == 'x' and cmd[2] == 'w':
+            #     # print(f'{self.x=}\n{self.w=}')
+            #     # self.x = input('Continue with True (1) or False (0)?')
+            #     true_or_false = self.x_w_evaluations.pop(0)
+            #     self.equations.append((self.x + ' == ' + self.w, true_or_false))
+            #     self.x = true_or_false
+            #     # print(f'X is set to: {self.x}')
             elif instruction in ['add', 'mul', 'mod', 'div', 'eql']:
                 func = getattr(self, instruction)
                 try:
@@ -186,7 +191,7 @@ class StringAlu:
             else:
                 raise ValueError(f"Unknown instruction {instruction}.")
             print(self)
-            input()
+            # input()
 
 
 class Alu:
@@ -347,12 +352,73 @@ def part1_via_string_alu():
     for i, x_w_evaluations in enumerate(all_x_w_evaluations):
         print(i)
         x_w_evaluations = ['0']*4 + list(x_w_evaluations)
+
+        # print('')
+        x_w_evaluations = ['0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0', '1', '1', '1']
+        # inputs = [f'INP_' + str(i).zfill(2) for i in [9, 9, 9, 9, 9, 9, 9, 9]]
         print('ASSUMED X == W', x_w_evaluations)
-        print('')
         alu = StringAlu(commands=commands, x_w_evaluations=x_w_evaluations)
         alu.execute_commands()
-        print('AFTER ALL COMMANDS', alu)
+        print('AFTER ALL COMMANDS', alu.z)
+        print(f'{"MINUS" if "-" in alu.z else "ALL POSITIVE"}')
+        possible_inputs = {}
+        for j, eq in enumerate(alu.equations):
+            print(j, eq)
+            # solve_equation(eq[0])
+        input()
         break
+        # break
+
+
+def solve_equation(equation):
+    # equal is a bit more complex to evaluate if it contains an input. input can be between 1 and 9. we can try
+    # all options and if they all yield the same value, then we return that
+
+    # print('base', base_out)
+    answers = list()
+    pattern = re.compile(r'INP_\d{2}')
+    inputs = sorted(set(pattern.findall(equation)))
+    if inputs:
+        # print(len(inputs))
+        # all answers have to be the same so if one is different we can no longer draw conclusions
+        first_answer = None
+        for substitutions in product(range(1, 10), repeat=len(inputs)):
+            # print(substitutions)
+            try:
+                adjusted = equation
+                # loop over all inputs that need to be substituted
+                for sub_i, sub in enumerate(substitutions):
+                    adjusted = adjusted.replace(inputs[sub_i], str(sub))
+                # all inputs are adjusted, now evaluate the expression
+                answer = eval(adjusted)
+            except Exception as e:
+                print(e)
+                # print(base_out, '\n', adjusted)
+                return None
+
+            if first_answer is None:
+                first_answer = answer
+            if answer != first_answer:
+                # print('v2: mix of true and false')
+                # return None
+                pass
+            if answer is True:
+                print(substitutions, adjusted, inputs)
+
+            answers.append(answer)
+        # print(answers)
+        if all(answers):
+            print(all(answers))
+            return '1'
+        elif not any(answers):
+            print(all(answers))
+            return '0'
+        else:
+            # can no longer get to this code
+            print('v1: mix of true and false')
+            print(Counter(answers))
+
+    return None
 
 
 if __name__ == '__main__':
@@ -386,7 +452,7 @@ if __name__ == '__main__':
 #     print(f'{n} is valid??', result)
 
     # Actual data
-    RAW = load_data('input.txt')
+    RAW = load_data('day24.txt')
     commands = parse_data(RAW)
 
     # Part 1
@@ -398,5 +464,7 @@ if __name__ == '__main__':
     # print(pd.Series(y).describe())
 
     # part1_via_prio_queue()
-
+    # is_valid(fourteen_digit_number=[9, 9, 9, 9, 9, 9, 9, 3, 7, 7, 4, 9, 3, 9]) #'99999993774939')
     part1_via_string_alu()
+
+
