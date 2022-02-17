@@ -1,9 +1,19 @@
 import glob
 import os
 
+from . import Strategy
+
 
 def flatten(t):
     return [item for sublist in t for item in sublist]
+
+
+def generate_file_name(problem_file: str, score: int, solver: Strategy):
+    return f'{os.path.basename(problem_file)[0]}-{score:06d}-{solver.name}.txt'
+
+
+def get_problem_name(file_name: str):
+    return os.path.basename(file_name)[0]
 
 
 def best_score(directory: str):

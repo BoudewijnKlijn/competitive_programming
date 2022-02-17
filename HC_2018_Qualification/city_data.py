@@ -1,12 +1,7 @@
 from dataclasses import dataclass
 
+from HC_2018_Qualification.location import Location
 from valcon import InputData
-
-
-@dataclass
-class Location:
-    x: int
-    y: int
 
 
 @dataclass
@@ -16,6 +11,10 @@ class Ride:
     end: Location
     earliest: int
     latest: int
+
+    @property
+    def max_payout(self) -> int:
+        return abs(self.end.x - self.start.x) + abs(self.end.y - self.start.y)
 
 
 class CityData(InputData):
