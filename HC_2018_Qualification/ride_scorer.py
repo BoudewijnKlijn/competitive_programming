@@ -36,6 +36,10 @@ class RideScore(Scorer):
         rides_done = set()
         distance_score = 0
         bonus_score = 0
+        n_bonus = 0
+        n_rides_possible = len(self.rides)
+        n_rides_started = 0
+        n_rides_finished = 0
         for schedules in output_data.car_schedules:
             ride_ids = schedules.rides
             time = 0
@@ -44,8 +48,9 @@ class RideScore(Scorer):
                 # Make sure ride is not assigned twice.
                 if ride_id in rides_done:
                     raise ValueError(f'Ride {ride_id} is assigned twice')
-                else:
-                    rides_done.add(ride_id)
+
+                rides_done.add(ride_id)
+                n_rides_started += 1
 
                 # Drive to pickup.
                 pickup_position = self.rides[ride_id].start
@@ -59,7 +64,7 @@ class RideScore(Scorer):
 
                 # Bonus point if vehicle arrives at pickup at before or on the earliest time.
                 if time <= self.rides[ride_id].earliest:
-                    bonus_score += self.bonus
+                    n_bonus += 1
                 else:
                     # Ride cannot start before pickup time. Update time to at least the pickup time.
                     time = max(time, self.rides[ride_id].earliest)
@@ -77,12 +82,17 @@ class RideScore(Scorer):
                 # If ride is on time, add ride travel distance to score.
                 if time < self.rides[ride_id].latest:
                     distance_score += travel_distance
+                    n_rides_finished += 1
 
                 # Continue with next ride.
             # Continue with next vehicle.
 
         if self.verbose:
-            print(f'{distance_score=}, {bonus_score=}')
+            bonus_score = n_bonus * self.bonus
+            print(f'{distance_score=}, {bonus_score=}, {n_bonus=}\n'
+                  f'{n_rides_possible=}, {n_rides_started=} ({n_rides_started / n_rides_possible:.2f}), '
+                  f'{n_rides_finished=} ({n_rides_finished / n_rides_possible:.2f} / '
+                  f'{n_rides_finished / n_rides_started:.2f})')
         return distance_score + bonus_score
 
 

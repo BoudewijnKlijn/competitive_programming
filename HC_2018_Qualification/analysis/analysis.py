@@ -18,7 +18,6 @@ if __name__ == '__main__':
         'e_high_bonus.in',
     ]
 
-    # waar worden mensen vaak opgehaald en gedropt
     # je wilt alleen rides pakken die dropoffs hebben in de buurt van volgende pickups
 
     for problem_file in files:
