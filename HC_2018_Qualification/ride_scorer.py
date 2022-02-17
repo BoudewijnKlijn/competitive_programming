@@ -1,12 +1,8 @@
 import os
-from typing import Iterable
 
-from valcon import OutputData
-from valcon import Strategy
-from valcon.scorer import Scorer
-
-from HC_2018_Qualification.city_data import CityData
 from HC_2018_Qualification.car_schedules import CarSchedule
+from HC_2018_Qualification.city_data import CityData
+from valcon.scorer import Scorer
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 OUTPUT_DIRECTORY = os.path.join(THIS_PATH, 'output')
@@ -32,41 +28,44 @@ class RideScore(Scorer):
     def manhattan_distance(position1, position2):
         return abs(position1[0] - position2[0]) + abs(position1[1] - position2[1])
 
-    def calculate(self, output_data) -> int:
+    def calculate(self, output_data: CarSchedule) -> int:
         score = 0
-        for vehicle in output_data:
+        for vehicle in output_data.rides:
             ride_ids = [ride_id for ride_id in vehicle.rides]
             time = 0
             vehicle_position = (0, 0)
             for ride_id in ride_ids:
-                # drive to the first pickup
-                pickup_position = self.rides[ride_id].pickup
+                # Drive to pickup.
+                pickup_position = self.rides[ride_id].start
                 travel_distance = self.manhattan_distance(vehicle_position, pickup_position)
+                vehicle_position = pickup_position
                 time += travel_distance
 
-                # first check if bonus points
-                if time == self.rides[ride_id].earliest_start:
-                    score += self.rides[ride_id].bonus
-                # ride cannot start before pickup time. update time to at least the pickup time
-                time = max(time, self.rides[ride_id].earliest_start)
+                # Stop simulation if out of time.
+                if time > self.steps:
+                    break
 
-        for customer in self.pizza_demands.customers:
-            if customer.will_order(output_data):
-                score += 1
+                # Bonus point if vehicle arrives at pickup at precisely the correct time.
+                if time == self.rides[ride_id].earliest:
+                    score += self.bonus
+                else:
+                    # Ride cannot start before pickup time. Update time to at least the pickup time.
+                    time = max(time, self.rides[ride_id].earliest)
+
+                # Drive to drop off.
+                drop_off_position = self.rides[ride_id].end
+                travel_distance = self.manhattan_distance(vehicle_position, drop_off_position)
+                vehicle_position = drop_off_position
+                time += travel_distance
+
+                # Stop simulation if out of time.
+                if time > self.steps:
+                    break
+
+                # If ride is on time, add ride travel distance to score.
+                if time < self.rides[ride_id].latest:
+                    score += travel_distance
+
+                # Continue with next ride.
+            # Continue with next vehicle.
         return score
-
-    def calculate_multi(self, multi_output_data: Iterable[OutputData]) -> Iterable[int]:
-        pass
-
-    def repeat_solve(self, strategy: Strategy, n_repetitions: int) -> Strategy:
-        for seed in range(n_repetitions):
-            strategy.change_seed(seed)
-            solution = strategy.solve(self.pizza_demands)
-            score = self.calculate(solution)
-            if strategy.best_score is None or score > strategy.best_score:
-                strategy.best_seed = seed
-                strategy.best_score = score
-                strategy.best_output = solution
-                if solution is None:
-                    print(seed, 'None')
-        return strategy
