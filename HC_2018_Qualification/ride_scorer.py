@@ -36,6 +36,7 @@ class RideScore(Scorer):
         rides_done = set()
         distance_score = 0
         bonus_score = 0
+        n_bonus = 0
         for schedules in output_data.car_schedules:
             ride_ids = schedules.rides
             time = 0
@@ -59,7 +60,7 @@ class RideScore(Scorer):
 
                 # Bonus point if vehicle arrives at pickup at before or on the earliest time.
                 if time <= self.rides[ride_id].earliest:
-                    bonus_score += self.bonus
+                    n_bonus += 1
                 else:
                     # Ride cannot start before pickup time. Update time to at least the pickup time.
                     time = max(time, self.rides[ride_id].earliest)
@@ -82,7 +83,8 @@ class RideScore(Scorer):
             # Continue with next vehicle.
 
         if self.verbose:
-            print(f'{distance_score=}, {bonus_score=}')
+            bonus_score = n_bonus * self.bonus
+            print(f'{distance_score=}, {bonus_score=}, {n_bonus=}')
         return distance_score + bonus_score
 
 
