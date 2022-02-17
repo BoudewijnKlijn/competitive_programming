@@ -6,7 +6,7 @@ from valcon.strategies.strategy import Strategy
 
 
 class BaseLineStrategy(Strategy):
-    def solve(self, city_data: CityData):
+    def solve(self, city_data: CityData) -> CarSchedules:
         """
         Uses a BaseLine strategy that just schedules one ride per vehicle
             or multiple if we have more rides than vehicles)
