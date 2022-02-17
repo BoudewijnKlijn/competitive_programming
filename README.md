@@ -57,3 +57,8 @@ Repeater pakt strategie en voert meerdere keren uit, steeds met een andere seed.
 Improver pakt een strategie (of output) voert die uit en past een (reproduceerbare?) verbetering toe.
 
 Nog een idee: we kunnen direct met output genereren. Het is niet lastig om valide output te genereren. In het begin hebben we nog geen scorer, dus score weten we niet.  scorer zou dus moeten kunnen runnen op opgeslagen output. Zoveel mogelijk gebruikmaken van processing power van onze laptops. Er moet eigenlijk continue een oplossing worden uitgepoept
+
+
+## 17-02-2022
+
+op welke probleem moeten we focussen. het probleem waar we nog de meeste punten kunnen winnen. we kunnen de theoretische max score berekenen, maar vaak is die niet te bereiken. we kunnen ook kijken hoe we het doen tov het leaderboard. maar dat is alleen mogelijk zolang het leaderboard openbaar is en wordt geupdatet.
