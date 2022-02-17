@@ -90,7 +90,9 @@ class RideScore(Scorer):
         if self.verbose:
             bonus_score = n_bonus * self.bonus
             print(f'{distance_score=}, {bonus_score=}, {n_bonus=}\n'
-                  f'{n_rides_possible=}, {n_rides_started=}, {n_rides_finished=}')
+                  f'{n_rides_possible=}, {n_rides_started=} ({n_rides_started / n_rides_possible:.2f}), '
+                  f'{n_rides_finished=} ({n_rides_finished / n_rides_possible:.2f} / '
+                  f'{n_rides_finished / n_rides_started:.2f})')
         return distance_score + bonus_score
 
 

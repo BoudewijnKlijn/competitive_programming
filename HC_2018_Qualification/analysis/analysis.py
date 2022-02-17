@@ -36,6 +36,7 @@ if __name__ == '__main__':
 
         print(f'{problem_file}')
         print(f'{input_data.steps=}')
+        print(f'{input_data.vehicles=}')
         print(f'{input_data.bonus=}')
         print(f'{theoretical_max_score=:,}')
         print()
