@@ -1,7 +1,7 @@
 import os
 
-from HC_2018_Qualification.car_schedules import CarSchedule
-from HC_2018_Qualification.city_data import CityData
+from HC_2018_Qualification.car_schedules import CarSchedules
+from HC_2018_Qualification.city_data import CityData, Location
 from valcon.scorer import Scorer
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -25,15 +25,14 @@ class RideScore(Scorer):
         self.bonus = input_data.bonus
 
     @staticmethod
-    def manhattan_distance(position1, position2):
-        return abs(position1[0] - position2[0]) + abs(position1[1] - position2[1])
+    def manhattan_distance(position1: Location, position2: Location) -> int:
+        return abs(position1.x - position2.x) + abs(position1.y - position2.y)
 
-    def calculate(self, output_data: CarSchedule) -> int:
+    def calculate(self, output_data: CarSchedules) -> int:
         score = 0
-        for vehicle in output_data.rides:
-            ride_ids = [ride_id for ride_id in vehicle.rides]
+        for _, ride_ids in output_data.car_schedules:
             time = 0
-            vehicle_position = (0, 0)
+            vehicle_position = Location(0, 0)
             for ride_id in ride_ids:
                 # Drive to pickup.
                 pickup_position = self.rides[ride_id].start
@@ -69,3 +68,16 @@ class RideScore(Scorer):
                 # Continue with next ride.
             # Continue with next vehicle.
         return score
+
+
+if __name__ == '__main__':
+    schedules = [
+        [1, [0]],
+        [2, [2, 1]]
+    ]
+    output = CarSchedules(schedules)
+
+    input_data = CityData(os.path.join(THIS_PATH, 'input', 'a_example.in'))
+    ride_scorer = RideScore(input_data)
+    score = ride_scorer.calculate(output_data=output)
+    print(score)

@@ -15,7 +15,7 @@ class Scorer(ABC):
         """ calculates score of the output data """
         pass
 
-    @abstractmethod
-    def calculate_multi(self, multi_output_data: Iterable[OutputData]) -> Iterable[int]:
-        """Calculate score multiple times, once for each output data."""
-        raise NotImplementedError
+    # @abstractmethod
+    # def calculate_multi(self, multi_output_data: Iterable[OutputData]) -> Iterable[int]:
+    #     """Calculate score multiple times, once for each output data."""
+    #     raise NotImplementedError
