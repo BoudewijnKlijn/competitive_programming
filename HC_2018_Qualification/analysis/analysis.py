@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 import pandas as pd
 
 from HC_2018_Qualification.city_data import CityData
@@ -32,7 +31,6 @@ if __name__ == '__main__':
         theoretical_max_score = len(input_data.rides) * input_data.bonus + sum(ride_distances)
 
         print(f'{problem_file}')
-        # print(np.array(ride_distances).mean())
         print(f'{input_data.steps=}')
         print(f'{input_data.bonus=}')
         print(f'{theoretical_max_score=:,}')
