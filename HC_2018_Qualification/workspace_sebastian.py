@@ -16,12 +16,14 @@ if __name__ == '__main__':
 
     # current_best = best_score(output_directory)
 
-    files = ['./input/a_example.in']
+    #files = ['./input/a_example.in']
     for problem_file in files:
         problem_file = os.path.abspath(problem_file)
+        print(problem_file)
         problem = os.path.basename(problem_file)[0]
         city_data = CityData(problem_file)
 
         strategy = BaseLineStrategy()
         output_data = strategy.solve(city_data)
         print(output_data)
+

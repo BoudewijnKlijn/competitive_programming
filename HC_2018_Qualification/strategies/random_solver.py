@@ -16,3 +16,4 @@ class RandomSolver(Strategy):
         rng.shuffle(input_data.rides)
 
         return BaseLineStrategy().solve(input_data)
+
