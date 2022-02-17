@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from HC_2018_Qualification.car_schedules import CarSchedules, CarSchedule
 from HC_2018_Qualification.city_data import CityData, Ride
 from HC_2018_Qualification.location import Location
-from HC_2018_Qualification.ride_scorer import RideScore
+from HC_2018_Qualification.ride_scorer import RideScore, get_distance
 
 from valcon import Strategy, InputData, OutputData
 from valcon.utils import best_score, generate_file_name, get_problem_name
@@ -29,25 +29,42 @@ class Car:
     rides: list[Ride]
 
 
-class SimulateCity(Strategy):
+class SimCity(Strategy):
+    def __init__(self):
+        super().__init__()
 
     def best_ride(self, car: Car, rides: list, step: int):
+        if not rides:
+            return None
         return rides[0]
 
     def solve(self, input_data: CityData) -> CarSchedules:
-        unused_cars = [Car(Location(0, 0)) for _ in range(input_data.vehicles)]
+
+        cars = [Car(Location(0, 0), []) for _ in range(input_data.vehicles)]
 
         timeline = [[] for _ in range(input_data.steps)]
-
+        timeline[0] = cars  # we are not modifying this list so this is ok
         unfinished_rides = input_data.rides.copy()
 
         for step in range(input_data.steps):
+            unused_cars = timeline[step]
             for car in unused_cars:
-                car = unused_cars.pop(0)
                 best_ride = self.best_ride(car, unfinished_rides, step)
+                if not best_ride:
+                    continue
+                unfinished_rides.remove(best_ride)
+
                 car.rides.append(best_ride.id)
-                timeline_position = get_distance(car.location, best_ride.start) + get_distance(best_ride.start,
-                                                                                               best_ride.end)
+
+                timeline_position = max(
+                    (step + get_distance(car.location, best_ride.start)),
+                    best_ride.earliest
+                ) + get_distance(best_ride.start, best_ride.end)
+
+                if timeline_position < input_data.steps:
+                    timeline[timeline_position].append(car)
+
+        return CarSchedules([CarSchedule(len(car.rides), car.rides) for car in cars])
 
 
 class MarcoRandom(Strategy):
@@ -82,7 +99,7 @@ if __name__ == '__main__':
         problem = CityData(problem_file)
         print(problem)
 
-        solver = MarcoRandom()
+        solver = SimCity()
         scorer = RideScore(problem)
 
         start = time.perf_counter()
