@@ -1,11 +1,24 @@
 import glob
 import os
+import numpy as np
 
+from HC_2018_Qualification.car_schedules import CarSchedules
 from HC_2018_Qualification.city_data import CityData
 
 # from HC_2019_Qualification.precalc_transition_scores import best_score
+from valcon import Strategy, InputData, OutputData
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
+
+#
+# class Randomnessie(Strategy):
+#
+#     def solve(self, input_data: CityData) -> CarSchedules:
+#         P = len(input_data.vehicles)
+#         split_points = np.random.choice(P - 2, I - 1, replace=False) + 1
+#         split_points.sort()
+#         result = np.split(data, split_points)
+
 
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'input')

@@ -9,18 +9,13 @@ class Location:
     y: int
 
 
+@dataclass
 class Ride:
-    def __init__(self, start, end, earliest, latest):
-        self.start = start
-        self.end = end
-        self.earliest = earliest
-        self.latest = latest
-
-    def __str__(self):
-        return '{} {} {} {}'.format(self.start, self.end, self.earliest, self.latest)
-
-    def __repr__(self):
-        return self.__str__()
+    id: int
+    start: Location
+    end: Location
+    earliest: int
+    latest: int
 
 
 class CityData(InputData):
@@ -32,12 +27,12 @@ class CityData(InputData):
         self.rows = rows
         self.columns = columns
         self.vehicles = vehicles
-        self.rides = [self.parse_ride(x) for x in raw_rides]
+        self.rides = [self.parse_ride(i, x) for i, x in enumerate(raw_rides)]
         self.bonus = bonus
         self.steps = steps
 
     @staticmethod
-    def parse_ride(raw_ride):
+    def parse_ride(ride_id: int, raw_ride):
         start_x, start_y, finish_x, finish_y, earliest_start, latest_finish = [int(x) for x in raw_ride.split()]
 
-        return Ride(Location(start_x, start_y), Location(finish_x, finish_y), earliest_start, latest_finish)
+        return Ride(ride_id, Location(start_x, start_y), Location(finish_x, finish_y), earliest_start, latest_finish)

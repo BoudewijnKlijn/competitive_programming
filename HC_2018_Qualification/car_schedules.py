@@ -8,6 +8,9 @@ class CarSchedule:
     nr_of_rides: int
     rides: [int]
 
+    def __repr__(self):
+        return str(self.rides)
+
 
 class CarSchedules(OutputData):
     def __init__(self, car_schedules: [CarSchedule]):
@@ -17,3 +20,6 @@ class CarSchedules(OutputData):
         with open(filename, 'w') as file:
             for schedule in self.car_schedules:
                 file.write(f"{schedule.nr_of_rides} {' '.join(schedule.rides)}\n")
+
+    def __repr__(self):
+        return f"CarSchedules {self.car_schedules}"
