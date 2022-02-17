@@ -14,14 +14,14 @@ class BaseLineStrategy(Strategy):
         max_rides = len(city_data.rides)
         max_vehicles = city_data.vehicles
 
-        print(f"Max vehicles: {max_vehicles}")
-        print(f"Max rides: {max_rides}")
+        #print(f"Max vehicles: {max_vehicles}")
+        #print(f"Max rides: {max_rides}")
         # If more rides than vehicles, we need multiple rides per vehicle
         if max_vehicles < max_rides:
             nr_rides_per_vehicle = math.ceil(max_rides / max_vehicles)
         else:
             nr_rides_per_vehicle = 1
-        print(f"Nr of vehicles per ride: {nr_rides_per_vehicle}")
+        #print(f"Nr of vehicles per ride: {nr_rides_per_vehicle}")
 
         # For every vehicle, just assign the nr of rides in the order we received them
         car_schedules = []
