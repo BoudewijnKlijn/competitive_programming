@@ -17,6 +17,10 @@ class Ride:
     earliest: int
     latest: int
 
+    @property
+    def max_payout(self) -> int:
+        return abs(self.end.x - self.start.x) + abs(self.end.y - self.start.y)
+
 
 class CityData(InputData):
     def __init__(self, file_name: str):
