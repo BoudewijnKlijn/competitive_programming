@@ -1,6 +1,6 @@
 import os
 
-from HC_2018_Qualification.car_schedules import CarSchedules
+from HC_2018_Qualification.car_schedules import CarSchedules, CarSchedule
 from HC_2018_Qualification.city_data import CityData, Location
 from valcon.scorer import Scorer
 
@@ -33,7 +33,8 @@ class RideScore(Scorer):
     def calculate(self, output_data: CarSchedules) -> int:
         distance_score = 0
         bonus_score = 0
-        for _, ride_ids in output_data.car_schedules:
+        for schedules in output_data.car_schedules:
+            ride_ids = schedules.rides
             time = 0
             vehicle_position = Location(0, 0)
             for ride_id in ride_ids:
@@ -78,8 +79,8 @@ class RideScore(Scorer):
 
 if __name__ == '__main__':
     schedules = [
-        [1, [0]],
-        [2, [2, 1]]
+        CarSchedule(1, [0]),
+        CarSchedule(2, [2, 1]),
     ]
     output = CarSchedules(schedules)
 
