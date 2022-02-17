@@ -33,6 +33,7 @@ class RideScore(Scorer):
         self.verbose = verbose
 
     def calculate(self, output_data: CarSchedules) -> int:
+        rides_done = set()
         distance_score = 0
         bonus_score = 0
         for schedules in output_data.car_schedules:
@@ -40,6 +41,12 @@ class RideScore(Scorer):
             time = 0
             vehicle_position = Location(0, 0)
             for ride_id in ride_ids:
+                # Make sure ride is not assigned twice.
+                if ride_id in rides_done:
+                    raise ValueError(f'Ride {ride_id} is assigned twice')
+                else:
+                    rides_done.add(ride_id)
+
                 # Drive to pickup.
                 pickup_position = self.rides[ride_id].start
                 travel_distance = get_distance(vehicle_position, pickup_position)

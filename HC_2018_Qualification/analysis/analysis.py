@@ -1,9 +1,9 @@
-import json
 import os
-from collections import Counter
+
+import pandas as pd
 
 from HC_2018_Qualification.city_data import CityData
-from HC_2018_Qualification.ride_scorer import RideScore
+from HC_2018_Qualification.ride_scorer import get_distance
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -22,12 +22,19 @@ if __name__ == '__main__':
 
     for problem_file in files:
         input_data = CityData(os.path.join(directory, problem_file))
-        scorer = RideScore(input_data)
 
         ride_distances = []
-        for ride in input_data.rides:
-            ride_distance = scorer.distance(ride.start, ride.end)
+        for ride_id in input_data.rides:
+            ride_distance = get_distance(ride_id.start, ride_id.end)
             ride_distances.append(ride_distance)
 
-        print(mean)
+        theoretical_max_score = len(input_data.rides) * input_data.bonus + sum(ride_distances)
+
+        print(f'{problem_file}')
+        print(f'{input_data.steps=}')
+        print(f'{input_data.bonus=}')
+        print(f'{theoretical_max_score=:,}')
+        print()
+        print(pd.Series(ride_distances).describe())
+        print()
 
