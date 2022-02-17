@@ -7,7 +7,7 @@ from valcon.strategies.strategy import Strategy
 
 
 class RandomSolver(Strategy):
-    def __init__(self, seed: int):
+    def __init__(self, seed=1):
         self.seed = seed
         super().__init__(seed)
 
