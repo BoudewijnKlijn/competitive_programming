@@ -34,6 +34,7 @@ class CityData(InputData):
         self.vehicles = vehicles
         self.rides = [self.parse_ride(x) for x in raw_rides]
         self.bonus = bonus
+        self.steps = steps
 
     @staticmethod
     def parse_ride(raw_ride):
