@@ -12,7 +12,7 @@ from HC_2018_Qualification.location import Location
 from HC_2018_Qualification.ride_scorer import RideScore, get_distance
 
 from valcon import Strategy, InputData, OutputData
-from valcon.utils import best_score, generate_file_name, get_problem_name
+from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -42,7 +42,15 @@ class SimCity(Strategy):
                                                                                       ride.end) <= ride.latest
                          ]
 
-        scoring_rides.sort(key=lambda ride: ride.max_payout - get_distance(car.location, ride.start), reverse=True)
+        def ride_score(ride: Ride):
+            has_bonus = step + get_distance(car.location, ride.start) <= ride.earliest
+
+            score = self.bonus if has_bonus else 0
+            score += ride.max_payout
+
+            return score
+
+        scoring_rides.sort(key=lambda ride: ride_score(ride), reverse=True)
 
         if not scoring_rides:
             return None
@@ -57,6 +65,7 @@ class SimCity(Strategy):
         timeline = [[] for _ in range(input_data.steps)]
         timeline[0] = cars  # we are not modifying this list so this is ok
         unfinished_rides = input_data.rides.copy()
+        print(f"{len(unfinished_rides)} rides to start with")
 
         for step in range(input_data.steps):
             unused_cars = timeline[step]
@@ -77,6 +86,8 @@ class SimCity(Strategy):
                     timeline[timeline_position].append(car)
                 else:
                     print('not allowed')
+
+        print(f'{len(flatten(car.rides for car in cars))=}')
 
         return CarSchedules([CarSchedule(len(car.rides), car.rides) for car in cars])
 
@@ -110,6 +121,7 @@ if __name__ == '__main__':
 
     for problem_file in files:
         problem_name = get_problem_name(problem_file)
+        print(f'--- {problem_name} ---')
         problem = CityData(problem_file)
         print(problem)
 
