@@ -32,7 +32,9 @@ class BaseLineStrategy(Strategy):
             assert len(rides) == nr_rides_per_vehicle, f"Expected {nr_rides_per_vehicle} rides, received {len(rides)}"
             nr_rides = len(rides)
 
-            car_schedules.append(CarSchedule(nr_rides, rides))
+            relevant_ride_idxs = [ride.id for ride in rides]
+            print(relevant_ride_idxs)
+            car_schedules.append(CarSchedule(nr_rides, relevant_ride_idxs))
 
         output_data = CarSchedules(car_schedules)
         return output_data
