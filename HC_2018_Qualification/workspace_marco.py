@@ -32,13 +32,25 @@ class Car:
 class SimCity(Strategy):
     def __init__(self):
         super().__init__()
+        self.bonus = 0
 
     def best_ride(self, car: Car, rides: list, step: int):
-        if not rides:
+
+        scoring_rides = [ride for ride in rides
+                         if
+                         step + get_distance(car.location, ride.start) + get_distance(ride.start,
+                                                                                      ride.end) <= ride.latest
+                         ]
+
+        scoring_rides.sort(key=lambda ride: ride.max_payout - get_distance(car.location, ride.start), reverse=True)
+
+        if not scoring_rides:
             return None
-        return rides[0]
+
+        return scoring_rides[0]
 
     def solve(self, input_data: CityData) -> CarSchedules:
+        self.bonus = input_data.bonus
 
         cars = [Car(Location(0, 0), []) for _ in range(input_data.vehicles)]
 
@@ -61,8 +73,10 @@ class SimCity(Strategy):
                     best_ride.earliest
                 ) + get_distance(best_ride.start, best_ride.end)
 
-                if timeline_position < input_data.steps:
+                if timeline_position <= input_data.steps:
                     timeline[timeline_position].append(car)
+                else:
+                    print('not allowed')
 
         return CarSchedules([CarSchedule(len(car.rides), car.rides) for car in cars])
 
