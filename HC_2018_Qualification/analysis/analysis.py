@@ -29,8 +29,14 @@ if __name__ == '__main__':
             ride_distance = get_distance(ride_id.start, ride_id.end)
             ride_distances.append(ride_distance)
 
+        theoretical_max_score = len(input_data.rides) * input_data.bonus + sum(ride_distances)
+
         print(f'{problem_file}')
         # print(np.array(ride_distances).mean())
+        print(f'{input_data.steps=}')
+        print(f'{input_data.bonus=}')
+        print(f'{theoretical_max_score=:,}')
+        print()
         print(pd.Series(ride_distances).describe())
         print()
 
