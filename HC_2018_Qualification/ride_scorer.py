@@ -19,24 +19,27 @@ class RideScore(Scorer):
     1 0      this vehicle is assigned 1 ride: [0]
     2 2 1    this vehicle is assigned 2 rides: [2, 1]
     """
-    def __init__(self, input_data: CityData):
+    def __init__(self, input_data: CityData, verbose: bool = True):
         self.rides = input_data.rides
         self.steps = input_data.steps
         self.bonus = input_data.bonus
+        self.verbose = verbose
 
     @staticmethod
-    def manhattan_distance(position1: Location, position2: Location) -> int:
+    def distance(position1: Location, position2: Location) -> int:
+        """Manhattan distance."""
         return abs(position1.x - position2.x) + abs(position1.y - position2.y)
 
     def calculate(self, output_data: CarSchedules) -> int:
-        score = 0
+        distance_score = 0
+        bonus_score = 0
         for _, ride_ids in output_data.car_schedules:
             time = 0
             vehicle_position = Location(0, 0)
             for ride_id in ride_ids:
                 # Drive to pickup.
                 pickup_position = self.rides[ride_id].start
-                travel_distance = self.manhattan_distance(vehicle_position, pickup_position)
+                travel_distance = self.distance(vehicle_position, pickup_position)
                 vehicle_position = pickup_position
                 time += travel_distance
 
@@ -46,14 +49,14 @@ class RideScore(Scorer):
 
                 # Bonus point if vehicle arrives at pickup at before or on the earliest time.
                 if time <= self.rides[ride_id].earliest:
-                    score += self.bonus
+                    bonus_score += self.bonus
                 else:
                     # Ride cannot start before pickup time. Update time to at least the pickup time.
                     time = max(time, self.rides[ride_id].earliest)
 
                 # Drive to drop off.
                 drop_off_position = self.rides[ride_id].end
-                travel_distance = self.manhattan_distance(vehicle_position, drop_off_position)
+                travel_distance = self.distance(vehicle_position, drop_off_position)
                 vehicle_position = drop_off_position
                 time += travel_distance
 
@@ -63,11 +66,14 @@ class RideScore(Scorer):
 
                 # If ride is on time, add ride travel distance to score.
                 if time < self.rides[ride_id].latest:
-                    score += travel_distance
+                    distance_score += travel_distance
 
                 # Continue with next ride.
             # Continue with next vehicle.
-        return score
+
+        if self.verbose:
+            print(f'{distance_score=}, {bonus_score=}')
+        return distance_score + bonus_score
 
 
 if __name__ == '__main__':
