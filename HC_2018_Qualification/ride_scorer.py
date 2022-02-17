@@ -9,6 +9,11 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 OUTPUT_DIRECTORY = os.path.join(THIS_PATH, 'output')
 
 
+def get_distance(position1: Location, position2: Location) -> int:
+    """Manhattan distance."""
+    return abs(position1.x - position2.x) + abs(position1.y - position2.y)
+
+
 class RideScore(Scorer):
     """
     Calculate score for output rides.
@@ -27,11 +32,6 @@ class RideScore(Scorer):
         self.bonus = input_data.bonus
         self.verbose = verbose
 
-    @staticmethod
-    def distance(position1: Location, position2: Location) -> int:
-        """Manhattan distance."""
-        return abs(position1.x - position2.x) + abs(position1.y - position2.y)
-
     def calculate(self, output_data: CarSchedules) -> int:
         distance_score = 0
         bonus_score = 0
@@ -42,7 +42,7 @@ class RideScore(Scorer):
             for ride_id in ride_ids:
                 # Drive to pickup.
                 pickup_position = self.rides[ride_id].start
-                travel_distance = self.distance(vehicle_position, pickup_position)
+                travel_distance = get_distance(vehicle_position, pickup_position)
                 vehicle_position = pickup_position
                 time += travel_distance
 
@@ -59,7 +59,7 @@ class RideScore(Scorer):
 
                 # Drive to drop off.
                 drop_off_position = self.rides[ride_id].end
-                travel_distance = self.distance(vehicle_position, drop_off_position)
+                travel_distance = get_distance(vehicle_position, drop_off_position)
                 vehicle_position = drop_off_position
                 time += travel_distance
 
