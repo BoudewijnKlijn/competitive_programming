@@ -1,7 +1,4 @@
-from dataclasses import dataclass
+from collections import namedtuple
 
 
-@dataclass
-class Location:
-    x: int
-    y: int
+Location = namedtuple('Location', ['x', 'y'])
