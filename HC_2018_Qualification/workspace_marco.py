@@ -17,12 +17,6 @@ from valcon.utils import best_score, generate_file_name, get_problem_name, flatt
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-# class PayToWin(Strategy):
-#
-#     def solve(self, input_data: CityData) -> CarSchedules:
-#         ordered_rides = input_data.rides.copy()
-#         ordered_rides.sort(key=lambda ride: ride.max_payout)
-
 @dataclass
 class Car:
     location: Location
@@ -46,7 +40,7 @@ class SimCity(Strategy):
             has_bonus = step + get_distance(car.location, ride.start) <= ride.earliest
 
             score = self.bonus if has_bonus else 0
-            score += ride.max_payout
+            score += ride.max_payout - get_distance(car.location, ride.start) * 2
 
             return score
 
@@ -82,7 +76,7 @@ class SimCity(Strategy):
                     best_ride.earliest
                 ) + get_distance(best_ride.start, best_ride.end)
 
-                if timeline_position <= input_data.steps:
+                if timeline_position < input_data.steps:
                     timeline[timeline_position].append(car)
                 else:
                     print('not allowed')
@@ -123,7 +117,6 @@ if __name__ == '__main__':
         problem_name = get_problem_name(problem_file)
         print(f'--- {problem_name} ---')
         problem = CityData(problem_file)
-        print(problem)
 
         solver = SimCity()
         scorer = RideScore(problem)
@@ -137,9 +130,13 @@ if __name__ == '__main__':
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
 
         out_file = generate_file_name(problem_file, score, solver)
-        print(f'Writing {out_file}')
 
-        if current_best[problem_name] < score:
+        if score > current_best[problem_name]:
+            print(f'Writing {out_file}')
             solution.save(os.path.join(output_directory, out_file))
+        else:
+            print(f'No improvement for {problem_name}')
+
+        print('\n')
 
     print(best_score(output_directory))
