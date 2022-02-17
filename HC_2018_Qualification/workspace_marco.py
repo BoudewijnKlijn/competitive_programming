@@ -1,11 +1,14 @@
 import glob
 import os
 import time
+from copy import copy
 
 import numpy as np
+from dataclasses import dataclass
 
 from HC_2018_Qualification.car_schedules import CarSchedules, CarSchedule
-from HC_2018_Qualification.city_data import CityData
+from HC_2018_Qualification.city_data import CityData, Ride
+from HC_2018_Qualification.location import Location
 from HC_2018_Qualification.ride_scorer import RideScore
 
 from valcon import Strategy, InputData, OutputData
@@ -19,6 +22,32 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 #     def solve(self, input_data: CityData) -> CarSchedules:
 #         ordered_rides = input_data.rides.copy()
 #         ordered_rides.sort(key=lambda ride: ride.max_payout)
+
+@dataclass
+class Car:
+    location: Location
+    rides: list[Ride]
+
+
+class SimulateCity(Strategy):
+
+    def best_ride(self, car: Car, rides: list, step: int):
+        return rides[0]
+
+    def solve(self, input_data: CityData) -> CarSchedules:
+        unused_cars = [Car(Location(0, 0)) for _ in range(input_data.vehicles)]
+
+        timeline = [[] for _ in range(input_data.steps)]
+
+        unfinished_rides = input_data.rides.copy()
+
+        for step in range(input_data.steps):
+            for car in unused_cars:
+                car = unused_cars.pop(0)
+                best_ride = self.best_ride(car, unfinished_rides, step)
+                car.rides.append(best_ride.id)
+                timeline_position = get_distance(car.location, best_ride.start) + get_distance(best_ride.start,
+                                                                                               best_ride.end)
 
 
 class MarcoRandom(Strategy):

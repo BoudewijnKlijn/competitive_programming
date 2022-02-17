@@ -1,12 +1,7 @@
 from dataclasses import dataclass
 
+from HC_2018_Qualification.location import Location
 from valcon import InputData
-
-
-@dataclass
-class Location:
-    x: int
-    y: int
 
 
 @dataclass

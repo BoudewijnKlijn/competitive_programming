@@ -1,7 +1,8 @@
 import os
 
 from HC_2018_Qualification.car_schedules import CarSchedules, CarSchedule
-from HC_2018_Qualification.city_data import CityData, Location
+from HC_2018_Qualification.city_data import CityData
+from HC_2018_Qualification.location import Location
 from valcon.scorer import Scorer
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -19,6 +20,7 @@ class RideScore(Scorer):
     1 0      this vehicle is assigned 1 ride: [0]
     2 2 1    this vehicle is assigned 2 rides: [2, 1]
     """
+
     def __init__(self, input_data: CityData, verbose: bool = True):
         self.rides = input_data.rides
         self.steps = input_data.steps
