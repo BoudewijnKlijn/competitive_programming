@@ -44,8 +44,8 @@ class RideScore(Scorer):
                 if time > self.steps:
                     break
 
-                # Bonus point if vehicle arrives at pickup at precisely the correct time.
-                if time == self.rides[ride_id].earliest:
+                # Bonus point if vehicle arrives at pickup at before or on the earliest time.
+                if time <= self.rides[ride_id].earliest:
                     score += self.bonus
                 else:
                     # Ride cannot start before pickup time. Update time to at least the pickup time.
