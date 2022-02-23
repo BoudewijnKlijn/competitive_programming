@@ -63,3 +63,7 @@ Nog een idee: we kunnen direct met output genereren. Het is niet lastig om valid
 
 - op welke probleem moeten we focussen. het probleem waar we nog de meeste punten kunnen winnen. we kunnen de theoretische max score berekenen, maar vaak is die niet te bereiken. we kunnen ook kijken hoe we het doen tov het leaderboard. maar dat is alleen mogelijk zolang het leaderboard openbaar is en wordt geupdatet.
 - maak overzicht van interessante statistieken op basis van inputdata die kunnen worden gebruikt door strategies. bijv voor 2018, wat is de transitie (afstand) van ritje naar volgend ritje (dus van dropoff naar pickup). daarna moeten ritjes aan elkaar worden geregen door de laagste tranisitiescores te pakken.
+
+## 23-02-2022
+
+pandas profiling report maken van input
