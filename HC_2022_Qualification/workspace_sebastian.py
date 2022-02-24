@@ -55,7 +55,7 @@ def solve_random(files):
         problem = ProblemData(problem_file)
 
         solver = RandomStrategy()
-        #print(f"Solution: {solver.solve(problem)}")
+        print(f"Solution: {solver.solve(problem)}")
         ##break
         scorer = Score(problem)
 
@@ -87,5 +87,5 @@ if __name__ == '__main__':
     input_files = glob.glob(os.path.join(directory, "*.txt"))
     input_files = sorted(input_files)
 
-    solve_baseline(input_files, output_directory)
-    #solve_random(input_files)
+    #solve_baseline(input_files, output_directory)
+    solve_random(input_files)
