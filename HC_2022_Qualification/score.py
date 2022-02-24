@@ -8,11 +8,11 @@ class Score(Scorer):
     def __init__(self, input_data: ProblemData):
         # self.project_index = {project.name: index for index, project in enumerate(input_data.projects)}
         self.projects = input_data.projects
-        self.contributors_available_from = {contributor_name: 0 for contributor_name, _ in input_data.contributors}
+        self.contributors_available_from = {contributor.name: 0 for contributor in input_data.contributors}
         self.contributors = {contributor.name: defaultdict(int) for contributor in input_data.contributors}
         for contributor in input_data.contributors:
-            for skill in contributor.skills:
-                self.contributors[contributor.name][skill] += 1
+            for role in contributor.skills:
+                self.contributors[contributor.name][role.name] = role.level
 
     def calculate(self, output_data: Solution) -> int:
         score = 0
@@ -72,7 +72,8 @@ class Score(Scorer):
 
             # update skills of contributors
             for role, contributor in zip(project.roles, project.contributors):
-                if role.skill <= self.contributors[contributor.name][role.name]:
+                # increase level of skill if contributor level was equal or lower than required level
+                if role.level <= self.contributors[contributor.name][role.name]:
                     self.contributors[contributor.name][role.name] += 1
 
             # check if project is completed before best before date
