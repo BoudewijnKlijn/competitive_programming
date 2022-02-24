@@ -4,7 +4,7 @@ import time
 
 from HC_2022_Qualification.problem_data import ProblemData
 from HC_2022_Qualification.score import Score
-from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
+from HC_2022_Qualification.strategies.baseline_strategy_v2 import BaselineStrategy
 from HC_2022_Qualification.strategies.random_strategy import RandomStrategy
 from HC_2022_Qualification.strategies.valuable_projects import ValuableProjectStrategy
 from valcon.utils import best_score, get_problem_name, generate_file_name
@@ -23,19 +23,16 @@ def solve_with_strategy(strategy, files, output_dir):
 
         solver = strategy
         solution = solver.solve(problem)
-        print(f"Solution: {solution}")
-        scorer = Score(problem, verbose=True)
+        # print(f"Solution: {solution}")
+        scorer = Score(problem, verbose=False)
 
         start = time.perf_counter()
 
         duration = time.perf_counter() - start
 
-        print('RUN SCORER\n\n')
-        print(solution)
         score = scorer.calculate(solution)
 
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
-        break
         out_file = generate_file_name(problem_file, score, solver)
 
         if score > current_best[problem_name]:
