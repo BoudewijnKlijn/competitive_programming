@@ -1,10 +1,11 @@
 import glob
 import os
+import time
 
 from HC_2022_Qualification.problem_data import ProblemData
 from HC_2022_Qualification.score import Score
 from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
-from valcon.utils import best_score, get_problem_name
+from valcon.utils import best_score, get_problem_name, generate_file_name
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
