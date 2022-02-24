@@ -27,7 +27,7 @@ if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
 
-    files = glob.glob(os.path.join(directory, "*.in"))
+    files = glob.glob(os.path.join(directory, "*.txt"))
 
     current_best = best_score(output_directory)
 

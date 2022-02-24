@@ -1,41 +1,31 @@
 import glob
 import os
-import time
-from copy import copy
-
-import numpy as np
-from dataclasses import dataclass
 
 from HC_2022_Qualification.problem_data import ProblemData
-from HC_2022_Qualification.score import Score
-from HC_2022_Qualification.solution import Solution
-from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
-from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
+from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
+from valcon.utils import best_score, get_problem_name
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
-
-
-class MyStragegy(BaseStrategy):
-
-    def solve(self, input_data: ProblemData) -> Solution:
-        return Solution()
-
 
 if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
 
-    files = glob.glob(os.path.join(directory, "*.in"))
-
+    files = glob.glob(os.path.join(directory, "*.txt"))
+    files = sorted(files)
     current_best = best_score(output_directory)
-
+    print(f"Nr of files {len(files)}")
     for problem_file in files:
         problem_name = get_problem_name(problem_file)
         print(f'--- {problem_name} ---')
 
         problem = ProblemData(problem_file)
 
-        solver = MyStragegy()
+        solver = BaselineStrategy()
+        print(f"Solution: {solver.solve(problem)}")
+        break
+        #print('--------------------------------------------------------------')
+        """
         scorer = Score(problem)
 
         start = time.perf_counter()
@@ -55,5 +45,5 @@ if __name__ == '__main__':
             print(f'No improvement for {problem_name}')
 
         print('\n')
-
+        """
     print(best_score(output_directory))
