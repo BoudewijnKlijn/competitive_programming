@@ -9,7 +9,7 @@ from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
 
 class MarcoLessRandomStrategy(BaseStrategy):
 
-    def __init__(self, seed):
+    def __init__(self, seed: int = None):
         if seed is not None:
             self.seed = seed
         else:

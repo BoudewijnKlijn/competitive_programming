@@ -30,7 +30,7 @@ class MarcoLessRandomStrategy2(BaseStrategy):
 
         def project_score(project):
             level_required = sum([x.level for x in project.roles])
-            return project.score - level_required
+            return project.score - level_required * 2
 
         projects = sorted(projects, key=lambda x: project_score(x), reverse=True)
         # self.rng.shuffle(projects)
