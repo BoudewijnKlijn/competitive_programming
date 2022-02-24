@@ -1,12 +1,12 @@
 import glob
 import os
 import time
-from copy import copy
+from copy import copy, deepcopy
 
 import numpy as np
 from dataclasses import dataclass
 
-from HC_2022_Qualification.problem_data import ProblemData
+from HC_2022_Qualification.problem_data import ProblemData, Contributor
 from HC_2022_Qualification.score import Score
 from HC_2022_Qualification.solution import Solution
 from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
@@ -15,13 +15,48 @@ from valcon.utils import best_score, generate_file_name, get_problem_name, flatt
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-class MyStragegy(BaseStrategy):
+class MarcoLessRandomStrategy(BaseStrategy):
 
     def solve(self, input_data: ProblemData) -> Solution:
-        projects = copy(input_data.projects)
+        projects = deepcopy(input_data.projects)
 
-        input_data.projects[0].contributors = [x.name for x in input_data.contributors]
-        return Solution(input_data.projects)
+        projects = sorted(projects, key=lambda x: x.best_before)
+
+        contributors = deepcopy(input_data.contributors)
+        self.rng.shuffle(contributors)
+
+        def get_contributor(contributors, skill, level) -> Contributor:
+            for contributor in contributors:
+                for skill in contributor.skills:
+                    if skill.name == skill.name and skill.level == level:
+                        return contributor
+            return None
+
+        completed_projects = []
+
+        for project in projects:
+            project_failed = False
+
+            for role in project.roles:
+                has_mentor = project.has_mentor(role.name)
+                skill_needed = role.level
+                if has_mentor:
+                    skill_needed -= 1
+
+                contributor = get_contributor(contributors, role.name, skill_needed)
+                if contributor is None:
+                    project_failed = True
+                    break
+
+                contributors.remove(contributor)
+                project.contributors.append(contributor)
+
+            if project_failed:
+                continue
+
+            completed_projects.append(project)
+
+        return Solution(completed_projects)
 
 
 if __name__ == '__main__':
@@ -38,7 +73,7 @@ if __name__ == '__main__':
 
         problem = ProblemData(problem_file)
 
-        solver = MyStragegy()
+        solver = MarcoLessRandomStrategy()
         scorer = Score(problem)
 
         start = time.perf_counter()

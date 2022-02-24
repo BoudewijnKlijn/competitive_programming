@@ -24,6 +24,10 @@ class Contributor:
 class Project:
     name: str
     roles: [Role]
+    nr_of_days: int
+    score: int
+    best_before: int
+
     contributors: [Contributor] = field(default_factory=list)
 
     def has_mentor(self, skill: str) -> bool:
@@ -62,4 +66,4 @@ class ProblemData(InputData):
                 role, level = raw_data.pop(0).strip().split()
                 level = int(level)
                 roles.append(Role(role, level))
-            self.projects.append(Project(project_name, roles))
+            self.projects.append(Project(project_name, roles, nr_of_days, score, best_before))
