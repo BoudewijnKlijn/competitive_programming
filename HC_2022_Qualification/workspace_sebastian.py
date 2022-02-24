@@ -53,7 +53,7 @@ if __name__ == '__main__':
     input_files = glob.glob(os.path.join(directory, "*.txt"))
     input_files = sorted(input_files)
 
-    #solve_with_strategy(BaselineStrategy(), input_files, output_directory)
+    solve_with_strategy(BaselineStrategy(), input_files, output_directory)
     #solve_with_strategy(RandomStrategy(), input_files, output_directory)
-    solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
+    #solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
 

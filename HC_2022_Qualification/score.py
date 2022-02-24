@@ -10,10 +10,10 @@ class Score(Scorer):
         self.verbose = verbose
         self.projects = input_data.projects
         self.contributors_available_from = {contributor.name: 0 for contributor in input_data.contributors}
-        self.contributors = {contributor.name: defaultdict(int) for contributor in input_data.contributors}
-        for contributor in input_data.contributors:
-            for role in contributor.skills:
-                self.contributors[contributor.name][role.name] = role.level
+        self.contributors = {contributor.name: contributor.skills for contributor in input_data.contributors}
+        # for contributor in input_data.contributors:
+        #     for role in contributor.skills:
+        #         self.contributors[contributor.name][role.name] = role.level
 
     def calculate(self, output_data: Solution) -> int:
         score = 0
