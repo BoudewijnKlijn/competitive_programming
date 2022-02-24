@@ -18,6 +18,8 @@ THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 class MyStragegy(BaseStrategy):
 
     def solve(self, input_data: ProblemData) -> Solution:
+        projects = copy(input_data.projects)
+
         input_data.projects[0].contributors = [x.name for x in input_data.contributors]
         return Solution(input_data.projects)
 
