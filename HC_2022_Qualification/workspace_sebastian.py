@@ -22,11 +22,12 @@ def solve_with_strategy(strategy, files, output_dir):
         problem = ProblemData(problem_file)
 
         solver = strategy
-        print(f"Solution: {solver.solve(problem)}")
+
         scorer = Score(problem)
 
         start = time.perf_counter()
         solution = solver.solve(problem)
+        print(f"Solution: {solution}")
         duration = time.perf_counter() - start
 
         score = scorer.calculate(solution)
