@@ -1,79 +1,28 @@
 import glob
 import os
 import time
-from copy import copy, deepcopy
 
-import numpy as np
-from dataclasses import dataclass
-
-from HC_2022_Qualification.problem_data import ProblemData, Contributor
+from HC_2022_Qualification.problem_data import ProblemData
 from HC_2022_Qualification.score import Score
-from HC_2022_Qualification.solution import Solution
-from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
-from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
+from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
+from HC_2022_Qualification.strategies.random_strategy import RandomStrategy
+from HC_2022_Qualification.strategies.valuable_projects import ValuableProjectStrategy
+from valcon.utils import best_score, get_problem_name, generate_file_name
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-class MarcoLessRandomStrategy(BaseStrategy):
-
-    def solve(self, input_data: ProblemData) -> Solution:
-        projects = deepcopy(input_data.projects)
-
-        projects = sorted(projects, key=lambda x: x.best_before)
-
-        contributors = deepcopy(input_data.contributors)
-        self.rng.shuffle(contributors)
-
-        def get_contributor(contributors, skill, level) -> Contributor:
-            for contributor in contributors:
-                for skill in contributor.skills:
-                    if skill.name == skill.name and skill.level == level:
-                        return contributor
-            return None
-
-        completed_projects = []
-
-        for project in projects:
-            project_failed = False
-
-            for role in project.roles:
-                has_mentor = project.has_mentor(role)
-                skill_needed = role.level
-                if has_mentor:
-                    skill_needed -= 1
-
-                contributor = get_contributor(contributors, role.name, skill_needed)
-                if contributor is None:
-                    project_failed = True
-                    break
-
-                contributors.remove(contributor)
-                project.contributors.append(contributor)
-
-            if project_failed:
-                continue
-
-            completed_projects.append(project)
-
-        return Solution(completed_projects)
-
-
-if __name__ == '__main__':
-    directory = os.path.join(THIS_PATH, 'input')
-    output_directory = os.path.join(THIS_PATH, 'output')
-
-    files = glob.glob(os.path.join(directory, "*.txt"))
-
-    current_best = best_score(output_directory)
-
+def solve_with_strategy(strategy, files, output_dir):
+    current_best = best_score(output_dir)
+    print(f"Nr of files {len(files)}")
     for problem_file in files:
         problem_name = get_problem_name(problem_file)
         print(f'--- {problem_name} ---')
 
         problem = ProblemData(problem_file)
 
-        solver = MarcoLessRandomStrategy()
+        solver = strategy
+        print(f"Solution: {solver.solve(problem)}")
         scorer = Score(problem)
 
         start = time.perf_counter()
@@ -83,15 +32,28 @@ if __name__ == '__main__':
         score = scorer.calculate(solution)
 
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
-
+        break
         out_file = generate_file_name(problem_file, score, solver)
 
         if score > current_best[problem_name]:
             print(f'Writing {out_file}')
-            solution.save(os.path.join(output_directory, out_file))
+            solution.save(os.path.join(output_dir, out_file))
         else:
             print(f'No improvement for {problem_name}')
 
         print('\n')
 
     print(best_score(output_directory))
+
+
+if __name__ == '__main__':
+    directory = os.path.join(THIS_PATH, 'input')
+    output_directory = os.path.join(THIS_PATH, 'output')
+
+    input_files = glob.glob(os.path.join(directory, "*.txt"))
+    input_files = sorted(input_files)
+
+    solve_with_strategy(BaselineStrategy(), input_files, output_directory)
+    #solve_with_strategy(RandomStrategy(), input_files, output_directory)
+    #solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
+

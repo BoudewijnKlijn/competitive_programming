@@ -5,8 +5,9 @@ from collections import defaultdict
 
 
 class Score(Scorer):
-    def __init__(self, input_data: ProblemData):
+    def __init__(self, input_data: ProblemData, verbose: bool = False):
         # self.project_index = {project.name: index for index, project in enumerate(input_data.projects)}
+        self.verbose = verbose
         self.projects = input_data.projects
         self.contributors_available_from = {contributor.name: 0 for contributor in input_data.contributors}
         self.contributors = {contributor.name: defaultdict(int) for contributor in input_data.contributors}
@@ -38,6 +39,8 @@ class Score(Scorer):
 
         # loop over all projects
         for project in output_data.projects:
+            if self.verbose:
+                print(project)
 
             # all contributors need to have required level in role skills (either by themself or via mentor)
             for role, contributor in zip(project.roles, project.contributors):
@@ -54,9 +57,13 @@ class Score(Scorer):
                             break
                     if not has_mentor:
                         # invalid project, because contributor does not have required skill and cannot be mentored
+                        if self.verbose:
+                            print(f'INVALID submission: {role.name=}, {contributor.name}')
                         return 0
                 else:
                     # invalid project, because contributor does not have required skill
+                    if self.verbose:
+                        print(f'INVALID submission: {role.name=}, {contributor.name}')
                     return 0
 
             # check when all contributors are available.
