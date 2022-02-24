@@ -8,4 +8,4 @@ class Score(Scorer):
         pass
 
     def calculate(self, output_data: Solution) -> int:
-        pass
+        return 1

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from valcon import InputData
 
@@ -19,6 +19,7 @@ class Contributor:
 class Project:
     name: str
     roles: [Role]
+    contributors: [Contributor] = field(default_factory=list)
 
 
 class ProblemData(InputData):
