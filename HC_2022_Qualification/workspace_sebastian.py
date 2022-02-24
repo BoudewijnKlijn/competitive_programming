@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
         solver = BaselineStrategy()
         print(f"Solution: {solver.solve(problem)}")
-
+        break
         scorer = Score(problem)
 
         start = time.perf_counter()
