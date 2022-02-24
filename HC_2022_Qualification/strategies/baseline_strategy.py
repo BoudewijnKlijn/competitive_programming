@@ -31,18 +31,22 @@ class BaselineStrategy(BaseStrategy):
             for role in project.roles:
                 # Simply assign the first/next contributor to that role if contributor has that skill at the required level
                 for contributor in contributors:
-                    if role in contributor.skills:
-                        relevant_skill = [skill for skill in contributor.skills if role == skill][0]
+                    if role.name in [skill.name for skill in contributor.skills]:
+                        relevant_skill = [skill for skill in contributor.skills if role.name == skill.name][0]
                         if relevant_skill.level >= role.level:
                             project.contributors.append(contributors[contributor_idx])
                             contributor_idx += 1
 
-                if contributor_idx == len(contributors):
-                    print("No more contributors left")
+                    # todo: fix ugly multiple breaks
+                    if contributor_idx >= len(contributors):
+                        print("No more contributors left")
+                        break
+                if contributor_idx >= len(contributors):
                     break
-
-            if contributor_idx == len(contributors):
-                #print("No more contributors left")
+            if contributor_idx >= len(contributors):
                 break
 
-        return Solution(projects)
+        # Filter projects that have no contributors
+        executed_projects = [project for project in projects if len(project.contributors) == len(project.roles)]
+
+        return Solution(executed_projects)

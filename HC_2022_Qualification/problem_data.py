@@ -18,6 +18,7 @@ class Contributor:
         for skill in self.skills:
             if skill.name == role_name:
                 return skill.level
+        return 0
 
 
 @dataclass
@@ -30,10 +31,8 @@ class Project:
 
     contributors: [Contributor] = field(default_factory=list)
 
-    def has_mentor(self, skill: str) -> bool:
-        debug = [role.level for role in self.roles if role.name == skill]
-        assert len(debug) == 1, "Expected a role to be there only once"
-        role_level = debug[0]
+    def has_mentor(self, skill: Role) -> bool:
+        role_level = skill.level
 
         return any(contributor.get_level(skill) >= role_level for contributor in self.contributors)
 
