@@ -43,9 +43,13 @@ class Score(Scorer):
                 print(project)
 
             # all contributors need to have required level in role skills (either by themself or via mentor)
+            project_contributors = set()
             for role, contributor in zip(project.roles, project.contributors):
+                if contributor in project_contributors:
+                    raise ValueError(f"{contributor} is assigned to multiple roles in {project}")
                 contributor_level = self.contributors[contributor.name][role.name]
                 if contributor_level >= role.level:
+                    project_contributors.add(contributor.name)
                     continue
                 elif (contributor_level + 1) == role.level:
                     # can a contributor mentor?
@@ -53,18 +57,15 @@ class Score(Scorer):
                     for mentor in project.contributors:
                         if self.contributors[mentor.name][role.name] >= role.level:
                             # yes, mentor is available
+                            project_contributors.add(contributor.name)
                             has_mentor = True
                             break
                     if not has_mentor:
                         # invalid project, because contributor does not have required skill and cannot be mentored
-                        if self.verbose:
-                            print(f'INVALID submission: {role.name=}, {contributor.name}')
-                        return 0
+                        raise ValueError(f"INVALID SUBMISSION: {contributor} does not have required skill level for {role}.")
                 else:
                     # invalid project, because contributor does not have required skill
-                    if self.verbose:
-                        print(f'INVALID submission: {role.name=}, {contributor.name}')
-                    return 0
+                    raise ValueError(f"INVALID SUBMISSION: {contributor} does not have required skill level for {role}.")
 
             # check when all contributors are available.
             project_start_time = 0
