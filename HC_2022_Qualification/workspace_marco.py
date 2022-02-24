@@ -38,7 +38,7 @@ class MarcoLessRandomStrategy(BaseStrategy):
             project_failed = False
 
             for role in project.roles:
-                has_mentor = project.has_mentor(role.name)
+                has_mentor = project.has_mentor(role)
                 skill_needed = role.level
                 if has_mentor:
                     skill_needed -= 1
