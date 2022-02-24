@@ -12,7 +12,7 @@ class Solution(OutputData):
                 assert project.contributors, "submitted projects should be executed and thus have contributors"
 
                 file.write(f'{project.name} {len(project.contributors)}\n')
-                file.write(' '.join(project.contributors) + '\n')
+                file.write(' '.join([c.name for c in project.contributors]) + '\n')
 
     def __repr__(self):
         return str(self.projects)
