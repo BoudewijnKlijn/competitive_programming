@@ -17,7 +17,7 @@ def get_problem_name(file_name: str):
 
 
 def best_score(directory: str):
-    problems = ['a', 'b', 'c', 'd', 'e']
+    problems = ['a', 'b', 'c', 'd', 'e', 'f']
 
     solutions = glob.glob(os.path.join(directory, '*.txt'))
     file_names = [os.path.basename(f) for f in solutions]
