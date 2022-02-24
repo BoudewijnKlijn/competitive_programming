@@ -1,11 +1,12 @@
 import random
 
+from .base_strategy import BaseStrategy
 from .baseline_strategy import BaselineStrategy
 from ..problem_data import ProblemData
 from ..solution import Solution
 
 
-class RandomStrategy(BaselineStrategy):
+class RandomStrategy(BaseStrategy):
 
     def __init__(self, seed: int = None):
         """
@@ -22,4 +23,7 @@ class RandomStrategy(BaselineStrategy):
 
     def solve(self, input_data: ProblemData) -> Solution:
         random.shuffle(input_data.contributors)
-        return super().solve(input_data)
+
+        baseline_strategy = BaselineStrategy()
+
+        return baseline_strategy.solve(input_data)
