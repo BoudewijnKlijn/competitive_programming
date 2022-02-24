@@ -18,15 +18,21 @@ class BaselineStrategy(BaseStrategy):
             self.seed = seed
         else:
             self.seed = random.randint(0, 999_999_999)
-        super().__init__(seed)
+        super().__init__(self.seed)
 
     def solve(self, input_data: ProblemData) -> Solution:
         contributors = input_data.contributors
         contributors_available_from = {contributor.name: 0 for contributor in contributors}
         projects = input_data.projects
+        # just assume contributors cannot improve
+        unique_skills = {skill for contributor in contributors for skill in contributor.skills}
 
-        # Iterate over all projects
-        # contributor_idx = 0
+        contributors_with_skill = dict()
+        for skill in unique_skills:
+            contributors_with_skill[skill] = {contributor for contributor in contributors if skill in contributor.skills}
+
+        projects = sorted(projects, key=lambda x: x.score)
+
         for project in projects:
             # Iterate over all roles needed for that project
             earliest_contributors = []
@@ -34,7 +40,7 @@ class BaselineStrategy(BaseStrategy):
             for role in project.roles:
                 # Assign the contributor that has the required skill and is first available
                 earliest_valid_contributor = None
-                for contributor in contributors:
+                for contributor in contributors_with_skill[role.name]:
                     if contributor in earliest_contributors:
                         # Contributor can only have 1 role
                         continue

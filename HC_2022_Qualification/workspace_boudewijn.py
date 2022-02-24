@@ -5,7 +5,7 @@ import time
 from HC_2022_Qualification.problem_data import ProblemData
 from HC_2022_Qualification.score import Score
 from HC_2022_Qualification.strategies.baseline_strategy_v2 import BaselineStrategy
-from HC_2022_Qualification.strategies.random_strategy import RandomStrategy
+from HC_2022_Qualification.strategies.random_strategy_v2 import RandomStrategy
 from HC_2022_Qualification.strategies.valuable_projects import ValuableProjectStrategy
 from valcon.utils import best_score, get_problem_name, generate_file_name
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     input_files = glob.glob(os.path.join(directory, "*.txt"))
     input_files = sorted(input_files)
 
-    solve_with_strategy(BaselineStrategy(), input_files, output_directory)
-    #solve_with_strategy(RandomStrategy(), input_files, output_directory)
+    # solve_with_strategy(BaselineStrategy(), input_files, output_directory)
+    solve_with_strategy(RandomStrategy(), input_files, output_directory)
     #solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
 
