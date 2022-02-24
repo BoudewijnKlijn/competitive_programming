@@ -13,4 +13,6 @@ class Solution(OutputData):
 
                 file.write(f'{project.name} {len(project.contributors)}\n')
                 file.write(' '.join(project.contributors) + '\n')
-              
+
+    def __repr__(self):
+        return str(self.projects)
