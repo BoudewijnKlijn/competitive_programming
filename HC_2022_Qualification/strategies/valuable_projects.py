@@ -33,8 +33,8 @@ class ValuableProjectStrategy(BaseStrategy):
 
         # Sort projects according to their values
         project_values = [self.get_project_value(project) for project in projects]
-        projects = [x for _, x in sorted(zip(project_values, projects))]
-
+        projects = [x for _, x in sorted(zip(project_values, projects), key=lambda pair: pair[0],reverse=True)]
+        print(f"Project values: {[project.score for project in projects]}")
         # Iterate over all projects
         contributor_idx = 0
         for idx, project in enumerate(projects):

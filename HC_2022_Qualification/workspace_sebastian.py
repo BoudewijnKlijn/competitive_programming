@@ -32,7 +32,7 @@ def solve_with_strategy(strategy, files, output_dir):
         score = scorer.calculate(solution)
 
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
-        break
+
         out_file = generate_file_name(problem_file, score, solver)
 
         if score > current_best[problem_name]:
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     input_files = glob.glob(os.path.join(directory, "*.txt"))
     input_files = sorted(input_files)
 
-    solve_with_strategy(BaselineStrategy(), input_files, output_directory)
+    #solve_with_strategy(BaselineStrategy(), input_files, output_directory)
     #solve_with_strategy(RandomStrategy(), input_files, output_directory)
-    #solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
+    solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
 
