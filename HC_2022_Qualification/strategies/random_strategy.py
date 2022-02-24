@@ -1,14 +1,11 @@
 import random
-from copy import deepcopy
 
-import numpy as np
-
-from .base_strategy import BaseStrategy
+from .baseline_strategy import BaselineStrategy
 from ..problem_data import ProblemData
 from ..solution import Solution
 
 
-class RandomStrategy(BaseStrategy):
+class RandomStrategy(BaselineStrategy):
 
     def __init__(self, seed: int = None):
         """
@@ -24,19 +21,5 @@ class RandomStrategy(BaseStrategy):
         super().__init__(seed)
 
     def solve(self, input_data: ProblemData) -> Solution:
-        contributors = np.Array(deepcopy(input_data.contributors))
-        projects = input_data.projects
-
-        # Iterate over all projects
-        for idx, project in enumerate(projects):
-            # Get random contributors
-            random_idxs = random.sample(range(len(contributors)), len(project.roles))
-            contributors_to_assign = contributors[random_idxs]
-
-            # Assign random contributors to project schedule
-            project.contributors = contributors_to_assign
-
-            # Delete contributors left
-            del contributors[random_idxs]
-
-        return Solution(projects)
+        random.shuffle(input_data.contributors)
+        return super().solve(input_data)
