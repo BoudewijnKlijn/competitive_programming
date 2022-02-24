@@ -6,17 +6,19 @@ from copy import copy
 import numpy as np
 from dataclasses import dataclass
 
-from valcon import Strategy, InputData, OutputData
-from valcon.scorer import Scorer
+from HC_2022_Qualification.problem_data import ProblemData
+from HC_2022_Qualification.score import Score
+from HC_2022_Qualification.solution import Solution
+from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
 from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-class MyStragegy(Strategy):
+class MyStragegy(BaseStrategy):
 
-    def solve(self, input_data: InputData) -> OutputData:
-        return OutputData()
+    def solve(self, input_data: ProblemData) -> Solution:
+        return Solution()
 
 
 if __name__ == '__main__':
@@ -31,10 +33,10 @@ if __name__ == '__main__':
         problem_name = get_problem_name(problem_file)
         print(f'--- {problem_name} ---')
 
-        problem = InputData(problem_file)
+        problem = ProblemData(problem_file)
 
         solver = MyStragegy()
-        scorer = Scorer(problem)
+        scorer = Score(problem)
 
         start = time.perf_counter()
         solution = solver.solve(problem)
