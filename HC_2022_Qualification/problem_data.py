@@ -12,11 +12,8 @@ class Role:
 
 class Contributor:
     def __init__(self, name, skills):
-        def def_value():
-            return 0
-
         self.name = name
-        self.skills = defaultdict(def_value)
+        self.skills = defaultdict(int)
         for skill in skills:
             self.skills[skill.name] = skill.level
 
