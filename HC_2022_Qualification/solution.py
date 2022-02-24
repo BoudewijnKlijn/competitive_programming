@@ -9,6 +9,8 @@ class Solution(OutputData):
         with open(filename, 'w') as file:
             file.write(str(len(self.projects)) + '\n')
             for project in self.projects:
-                file.write(f'{project.name} {len(project.contributors)}')
+                assert project.contributors, "submitted projets should be executed and thus have contributors"
+
+                file.write(f'{project.name} {len(project.contributors)}\n')
                 file.write(' '.join(project.contributors) + '\n')
-                
+              
