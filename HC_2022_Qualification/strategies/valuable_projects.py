@@ -25,32 +25,39 @@ class ValuableProjectStrategy(BaseStrategy):
 
     @staticmethod
     def get_project_value(project):
-        return project.score / project.duration
+        return int(project.score) / int(project.nr_of_days)
 
     def solve(self, input_data: ProblemData) -> Solution:
-        contributors = np.Array(deepcopy(input_data.contributors))
+        contributors = np.array(deepcopy(input_data.contributors))
         projects = input_data.projects
 
-         # Sort projects according to their values
+        # Sort projects according to their values
         project_values = [self.get_project_value(project) for project in projects]
         projects = [x for _, x in sorted(zip(project_values, projects))]
 
         # Iterate over all projects
-        project_schedules = []
         contributor_idx = 0
         for idx, project in enumerate(projects):
-            project_name = project.name
-            project_schedule = ProjectSchedule(project_name)
+            # Iterate over all roles needed for that project
+            for role in project.roles:
+                # Simply assign the first/next contributor to that role if contributor has that skill at the required level
+                for contributor in contributors:
+                    if role.name in [skill.name for skill in contributor.skills]:
+                        relevant_skill = [skill for skill in contributor.skills if role.name == skill.name][0]
+                        if relevant_skill.level >= role.level:
+                            project.contributors.append(contributors[contributor_idx])
+                            contributor_idx += 1
 
-            # Get random contributors
-            random_idxs = random.sample(range(len(contributors)), len(project.roles))
-            contributors_to_assign = contributors[random_idxs]
+                    # todo: fix ugly multiple breaks
+                    if contributor_idx >= len(contributors):
+                        print("No more contributors left")
+                        break
+                if contributor_idx >= len(contributors):
+                    break
+            if contributor_idx >= len(contributors):
+                break
 
-            # Assign random contributors to project schedule
-            project_schedule.contributors = contributors_to_assign
-            project_schedules.append(project_schedule)
+        # Filter projects that have no contributors
+        executed_projects = [project for project in projects if len(project.contributors) == len(project.roles)]
 
-            # Delete contributors left
-            del contributors[random_idxs]
-
-        return project_schedules
+        return Solution(executed_projects)
