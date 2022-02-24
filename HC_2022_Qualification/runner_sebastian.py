@@ -37,6 +37,7 @@ if __name__ == '__main__':
         'c',
         'd',
         'e',
+        'f'
     ]
 
     while True:

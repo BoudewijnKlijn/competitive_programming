@@ -2,12 +2,7 @@ r"""
 Run as module using the -m option.
 
 example:
-C:\Users\marco\repos\Valcon_Hash_Code_2022>python -m HC_2022_Qualification.runner_marco
-
-
-
-
-"""
+C:\Users\marco\repos\Valcon_Hash_Code_2022>python -m HC_2022_Qualification.runner_marco """
 
 import glob
 import os
@@ -30,7 +25,7 @@ if __name__ == '__main__':
     directory = os.path.join(THIS_PATH, 'input')
     output_directory = os.path.join(THIS_PATH, 'output')
 
-    files = glob.glob(os.path.join(directory, "*.in"))
+    files = glob.glob(os.path.join(directory, "*.txt"))
 
     current_best = best_score(output_directory)
 
@@ -40,6 +35,7 @@ if __name__ == '__main__':
         'c',
         'd',
         'e',
+        'f'
     ]
 
     while True:
