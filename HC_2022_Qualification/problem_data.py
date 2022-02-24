@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass, field
 
 from valcon import InputData
@@ -9,16 +10,18 @@ class Role:
     level: int
 
 
-@dataclass
 class Contributor:
-    name: str
-    skills: [Role]
+    def __init__(self, name, skills):
+        def def_value():
+            return 0
 
-    def get_level(self, role_name):
-        for skill in self.skills:
-            if skill.name == role_name:
-                return skill.level
-        return 0
+        self.name = name
+        self.skills = defaultdict(def_value)
+        for skill in skills:
+            self.skills[skill.name] = skill.level
+
+    def get_level(self, role: Role):
+        return self.skills[role.name]
 
 
 @dataclass

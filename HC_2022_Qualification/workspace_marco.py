@@ -25,11 +25,10 @@ class MarcoLessRandomStrategy(BaseStrategy):
         contributors = deepcopy(input_data.contributors)
         self.rng.shuffle(contributors)
 
-        def get_contributor(contributors, skill, level) -> Contributor:
+        def get_contributor(contributors, skill_name, level) -> Contributor:
             for contributor in contributors:
-                for skill in contributor.skills:
-                    if skill.name == skill.name and skill.level == level:
-                        return contributor
+                if contributor.skills[skill_name] >= level:
+                    return contributor
             return None
 
         completed_projects = []
