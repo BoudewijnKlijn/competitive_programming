@@ -1,9 +1,5 @@
 import random
-from copy import deepcopy
 
-import numpy as np
-
-from .base_strategy import BaseStrategy
 from .baseline_strategy import BaselineStrategy
 from ..problem_data import ProblemData
 from ..solution import Solution
