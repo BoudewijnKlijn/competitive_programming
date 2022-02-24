@@ -1,23 +1,15 @@
-import glob
-import os
-import time
-from copy import copy, deepcopy
+from copy import deepcopy
 from random import randint
 
-import numpy as np
-from dataclasses import dataclass
-
 from HC_2022_Qualification.problem_data import ProblemData, Contributor
-from HC_2022_Qualification.score import Score
 from HC_2022_Qualification.solution import Solution
 from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
-from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
-
-THIS_PATH = os.path.abspath(os.path.dirname(__file__))
+from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
 
 
-class MarcoLessRandomStrategy2(BaseStrategy):
-    def __init__(self, seed: int = None):
+class MarcoLessRandomStrategy(BaseStrategy):
+
+    def __init__(self, seed):
         if seed is not None:
             self.seed = seed
         else:
@@ -28,12 +20,8 @@ class MarcoLessRandomStrategy2(BaseStrategy):
     def solve(self, input_data: ProblemData) -> Solution:
         projects = deepcopy(input_data.projects)
 
-        def project_score(project):
-            level_required = sum([x.level for x in project.roles])
-            return project.score - level_required
-
-        projects = sorted(projects, key=lambda x: project_score(x), reverse=True)
-        # self.rng.shuffle(projects)
+        # projects = sorted(projects, key=lambda x: x.score - x.best_before, reverse=True)
+        self.rng.shuffle(projects)
 
         contributors = deepcopy(input_data.contributors)
         self.rng.shuffle(contributors)
@@ -91,41 +79,3 @@ class MarcoLessRandomStrategy2(BaseStrategy):
                 project.level_contributors()
 
         return Solution(completed_projects)
-
-
-if __name__ == '__main__':
-    directory = os.path.join(THIS_PATH, 'input')
-    output_directory = os.path.join(THIS_PATH, 'output')
-
-    files = glob.glob(os.path.join(directory, "*.txt"))
-
-    current_best = best_score(output_directory)
-
-    for problem_file in files:
-        problem_name = get_problem_name(problem_file)
-        print(f'--- {problem_name} ---')
-
-        problem = ProblemData(problem_file)
-
-        solver = MarcoLessRandomStrategy2()
-        scorer = Score(problem)
-
-        start = time.perf_counter()
-        solution = solver.solve(problem)
-        duration = time.perf_counter() - start
-
-        score = scorer.calculate(solution)
-
-        print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
-
-        out_file = generate_file_name(problem_file, score, solver)
-
-        if score > current_best[problem_name] or score == 0:
-            print(f'Writing {out_file}')
-            solution.save(os.path.join(output_directory, out_file))
-        else:
-            print(f'{score} is not an improvement for {problem_name} {current_best[problem_name]}')
-
-        print('\n')
-
-    print(best_score(output_directory))
