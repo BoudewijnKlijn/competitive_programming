@@ -37,8 +37,10 @@ class MarcoLessRandomStrategy(BaseStrategy):
 
         timeline[0] = contributors
 
+        available_contributors = []
+
         for t in range(len(timeline)):
-            contributors = timeline[t]
+            available_contributors.extend(timeline[t])
             not_executed = []
             while projects:
                 project = projects.pop(0)
@@ -99,7 +101,7 @@ if __name__ == '__main__':
 
         out_file = generate_file_name(problem_file, score, solver)
 
-        if score > current_best[problem_name]:
+        if score > current_best[problem_name] or score == 0:
             print(f'Writing {out_file}')
             solution.save(os.path.join(output_directory, out_file))
         else:
