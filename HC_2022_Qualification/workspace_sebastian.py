@@ -2,6 +2,7 @@ import glob
 import os
 
 from HC_2022_Qualification.problem_data import ProblemData
+from HC_2022_Qualification.score import Score
 from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
 from valcon.utils import best_score, get_problem_name
 
@@ -23,9 +24,7 @@ if __name__ == '__main__':
 
         solver = BaselineStrategy()
         print(f"Solution: {solver.solve(problem)}")
-        break
-        #print('--------------------------------------------------------------')
-        """
+
         scorer = Score(problem)
 
         start = time.perf_counter()
@@ -45,5 +44,5 @@ if __name__ == '__main__':
             print(f'No improvement for {problem_name}')
 
         print('\n')
-        """
+
     print(best_score(output_directory))
