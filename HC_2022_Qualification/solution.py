@@ -11,7 +11,7 @@ class Solution(OutputData):
             for project in self.projects:
                 assert project.contributors, "submitted projets should be executed and thus have contributors"
 
-                file.write(f'{project.name} {len(project.contributors)}\n')
+                file.write(f'{project.name}\n')
                 file.write(' '.join([c.name for c in project.contributors]) + '\n')
 
     def __repr__(self):
