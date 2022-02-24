@@ -37,13 +37,16 @@ class BaselineStrategy(BaseStrategy):
                             project.contributors.append(contributors[contributor_idx])
                             contributor_idx += 1
 
-                if contributor_idx == len(contributors):
-                    print("No more contributors left")
-                    break
-
-            if contributor_idx == len(contributors):
-                # print("No more contributors left")
+                    # todo: fix ugly multiple breaks
+                    if contributor_idx == len(contributors):
+                        print("No more contributors left")
+                        break
+                else:
+                    continue
                 break
+            else:
+                continue
+            break
 
         # Filter projects that have no contributors
         executed_projects = [project for project in projects if len(project.contributors) == len(project.roles)]
