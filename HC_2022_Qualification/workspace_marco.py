@@ -38,34 +38,36 @@ class MarcoLessRandomStrategy(BaseStrategy):
         timeline[0] = contributors
 
         for t in range(len(timeline)):
+            contributors = timeline[t]
+            not_executed = []
             while projects:
                 project = projects.pop(0)
                 if project.best_before + project.score >= t:
+                    continue  # permanent removal
+
+                project_failed = False
+
+                for role in project.roles:
+                    has_mentor = project.has_mentor(role)
+                    skill_needed = role.level
+                    if has_mentor:
+                        skill_needed -= 1
+
+                    contributor = get_contributor(contributors, role.name, skill_needed)
+                    if contributor is None:
+                        project_failed = True
+                        break
+
+                    contributors.remove(contributor)
+                    project.contributors.append(contributor)
+
+                if project_failed:
+                    project.contributors = []
+                    not_executed.append(project)
                     continue
-                
-                    timeline[t].append(project)
-                    completed_projects.append(project)
 
-            project_failed = False
-
-            for role in project.roles:
-                has_mentor = project.has_mentor(role)
-                skill_needed = role.level
-                if has_mentor:
-                    skill_needed -= 1
-
-                contributor = get_contributor(contributors, role.name, skill_needed)
-                if contributor is None:
-                    project_failed = True
-                    break
-
-                contributors.remove(contributor)
-                project.contributors.append(contributor)
-
-            if project_failed:
-                continue
-
-            completed_projects.append(project)
+                completed_projects.append(project)
+                timeline[t + project.nr_of_days].extend(project.contributors)
 
         return Solution(completed_projects)
 

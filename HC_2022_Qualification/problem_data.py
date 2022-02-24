@@ -69,4 +69,4 @@ class ProblemData(InputData):
                 role, level = raw_data[next(data_index)].strip().split()
                 level = int(level)
                 roles.append(Role(role, level))
-            self.projects.append(Project(project_name, roles, nr_of_days, score, best_before))
+            self.projects.append(Project(project_name, roles, int(nr_of_days), int(score), int(best_before)))
