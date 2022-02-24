@@ -2,28 +2,25 @@ import glob
 import os
 import time
 from copy import deepcopy
+import random
 
 from HC_2022_Qualification.problem_data import ProblemData, Contributor
 from HC_2022_Qualification.score import Score
 from HC_2022_Qualification.solution import Solution
 from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
-from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
-from HC_2022_Qualification.strategies.random_strategy import RandomStrategy
-from HC_2022_Qualification.strategies.valuable_projects import ValuableProjectStrategy
+from HC_2022_Qualification.strategies.baseline_strategy_v2 import BaselineStrategy
 from valcon.utils import best_score, get_problem_name, generate_file_name
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 class SebasLessRandomStrategy(BaseStrategy):
-
     @staticmethod
     def get_contributor(contributors, skill_name, level) -> Contributor:
         for contributor in contributors:
             if contributor.skills[skill_name] >= level:
                 return contributor
         return None
-
 
     def solve(self, input_data: ProblemData) -> Solution:
         projects = deepcopy(input_data.projects)
@@ -75,6 +72,7 @@ class SebasLessRandomStrategy(BaseStrategy):
 
         return Solution(completed_projects)
 
+
 def solve_with_strategy(strategy, files, output_dir):
     current_best = best_score(output_dir)
     print(f"Nr of files {len(files)}")
@@ -90,7 +88,7 @@ def solve_with_strategy(strategy, files, output_dir):
 
         start = time.perf_counter()
         solution = solver.solve(problem)
-        print(f"Solution: {solution}")
+        # print(f"Solution: {solution}")
         duration = time.perf_counter() - start
 
         score = scorer.calculate(solution)
@@ -116,7 +114,7 @@ if __name__ == '__main__':
     input_files = glob.glob(os.path.join(directory, "*.txt"))
     input_files = sorted(input_files)
 
-    #solve_with_strategy(BaselineStrategy(), input_files, output_directory)
-    #solve_with_strategy(RandomStrategy(), input_files, output_directory)
-    solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
-    #solve_with_strategy(SebasLessRandomStrategy(), input_files, output_directory)
+    solve_with_strategy(BaselineStrategy(), input_files, output_directory)
+    # solve_with_strategy(RandomStrategy(), input_files, output_directory)
+    # solve_with_strategy(ValuableProjectStrategy(), input_files, output_directory)
+    # solve_with_strategy(SebasLessRandomStrategy(), input_files, output_directory)
