@@ -35,7 +35,7 @@ class BaselineStrategy(BaseStrategy):
                 # Assign the contributor that has the required skill and is first available
                 earliest_valid_contributor = None
                 for contributor in contributors:
-                    if contributor == earliest_contributors:
+                    if contributor in earliest_contributors:
                         # Contributor can only have 1 role
                         continue
                     if contributor.skills[role.name] >= role.level:

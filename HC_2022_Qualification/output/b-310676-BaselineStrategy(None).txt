@@ -1,8 +1,6 @@
-43
+38
 SlidesNextv2
 JenZ PhilippH
-CollectionsNextv1
-TatiyanaC SergeyN MatasW SergeyN
 StreamXv9
 LarryO
 CastOSProv6
@@ -33,8 +31,6 @@ MapsProv8
 HiroshiW SergeyT BakhodirD
 ConnectLitev9
 SundarA
-AndroidTVXv9
-TatiyanaC MatasW SergeyV MatasW
 GameProv6
 LarryO SusanQ StefanQ
 ChromeOSLitev3
@@ -63,25 +59,19 @@ AndroidAutoZv2
 PhilippH MatasC PhilippI LarryX SergeyU
 StreetViewXv1
 TatiyanaC JenK FionaF
-SnapshotZv3
-NellyX PhilippI PhilippP SundarP PhilippY PhilippY
 SmartLitev9
 JenZ ThomasK PhilippP
 GameLitev8
 PhilippP PhilippK MatasW SergeyN
 DuoZv4
 ThomasK SundarP BakhodirD FionaJ PhilippK RuthX ThomasM
-GmailLitev9
-PhilippP PetarF ThomasK StefanQ PetarF MatasW LarryX PrabhakarR PetarF SergeyN
 MarsLitev5
 BakhodirD TatiyanaC
 MarsUltrav8
-PhilippI SergeyU SusanQ PhilippP SergeyT BenjaminT RuthX BakhodirG MatasW
-CastOSLitev5
-BakhodirD ClementM ClementM PetarF
+PhilippI SergeyU SusanQ PhilippP StefanQ BenjaminT RuthX PetarF MatasW
 GlassOSLitev9
-ClementT BakhodirG SundarA PhilippK HiroshiF PhilippH
+ClementT BakhodirG SundarA PhilippK PrabhakarR PhilippH
 FuchsiaXv6
-SundarL SundarA
+SergeyV SundarA
 WebserverProv6
 PhilippP
