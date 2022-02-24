@@ -17,7 +17,7 @@ if __name__ == '__main__':
     input_files = glob.glob(os.path.join(directory, "*.txt"))
     input_files = sorted(input_files)
 
-    #input_files = [input_files[1]]
+    #input_files = [input_files[4]]
     print(f"Nr of files: {len(input_files)}")
     for problem_file in input_files:
         problem = os.path.basename(problem_file).split('.')[0]
@@ -57,6 +57,14 @@ if __name__ == '__main__':
         sns.histplot(score_per_project)
         plt.title('Histogram: score')
         output_path = os.path.join("histogram_score_per_project", problem + '.png')
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        ax.figure.savefig(output_path)
+        plt.clf()
+
+
+        sns.scatterplot(nr_of_days_per_project, score_per_project)
+        plt.title('Histogram: score')
+        output_path = os.path.join("scatterplot_score_vs_days", problem + '.png')
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         ax.figure.savefig(output_path)
         plt.clf()

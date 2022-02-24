@@ -34,7 +34,7 @@ class ValuableProjectStrategy(BaseStrategy):
         # Sort projects according to their values
         project_values = [self.get_project_value(project) for project in projects]
         projects = [x for _, x in sorted(zip(project_values, projects), key=lambda pair: pair[0],reverse=True)]
-        print(f"Project values: {[project.score for project in projects]}")
+        #print(f"Project values: {[project.score for project in projects]}")
         # Iterate over all projects
         contributor_idx = 0
         for idx, project in enumerate(projects):
@@ -42,11 +42,9 @@ class ValuableProjectStrategy(BaseStrategy):
             for role in project.roles:
                 # Simply assign the first/next contributor to that role if contributor has that skill at the required level
                 for contributor in contributors:
-                    if role.name in [skill.name for skill in contributor.skills]:
-                        relevant_skill = [skill for skill in contributor.skills if role.name == skill.name][0]
-                        if relevant_skill.level >= role.level:
-                            project.contributors.append(contributors[contributor_idx])
-                            contributor_idx += 1
+                    if contributor.skills[role.name] >= role.level:
+                        project.contributors.append(contributor)
+                        contributor_idx += 1
 
                     # todo: fix ugly multiple breaks
                     if contributor_idx >= len(contributors):
