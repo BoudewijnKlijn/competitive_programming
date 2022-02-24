@@ -32,7 +32,7 @@ class BaselineStrategy(BaseStrategy):
                 # Simply assign the first/next contributor to that role if contributor has that skill at the required level
                 for contributor in contributors:
                     if contributor.skills[role.name] >= role.level:
-                        project.contributors.append(contributors[contributor_idx])
+                        project.contributors.append(contributor)
                         contributor_idx += 1
 
                     # todo: fix ugly multiple breaks
