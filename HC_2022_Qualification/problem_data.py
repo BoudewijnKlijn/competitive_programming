@@ -70,6 +70,7 @@ class ProblemData(InputData):
         for i in range(projects):
             project_name, nr_of_days, score, best_before, nr_of_roles = raw_data[next(data_index)].strip().split(' ')
             nr_of_roles = int(nr_of_roles)
+            nr_of_days = int(nr_of_days)
             roles = []
             for j in range(nr_of_roles):
                 role, level = raw_data[next(data_index)].strip().split()

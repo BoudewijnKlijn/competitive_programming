@@ -12,11 +12,11 @@ from copy import copy
 import numpy as np
 from dataclasses import dataclass
 
-from .strategies.random_strategy import RandomStrategy
+from .strategies.random_strategy_v2 import RandomStrategy
 from .problem_data import ProblemData
 from .score import Score
 from .solution import Solution
-from .strategies.base_strategy import BaseStrategy
+from .strategies.baseline_strategy_v2 import BaseStrategy
 from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))

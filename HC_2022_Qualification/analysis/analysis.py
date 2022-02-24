@@ -32,6 +32,12 @@ if __name__ == '__main__':
         print(f"Nr of contributors: {len(contributors)}")
         print(f"Nr of projects: {len(projects)}")
 
+        # incorrect because it does not take into consideration the time dimension
+        #max_contributors_needed = sum([len(project.roles) for project in projects])
+        #avg_nr_roles_per_project = max_contributors_needed / len(projects)
+        #print(f"Avg nr of roles per project: {avg_nr_roles_per_project:0.0f}")
+        #print(f"Max contributors needed: {max_contributors_needed:0.0f}")
+
         nr_of_days_per_project = [project.nr_of_days for project in projects]
         ax = sns.histplot(nr_of_days_per_project)
         output_path = os.path.join("histogram_nr_of_days", problem + '.png')

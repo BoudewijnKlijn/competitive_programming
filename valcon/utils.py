@@ -9,7 +9,7 @@ def flatten(t):
 
 
 def generate_file_name(problem_file: str, score: int, solver: Strategy):
-    return f'{os.path.basename(problem_file)[0]}-{score:06d}-{solver.name}.txt'
+    return f'{os.path.basename(problem_file)[0]}-{score:08d}-{solver.name}.txt'
 
 
 def get_problem_name(file_name: str):
