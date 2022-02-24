@@ -11,8 +11,8 @@ from valcon.utils import best_score, get_problem_name, generate_file_name
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-def solve_baseline(files):
-    current_best = best_score(output_directory)
+def solve_baseline(files, output_dir):
+    current_best = best_score(output_dir)
     print(f"Nr of files {len(files)}")
     for problem_file in files:
         problem_name = get_problem_name(problem_file)
@@ -21,8 +21,7 @@ def solve_baseline(files):
         problem = ProblemData(problem_file)
 
         solver = BaselineStrategy()
-        #print(f"Solution: {solver.solve(problem)}")
-        ##break
+        print(f"Solution: {solver.solve(problem)}")
         scorer = Score(problem)
 
         start = time.perf_counter()
@@ -37,7 +36,7 @@ def solve_baseline(files):
 
         if score > current_best[problem_name]:
             print(f'Writing {out_file}')
-            solution.save(os.path.join(output_directory, out_file))
+            solution.save(os.path.join(output_dir, out_file))
         else:
             print(f'No improvement for {problem_name}')
 
@@ -88,5 +87,5 @@ if __name__ == '__main__':
     input_files = glob.glob(os.path.join(directory, "*.txt"))
     input_files = sorted(input_files)
 
-    #solve_baseline(input_files)
-    solve_random(input_files)
+    solve_baseline(input_files, output_directory)
+    #solve_random(input_files)
