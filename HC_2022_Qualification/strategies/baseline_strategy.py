@@ -26,7 +26,6 @@ class BaselineStrategy(BaseStrategy):
 
         # Iterate over all projects
         contributor_idx = 0
-        executed_projects = []
         for idx, project in enumerate(projects):
             # Iterate over all roles needed for that project
             for role in project.roles:
@@ -38,15 +37,15 @@ class BaselineStrategy(BaseStrategy):
                             project.contributors.append(contributors[contributor_idx])
                             contributor_idx += 1
 
-
                 if contributor_idx == len(contributors):
                     print("No more contributors left")
                     break
 
             if contributor_idx == len(contributors):
-                #print("No more contributors left")
+                # print("No more contributors left")
                 break
 
-            executed_projects.append(project)
+        # Filter projects that have no contributors
+        executed_projects = [project for project in projects if len(project.contributors) == len(project.roles)]
 
         return Solution(executed_projects)
