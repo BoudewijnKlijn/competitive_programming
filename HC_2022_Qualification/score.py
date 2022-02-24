@@ -7,7 +7,6 @@ class Score(Scorer):
     def __init__(self, input_data: ProblemData):
         self.available_from = input_data.available_from  # from which time are contributors available. all start at 0
 
-
     def calculate(self, output_data: Solution) -> int:
         score = 0
 
@@ -33,27 +32,48 @@ class Score(Scorer):
         # loop over all projects
         for project in output_data:
 
-            project_start_time = 0
-
-            for skill, level in project.skills:
-
-                # get all contributors for this project
-                for contributor in project.contributors:
-
-                    # check if contributor has required skill, else invalid input, return 0
-                    if contributor.skill >= project.required_skill:
+            # check if contributors have required skill (either by themself or via mentor)
+            for role, contributor in zip(project.roles, project.contributors):
+                # check if contributor has required skill
+                if contributor.role.skill >= role.required_skill:
+                    continue
+                elif (contributor.role.skill + 1) == role.required_skill:
+                    # can a contributor mentor?
+                    has_mentor = False
+                    for mentor in project.contributors:
+                        if mentor.role.skill >= role.required_skill:
+                            # yes, mentor is available
+                            has_mentor = True
+                            break
+                    if has_mentor:
                         continue
-                    elif (contributor.skill + 1) == project.required_skill:
-                        # mentor has to be on project
-                        for mentor in project.contributors:
-                            if mentor.skill >= project.required_skill:
-                        return 0
+                else:
+                    # invalid project, because contributor does not have required skill
+                    return 0
 
-                    # update project start time to max time when all contributors are available
-                    project_start_time = max(project_start_time, self.available_from[contributor.name])
+            # check when all contributors are available.
+            project_start_time = 0
+            for contributor in project.contributors:
+                # update project start time to max time when all contributors are available
+                project_start_time = max(project_start_time, self.available_from[contributor.name])
 
-                # execute the project
-                project_end_time = project_start_time + project.duration
+            # execute the project: update available_from for all contributors. assign score.
+            project_end_time = project_start_time + project.duration
+            for contributor in project.contributors:
+                self.available_from[contributor.name] = project_end_time
 
-                # update skills of
+            # update skills of contributors
+            for role, contributor in zip(project.roles, project.contributors):
+                if role.skill <= contributor.role.skill:
+                    contributor.role.skill += 1
 
+            # check if project is completed before best before date
+            if project_end_time < project.best_before:
+                project_score = project.score
+            else:
+                project_score = max(0, project.score - (project_end_time - project.best_before))
+            score += project_score
+
+            # go to next project
+
+        return score
