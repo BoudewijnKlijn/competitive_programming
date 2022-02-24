@@ -32,7 +32,7 @@ def solve_with_strategy(strategy, files, output_dir):
         score = scorer.calculate(solution)
 
         print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
-
+        break
         out_file = generate_file_name(problem_file, score, solver)
 
         if score > current_best[problem_name]:

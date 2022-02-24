@@ -35,6 +35,9 @@ if __name__ == '__main__':
         nr_of_days_per_project = [project.nr_of_days for project in projects]
         sns.histplot(nr_of_days_per_project)
 
+        nr_of_days_per_project = [project.nr_of_days for project in projects]
+        sns.histplot(nr_of_days_per_project)
+
         plt.show()
         break
         print('-------------------------------------------------------------------------------------------------------')
