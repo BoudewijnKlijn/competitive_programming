@@ -2,7 +2,12 @@ r"""
 Run as module using the -m option.
 
 example:
-C:\Users\marco\repos\Valcon_Hash_Code_2022>python -m HC_2022_Qualification.runner_marco """
+C:\Users\marco\repos\Valcon_Hash_Code_2022>python -m HC_2022_Qualification.runner_marco
+
+
+
+
+"""
 
 import glob
 import os
