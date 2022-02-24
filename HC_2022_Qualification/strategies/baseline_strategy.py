@@ -18,7 +18,7 @@ class BaselineStrategy(BaseStrategy):
             self.seed = seed
         else:
             self.seed = random.randint(0, 999_999_999)
-        super().__init__(seed)
+        super().__init__(self.seed)
 
     def solve(self, input_data: ProblemData) -> Solution:
         contributors = input_data.contributors

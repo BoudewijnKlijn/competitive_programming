@@ -12,6 +12,7 @@ from copy import copy
 import numpy as np
 from dataclasses import dataclass
 
+from HC_2022_Qualification.strategies.marco_less_random import MarcoLessRandomStrategy
 from .strategies.random_strategy import RandomStrategy
 from .problem_data import ProblemData
 from .score import Score
@@ -50,7 +51,7 @@ if __name__ == '__main__':
 
             problem = ProblemData(problem_file)
 
-            solver = RandomStrategy()
+            solver = MarcoLessRandomStrategy()
             scorer = Score(problem)
 
             start = time.perf_counter()
