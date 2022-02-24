@@ -31,7 +31,7 @@ class BaselineStrategy(BaseStrategy):
         for skill in unique_skills:
             contributors_with_skill[skill] = {contributor for contributor in contributors if skill in contributor.skills}
 
-        projects = sorted(projects, key=lambda x: x.score)
+        projects = sorted(projects, key=lambda x: x.score, reverse=True)
 
         for project in projects:
             # Iterate over all roles needed for that project
