@@ -50,22 +50,23 @@ class ProblemData(InputData):
         self.contributors = []
         self.projects = []
 
+        data_index = iter(range(len(raw_data)))
         for i in range(contributors):
-            contributor_name, nr_of_skills = raw_data.pop(0).strip().split(' ')
+            contributor_name, nr_of_skills = raw_data[next(data_index)].strip().split(' ')
             nr_of_skills = int(nr_of_skills)
             skills = []
             for j in range(nr_of_skills):
-                role, level = raw_data.pop(0).strip().split()
+                role, level = raw_data[next(data_index)].strip().split()
                 level = int(level)
                 skills.append(Role(role, level))
             self.contributors.append(Contributor(contributor_name, skills))
 
         for i in range(projects):
-            project_name, nr_of_days, score, best_before, nr_of_roles = raw_data.pop(0).strip().split(' ')
+            project_name, nr_of_days, score, best_before, nr_of_roles = raw_data[next(data_index)].strip().split(' ')
             nr_of_roles = int(nr_of_roles)
             roles = []
             for j in range(nr_of_roles):
-                role, level = raw_data.pop(0).strip().split()
+                role, level = raw_data[next(data_index)].strip().split()
                 level = int(level)
                 roles.append(Role(role, level))
             self.projects.append(Project(project_name, roles, nr_of_days, score, best_before))

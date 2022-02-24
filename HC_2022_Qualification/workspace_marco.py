@@ -33,7 +33,19 @@ class MarcoLessRandomStrategy(BaseStrategy):
 
         completed_projects = []
 
-        for project in projects:
+        timeline = [[] for _ in range(max([p.best_before + p.score for p in projects]))]
+
+        timeline[0] = contributors
+
+        for t in range(len(timeline)):
+            while projects:
+                project = projects.pop(0)
+                if project.best_before + project.score >= t:
+                    continue
+                
+                    timeline[t].append(project)
+                    completed_projects.append(project)
+
             project_failed = False
 
             for role in project.roles:
