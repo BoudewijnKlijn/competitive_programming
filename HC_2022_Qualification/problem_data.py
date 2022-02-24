@@ -14,12 +14,24 @@ class Contributor:
     name: str
     skills: [Role]
 
+    def get_level(self, role_name):
+        for skill in self.skills:
+            if skill.name == role_name:
+                return skill.level
+
 
 @dataclass
 class Project:
     name: str
     roles: [Role]
     contributors: [Contributor] = field(default_factory=list)
+
+    def has_mentor(self, skill: str) -> bool:
+        debug = [role.level for role in self.roles if role.name == skill]
+        assert len(debug) == 1, "Expected a role to be there only once"
+        role_level = debug[0]
+
+        return any(contributor.get_level(skill) >= role_level for contributor in self.contributors)
 
 
 class ProblemData(InputData):
