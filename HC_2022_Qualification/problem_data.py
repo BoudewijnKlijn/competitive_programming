@@ -39,6 +39,12 @@ class Project:
 
         return any(contributor.get_level(skill) >= role_level for contributor in self.contributors)
 
+    def level_contributors(self):
+        for i, role in enumerate(self.roles):
+            if self.contributors[i].get_level(role) < role.level:
+                # assume this is legal so they should have a mentor
+                self.contributors[i].skills[role.name] += 1
+        
 
 class ProblemData(InputData):
     def __init__(self, file_name: str):

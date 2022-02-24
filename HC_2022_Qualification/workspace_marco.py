@@ -37,12 +37,18 @@ class MarcoLessRandomStrategy(BaseStrategy):
 
         timeline[0] = contributors
 
+        available_contributors = []
+
+        max_end_time = len(timeline) - 1
+
         for t in range(len(timeline)):
-            contributors = timeline[t]
+            available_contributors.extend(timeline[t])
+            # self.rng.shuffle(available_contributors)
+
             not_executed = []
             while projects:
                 project = projects.pop(0)
-                if project.best_before + project.score >= t:
+                if project.best_before + project.score > max_end_time:
                     continue  # permanent removal
 
                 project_failed = False
@@ -62,12 +68,14 @@ class MarcoLessRandomStrategy(BaseStrategy):
                     project.contributors.append(contributor)
 
                 if project_failed:
+                    contributors.extend(project.contributors)
                     project.contributors = []
                     not_executed.append(project)
                     continue
 
                 completed_projects.append(project)
                 timeline[t + project.nr_of_days].extend(project.contributors)
+                project.level_contributors()
 
         return Solution(completed_projects)
 
@@ -99,11 +107,11 @@ if __name__ == '__main__':
 
         out_file = generate_file_name(problem_file, score, solver)
 
-        if score > current_best[problem_name]:
+        if score > current_best[problem_name] or score == 0:
             print(f'Writing {out_file}')
             solution.save(os.path.join(output_directory, out_file))
         else:
-            print(f'No improvement for {problem_name}')
+            print(f'{score} is not an improvement for {problem_name} {current_best[problem_name]}')
 
         print('\n')
 

@@ -19,9 +19,11 @@ class RandomStrategy(BaseStrategy):
             self.seed = seed
         else:
             self.seed = random.randint(0, 999_999_999)
+        random.seed = self.seed
         super().__init__(seed)
 
     def solve(self, input_data: ProblemData) -> Solution:
+
         random.shuffle(input_data.contributors)
 
         baseline_strategy = BaselineStrategy()
