@@ -23,6 +23,9 @@ class Contributor:
     def get_level(self, role: Role):
         return self.skills[role.name]
 
+    def __repr__(self):
+        return f"Contributor(name: {self.name}, skills: {self.skills})"
+
 
 @dataclass
 class Project:
