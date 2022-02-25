@@ -22,6 +22,7 @@ class BaselineStrategy(BaseStrategy):
 
     def solve(self, input_data: ProblemData) -> Solution:
         contributors = input_data.contributors
+        # self.contributors = {contributor.name: contributor.skills for contributor in input_data.contributors}
         contributors_available_from = {contributor.name: 0 for contributor in contributors}
         projects = input_data.projects
         # just assume contributors cannot improve
@@ -58,8 +59,17 @@ class BaselineStrategy(BaseStrategy):
             if valid_team:
                 # update the earliest available time for all contributors
                 project_start_time = max([contributors_available_from[contributor.name] for contributor in earliest_contributors])
-                for contributor in earliest_contributors:
+                for role, contributor in zip(project.roles, earliest_contributors):
                     contributors_available_from[contributor.name] = project_start_time + project.nr_of_days
+
+                    # UGLY implementation last minute
+                    # update skills of contributors
+                    # increase level of skill if contributor level was equal or lower than required level
+                    if role.level <= contributor.skills[role.name]:
+                        new_contributor = contributor
+                        new_contributor.skills[role.name] += 1
+                        contributors_with_skill[role.name].remove(contributor)
+                        contributors_with_skill[role.name].add(new_contributor)
 
                 project.contributors = earliest_contributors
 

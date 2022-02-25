@@ -67,3 +67,10 @@ Nog een idee: we kunnen direct met output genereren. Het is niet lastig om valid
 ## 23-02-2022
 
 pandas profiling report maken van input
+
+## 24-02-2022
+
+hillcliimber:
+- Hash
+- Queue
+- Top n
