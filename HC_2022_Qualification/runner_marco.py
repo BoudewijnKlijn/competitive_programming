@@ -13,6 +13,7 @@ import numpy as np
 from dataclasses import dataclass
 
 from HC_2022_Qualification.strategies.marco_less_random import MarcoLessRandomStrategy
+from HC_2022_Qualification.workspace_marco import ProbabilityStrategy
 from .strategies.random_strategy import RandomStrategy
 from .problem_data import ProblemData
 from .score import Score
@@ -32,11 +33,11 @@ if __name__ == '__main__':
 
     problems_to_solve = [
         'a',
-        'b',
-        'c',
-        'd',
-        'e',
-        'f'
+        # 'b',
+        # 'c',
+        # 'd',
+        # 'e',
+        # 'f'
     ]
 
     while True:
@@ -51,7 +52,7 @@ if __name__ == '__main__':
 
             problem = ProblemData(problem_file)
 
-            solver = MarcoLessRandomStrategy()
+            solver = ProbabilityStrategy()
             scorer = Score(problem)
 
             start = time.perf_counter()
@@ -68,7 +69,7 @@ if __name__ == '__main__':
                 print(f'Writing {out_file}')
                 solution.save(os.path.join(output_directory, out_file))
             else:
-                print(f'No improvement for {problem_name}')
+                print(f'{score} is not an improvement for {problem_name} {current_best[problem_name]}')
 
             print('\n')
 

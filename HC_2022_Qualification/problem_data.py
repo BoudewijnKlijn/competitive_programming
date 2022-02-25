@@ -37,14 +37,25 @@ class Project:
     def has_mentor(self, skill: Role) -> bool:
         role_level = skill.level
 
-        return any(contributor.get_level(skill) >= role_level for contributor in self.contributors)
+        return any(
+            contributor.get_level(skill) >= role_level for contributor in self.contributors if contributor is not None)
 
     def level_contributors(self):
+        """ increases the skill level of a contributor if it was -1 of the role requirement with a mentor (the mentor is assumed)"""
         for i, role in enumerate(self.roles):
             if self.contributors[i].get_level(role) < role.level:
                 # assume this is legal so they should have a mentor
                 self.contributors[i].skills[role.name] += 1
-        
+
+    def unfilled_roles(self):
+        """ returns a list of roles that are not filled """
+
+        # add missing roles if an append strategy was used
+        contributors = self.contributors + [None] * (len(self.roles) - len(self.contributors))
+        paired = zip(contributors, self.roles)
+
+        return [role for (contributor, role) in paired if contributor is None]
+
 
 class ProblemData(InputData):
     def __init__(self, file_name: str):

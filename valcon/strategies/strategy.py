@@ -11,9 +11,9 @@ class Strategy(ABC):
 
     @property
     def name(self):
-        try:
+        if self.best_seed:
             return f'{type(self).__name__}({self.best_seed})'
-        except:
+        else:
             return f'{type(self).__name__}({self.seed})'  # TODO: remove, just to make it backward compatible
 
     def __init__(self, seed=0, repeatable=True, label=None):
