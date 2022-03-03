@@ -18,24 +18,30 @@ def solve_with_strategy(strategy, files, output_dir):
     for problem_file in files:
         problem_name = get_problem_name(problem_file)
         print(f'--- {problem_name} ---')
+        print(f'{problem_file}')
 
+        load_start = time.perf_counter()
         problem = ProblemData(problem_file)
+        load_end = time.perf_counter()
+        print(f'Load time: {load_end-load_start:.2f}s')
 
+        solve_start = time.perf_counter()
         solver = strategy
         solution = solver.solve(problem)
-        # print(f"Solution: {solution}")
+        solve_end = time.perf_counter()
+        print(f'Solve time: {solve_end - solve_start:.2f}s')
+
+        score_start = time.perf_counter()
         scorer = Score(problem, verbose=False)
-
-        start = time.perf_counter()
-
-        duration = time.perf_counter() - start
-
         score = scorer.calculate(solution)
+        score_end = time.perf_counter()
+        print(f'Score time: {score_end - score_start:.2f}s')
 
-        print(f'{problem_file} Score: {score} ({duration:0.0f}s)')
-        out_file = generate_file_name(problem_file, score, solver)
+        duration = score_end - load_start
+        print(f'Score: {score} ({duration:0.2f}s)')
 
         if score > current_best[problem_name]:
+            out_file = generate_file_name(problem_file, score, solver)
             print(f'Writing {out_file}')
             solution.save(os.path.join(output_dir, out_file))
         else:
