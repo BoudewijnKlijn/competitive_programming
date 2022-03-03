@@ -45,7 +45,7 @@ class Score(Scorer):
             # all contributors need to have required level in role skills (either by themself or via mentor)
             project_contributors = set()
             for role, contributor in zip(project.roles, project.contributors):
-                if contributor in project_contributors:
+                if contributor.name in project_contributors:
                     raise ValueError(f"{contributor} is assigned to multiple roles in {project}")
                 contributor_level = self.contributors[contributor.name][role.name]
                 if contributor_level >= role.level:
