@@ -69,7 +69,7 @@ class BaselineStrategy(BaseStrategy):
                     continue
                 contributor_score = sum([
                     -1 * contributors_available_from[contributor_name],
-                    # -1 * sum(contributor_skills[contributor_name].values()),
+                    -1 * sum(contributor_skills[contributor_name].values()),
                 ])
 
                 if best_score is None or contributor_score > best_score:
