@@ -3,6 +3,7 @@ import random
 from .base_strategy import BaseStrategy
 from ..problem_data import ProblemData
 from ..solution import Solution
+from collections import defaultdict
 
 
 class BaselineStrategy(BaseStrategy):
@@ -27,6 +28,22 @@ class BaselineStrategy(BaseStrategy):
         projects = input_data.projects
         # just assume contributors cannot improve
         unique_skills = {skill for contributor in contributors for skill in contributor.skills}
+        print('n_unique_skills', len(unique_skills))
+        # make dict with skills and level to prevent looping over all contributors
+        # key=tuple(skill, level), value=set of contributors with skill and level
+        max_levels = defaultdict(int)
+        skills = defaultdict(set)
+        for skill in unique_skills:
+            for contributor in contributors:
+                if skill in contributor.skills:
+                    skills[(skill, contributor.skills[skill])].add(contributor.name)
+                    if contributor.skills[skill] > max_levels[skill]:
+                        max_levels[skill] = contributor.skills[skill]
+                else:
+                    skills[(skill, 0)].add(contributor.name)
+        # print('skills', skills)
+        # print(max_levels)
+        # exit()
 
         contributors_with_skill = dict()
         for skill in unique_skills:
