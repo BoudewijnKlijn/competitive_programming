@@ -66,6 +66,7 @@ class ProblemData(InputData):
 
         self.contributors = []
         self.projects = []
+        self.contributors_dict = {}
 
         data_index = iter(range(len(raw_data)))
         for i in range(contributors):
@@ -77,6 +78,7 @@ class ProblemData(InputData):
                 level = int(level)
                 skills.append(Role(role, level))
             self.contributors.append(Contributor(contributor_name, skills))
+            self.contributors_dict[contributor_name] = {role.name: int(role.level) for role in skills}
 
         for i in range(projects):
             project_name, nr_of_days, score, best_before, nr_of_roles = raw_data[next(data_index)].strip().split(' ')

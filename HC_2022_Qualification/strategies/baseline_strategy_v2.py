@@ -23,49 +23,52 @@ class BaselineStrategy(BaseStrategy):
 
     def solve(self, input_data: ProblemData) -> Solution:
         contributors = input_data.contributors
-        # self.contributors = {contributor.name: contributor.skills for contributor in input_data.contributors}
+        contributors_skills = input_data.contributors_dict
         contributors_available_from = {contributor.name: 0 for contributor in contributors}
-        projects = input_data.projects
-        # just assume contributors cannot improve
+
         unique_skills = {skill for contributor in contributors for skill in contributor.skills}
-        print('n_unique_skills', len(unique_skills))
+
         # make dict with skills and level to prevent looping over all contributors
         # key=tuple(skill, level), value=set of contributors with skill and level
         max_levels = defaultdict(int)
         skills = defaultdict(set)
-        for skill in unique_skills:
+        for skill_name in unique_skills:
             for contributor in contributors:
-                if skill in contributor.skills:
-                    skills[(skill, contributor.skills[skill])].add(contributor.name)
-                    if contributor.skills[skill] > max_levels[skill]:
-                        max_levels[skill] = contributor.skills[skill]
+                if skill_name in contributor.skills:
+                    skills[(skill_name, contributor.skills[skill_name])].add(contributor.name)
+                    if contributor.skills[skill_name] > max_levels[skill_name]:
+                        max_levels[skill_name] = contributor.skills[skill_name]
                 else:
-                    skills[(skill, 0)].add(contributor.name)
+                    skills[(skill_name, 0)].add(contributor.name)
         # print('skills', skills)
         # print(max_levels)
         # exit()
 
-        contributors_with_skill = dict()
-        for skill in unique_skills:
-            contributors_with_skill[skill] = {contributor for contributor in contributors if skill in contributor.skills}
-
+        projects = input_data.projects
         projects = sorted(projects, key=lambda x: (x.score - x.best_before) / x.nr_of_days / len(x.roles), reverse=True)
 
         for project in projects:
-            # Iterate over all roles needed for that project
             earliest_contributors = []
             valid_team = True
             for role in project.roles:
                 # Assign the contributor that has the required skill and is first available
                 earliest_valid_contributor = None
-                for contributor in contributors_with_skill[role.name]:
-                    if contributor in earliest_contributors:
+
+                # get all contributors with the required skill and level
+                valid_contributor_names = set()
+                # TODO: from -1 to also include the ones valid with a mentor
+                for level in range(role.level, max_levels[role.name] + 1):
+                    valid_contributor_names.update(skills[(role.name, level)])
+
+                # choose the first one that is available
+                for contributor_name in valid_contributor_names:
+                    if contributor_name in earliest_contributors:
                         # Contributor can only have 1 role
                         continue
-                    if contributor.skills[role.name] >= role.level:
-                        if earliest_valid_contributor is None or \
-                                contributors_available_from[contributor.name] < contributors_available_from[earliest_valid_contributor.name]:
-                            earliest_valid_contributor = contributor
+                    if earliest_valid_contributor is None or \
+                            contributors_available_from[contributor_name] < \
+                            contributors_available_from[earliest_valid_contributor]:
+                        earliest_valid_contributor = contributor_name
 
                 if earliest_valid_contributor is not None:
                     earliest_contributors.append(earliest_valid_contributor)
@@ -75,20 +78,30 @@ class BaselineStrategy(BaseStrategy):
 
             if valid_team:
                 # update the earliest available time for all contributors
-                project_start_time = max([contributors_available_from[contributor.name] for contributor in earliest_contributors])
-                for role, contributor in zip(project.roles, earliest_contributors):
-                    contributors_available_from[contributor.name] = project_start_time + project.nr_of_days
+                project_start_time = max(
+                    [contributors_available_from[contributor_name] for contributor_name in earliest_contributors])
+                for role, contributor_name in zip(project.roles, earliest_contributors):
+                    contributors_available_from[contributor_name] = project_start_time + project.nr_of_days
 
-                    # UGLY implementation last minute
                     # update skills of contributors
                     # increase level of skill if contributor level was equal or lower than required level
-                    if role.level <= contributor.skills[role.name]:
-                        new_contributor = contributor
-                        new_contributor.skills[role.name] += 1
-                        contributors_with_skill[role.name].remove(contributor)
-                        contributors_with_skill[role.name].add(new_contributor)
+                    old_level = contributors_skills[contributor_name].get(role.name, 0)
+                    if role.level <= old_level:
+                        new_level = old_level + 1
+                        contributors_skills[contributor_name].update({role.name: new_level})
+                        skills[(role.name, old_level)].remove(contributor_name)  # remove from old skill level
+                        skills[(role.name, new_level)].add(contributor_name)  # add to new skill level
 
-                project.contributors = earliest_contributors
+                        # update max level
+                        if new_level > max_levels[role.name]:
+                            max_levels[role.name] = new_level
+
+                # convert contributor new to complete contributor object
+                for contributor_name in earliest_contributors:
+                    for contributor in contributors:
+                        if contributor.name == contributor_name:
+                            project.contributors.append(contributor)
+                            break
 
         # Filter projects that have no contributors
         executed_projects = [project for project in projects if len(project.contributors) == len(project.roles)]
