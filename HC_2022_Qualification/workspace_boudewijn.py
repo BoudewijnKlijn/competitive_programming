@@ -32,7 +32,7 @@ def solve_with_strategy(strategy, files, output_dir):
         print(f'Solve time: {solve_end - solve_start:.2f}s')
 
         score_start = time.perf_counter()
-        scorer = Score(problem, verbose=False)
+        scorer = Score(problem, verbose=True)
         score = scorer.calculate(solution)
         score_end = time.perf_counter()
         print(f'Score time: {score_end - score_start:.2f}s')

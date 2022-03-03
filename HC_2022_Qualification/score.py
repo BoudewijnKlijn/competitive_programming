@@ -38,9 +38,9 @@ class Score(Scorer):
         Maria Bob"""
 
         # loop over all projects
+        if self.verbose:
+            print(f"Number of projects: {len(output_data.projects)}")
         for project in output_data.projects:
-            if self.verbose:
-                print(project)
 
             # all contributors need to have required level in role skills (either by themself or via mentor)
             project_contributors = set()
