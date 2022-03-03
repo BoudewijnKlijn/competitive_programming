@@ -44,43 +44,78 @@ class BaselineStrategy(BaseStrategy):
         # print(max_levels)
         # exit()
 
+        def get_best_contributor(
+                role_skill_name,
+                role_skill_level,
+                contributor_names,
+                contributor_skills,
+                contributors_available_from,
+                used_contributors,
+        ):
+            """
+            Returns the best contributor for the given role
+
+            Args:
+                role_skill_name (str): Name of skill
+                role_skill_level (int): Level of skill
+                contributor_names (set): Set of names of contributors
+                contributor_skills (dict): Dict of skills of contributors
+                contributors_available_from (dict): Dict of contributors and their available from
+            """
+            best_score = None  # the higher the score the better
+            best_contributor_name = None
+            for contributor_name in contributor_names:
+                if contributor_name in used_contributors:
+                    continue
+                contributor_score = sum([
+                    -1 * contributors_available_from[contributor_name],
+                    # -1 * sum(contributor_skills[contributor_name].values()),
+                ])
+
+                if best_score is None or contributor_score > best_score:
+                    best_score = contributor_score
+                    best_contributor_name = contributor_name
+            return best_contributor_name
+
         projects = input_data.projects
         projects = sorted(projects, key=lambda x: (x.score - x.best_before) / x.nr_of_days / len(x.roles), reverse=True)
 
         for project in projects:
-            earliest_contributors = []
+            used_contributors = []
             valid_team = True
             for role in project.roles:
-                # Assign the contributor that has the required skill and is first available
-                earliest_valid_contributor = None
-
                 # get all contributors with the required skill and level
                 valid_contributor_names = set()
                 # TODO: from -1 to also include the ones valid with a mentor
                 for level in range(role.level, max_levels[role.name] + 1):
                     valid_contributor_names.update(skills[(role.name, level)])
+                if not valid_contributor_names:
+                    # No contributor found for this role.
+                    valid_team = False
+                    break
 
-                # choose the first one that is available
-                for contributor_name in valid_contributor_names:
-                    if contributor_name in earliest_contributors:
-                        # Contributor can only have 1 role
-                        continue
-                    if earliest_valid_contributor is None or \
-                            contributors_available_from[contributor_name] < \
-                            contributors_available_from[earliest_valid_contributor]:
-                        earliest_valid_contributor = contributor_name
+                # choose the contributor with the best heuristic
+                best_contributor = get_best_contributor(
+                    role.name,
+                    role.level,
+                    valid_contributor_names,
+                    contributors_skills,
+                    contributors_available_from,
+                    used_contributors,
+                )
 
-                if earliest_valid_contributor is not None:
-                    earliest_contributors.append(earliest_valid_contributor)
+                if best_contributor is not None:
+                    used_contributors.append(best_contributor)
                 else:
                     # No contributor found for this role.
                     valid_team = False
+                    break
 
             if valid_team:
                 # update the earliest available time for all contributors
                 project_start_time = max(
-                    [contributors_available_from[contributor_name] for contributor_name in earliest_contributors])
-                for role, contributor_name in zip(project.roles, earliest_contributors):
+                    [contributors_available_from[contributor_name] for contributor_name in used_contributors])
+                for role, contributor_name in zip(project.roles, used_contributors):
                     contributors_available_from[contributor_name] = project_start_time + project.nr_of_days
 
                     # update skills of contributors
@@ -97,7 +132,7 @@ class BaselineStrategy(BaseStrategy):
                             max_levels[role.name] = new_level
 
                 # convert contributor new to complete contributor object
-                for contributor_name in earliest_contributors:
+                for contributor_name in used_contributors:
                     for contributor in contributors:
                         if contributor.name == contributor_name:
                             project.contributors.append(contributor)
