@@ -174,8 +174,9 @@ def part2(content):
         BP % 3769 = 3768
     This is similar to day 8, except that these cycles are already all primes.
     We could multiply them all, but then they still don't align at the start.
-    I know from previous years that the Chinese Remainder Theorem can be used to solve this.
     The first two match when the first cycle is multiplied by 3930.
+    I know from previous years that the Chinese Remainder Theorem can be used to solve this.
+    But its more fun to brute force/ analysis by hand.
     """
     n_button_pushes = 10**10
     modules = init_modules(content)
