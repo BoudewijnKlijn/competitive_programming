@@ -1,8 +1,9 @@
 import re
-from itertools import count
+from itertools import count, product
 
 import numpy as np
-from matplotlib import pyplot as plt
+
+EPS = 1e-10
 
 
 def part1(content, bounds=(7, 27)):
@@ -43,7 +44,7 @@ def part1(content, bounds=(7, 27)):
     return ans
 
 
-def part2(content, alpha_rock=0.5):
+def part2(content, alpha_rock=0.5, alpha_hail=0.5, R0=(1, 1, 1), Rv=(1, 1, 1)):
     """We are looking for a straight line (rock) that intersects all other 3D lines (hail).
     To start, I ignore the time, I just try to find a line that intersects all other lines.
     Thereafter, I will derive the starting point and velocities, such that rock perfectly collides with all hails.
@@ -63,152 +64,135 @@ def part2(content, alpha_rock=0.5):
         data = list(map(int, re.findall(r"-?\d+", line)))
         hailstones.append(data)
 
-    max_iter = 10_000
+    H = np.array(hailstones)
+    H0 = H[:, :3]
+    Hv = H[:, 3:]
+
+    max_iter = 1_000
     total_iterations = 0
-    alpha_hail = 0.9
-    ts_hail = [0] * len(hailstones)
+    Ht = np.zeros(shape=(H0.shape[0], 1))
     losses = None
 
-    # rock trajectory parameters initial guess
-    x0, y0, z0, dx, dy, dz = 1, 2, 3, 4, 5, 6
-    x0, y0, z0, dx, dy, dz = 100, -100, -100, 1, 1, 1
+    Hp = H0 + Hv * Ht
 
-    for i in count(0, step=1):
-        if i >= max_iter:
-            print("adjust time max iter reached", i)
+    for i in count(1, step=1):
+        if i > max_iter:
+            print("EXIT: max iter", i)
             break
 
-        points = calc_hailstone_points(hailstones, ts_hail)
+        # for each hailstone point determine at which time the rock line is the closest
+        # then use that time to determine the point on the rock line
+        # then switch roles, and find the optimal t for the hailstone line to be closest to the
+        # rock line. store that time for the next iteration
+        t_rock = get_optimal_t(Hp, R0, Rv)
+        # loss = calc_loss(Hp, R0, Rv, t_rock)
+        # print(f"loss before moving hailstones {loss}")
+        Rp = R0 + t_rock * Rv
+        new_Ht = np.zeros_like(Ht)
+        for j in range(new_Ht.shape[0]):
+            new_Ht[j] = get_optimal_t(
+                Rp[j : j + 1, :], H0[j : j + 1, :], Hv[j : j + 1, :]
+            )
+        new_Ht = np.maximum(0, (1 - alpha_hail) * Ht + alpha_hail * new_Ht)
+
+        if np.allclose(Ht, new_Ht, rtol=EPS):
+            print("EXIT: converged times", i)
+            break
+
+        # update hailstone times
+        Ht = new_Ht
+
+        Hp = H0 + Hv * Ht
 
         # find the best rock line
-        x0, y0, z0, dx, dy, dz, losses, total_iterations = determine_best_line(
-            points, initial_guess=(x0, y0, z0, dx, dy, dz),
+        R0, Rv, losses, total_iterations = determine_best_line(
+            Hp,
+            R0,
+            Rv,
             # losses=losses,
-            losses=None,  # speedup
+            losses=None,  # None for speedup
             alpha_rock=alpha_rock,
             total_iterations=total_iterations,
         )
 
-        # for each hailstone point determine at which time the rock line is the closest
-        # then use that time to determine the point on the rock line
-        # then switch roles, and find the optimal t for the hailstone line to be closest to the rock line
-        # store that time for the next iteration
-        new_ts_hail = list()
-        for hailstone, point, t_hail_old in zip(hailstones, points, ts_hail):
-            t_rock = get_optimal_t(point, (x0, y0, z0, dx, dy, dz))
-            rock_point = (x0 + t_rock * dx, y0 + t_rock * dy, z0 + t_rock * dz)
-            t_hail = get_optimal_t(rock_point, hailstone)
-            new_t_hail = max((1 - alpha_hail) * t_hail_old + alpha_hail * t_hail, 0)
-            new_ts_hail.append(new_t_hail)
-
-        if np.allclose(ts_hail, new_ts_hail, rtol=1e-10):
-            print("converged times, relative", i)
-            break
-
-        # update hailstone times
-        ts_hail = new_ts_hail
-
     # round times to integer values (not sure if correct for real data)
-    ts_hail = [round(t) for t in ts_hail]
-    print(ts_hail)
-    print(calc_hailstone_points(hailstones, ts_hail))
+    ts_hail = np.round(Ht).astype(int)
+    # print(ts_hail)
+    Hp = H0 + Hv * ts_hail
 
-    # plt.plot(losses)
-    # plt.show()
+    rock_params = get_rock_parameters(Hp, ts_hail)
+    print(rock_params)
 
-    return x0, y0, z0, dx, dy, dz, losses[-1], total_iterations
-
-
-def calc_hailstone_points(hailstones, ts_hail):
-    # calculate the points on the hailstone lines
-    points = list()
-    for t_hail, hailstone in zip(ts_hail, hailstones):
-        points.append(
-            (
-                hailstone[0] + t_hail * hailstone[3],
-                hailstone[1] + t_hail * hailstone[4],
-                hailstone[2] + t_hail * hailstone[5],
-            )
-        )
-    return points
+    return R0, Rv, rock_params, losses[-1], total_iterations
 
 
-def get_optimal_t(point, line):
-    x, y, z = point
-    x0, y0, z0, dx, dy, dz = line
-    return (dx * (x - x0) + dy * (y - y0) + dz * (z - z0)) / (dx**2 + dy**2 + dz**2)
+def get_rock_parameters(Hp, Ht):
+    """If loss is ~zero, the rock line can be determined from two hailstone lines with different
+    times."""
+    n = Hp.shape[0]
+    for i in range(n):
+        for j in range(n):
+            if i == j or Ht[i] == Ht[j]:
+                continue
+
+            delta_Ht = Ht[i, :] - Ht[j, :]
+            delta_Hp = Hp[i, :] - Hp[j, :]
+            Rv = delta_Hp / delta_Ht
+            R0 = Hp[i, :] - Ht[i] * Rv
+
+            return R0, Rv
 
 
-def determine_best_line(points: list, initial_guess, max_iter=10_000, losses=None, alpha_rock=0.8,
-                        total_iterations=0):
+def get_optimal_t(point, line_0, line_v):
+    """(dx * (x - x0) + dy * (y - y0) + dz * (z - z0)) / (dx**2 + dy**2 + dz**2)"""
+    assert point.shape[1] == 3, "Wrong dimensions for point"
+    assert line_0.shape == (1, 3), "Wrong dimensions for line_0"
+    assert line_v.shape == (1, 3), "Wrong dimensions for line_v"
+    return (point - line_0) @ line_v.T / np.sum(line_v**2, axis=1, keepdims=True)
+
+
+def calc_loss(point, line_0, line_v, t):
+    return np.mean((point - (line_0 + t * line_v)) ** 2)
+
+
+def determine_best_line(
+    Hp, R0, Rv, max_iter=1_000, losses=None, alpha_rock=0.8, total_iterations=0
+):
     """Determine the best line that is closest to all points in 3D space."""
-    x0, y0, z0, dx, dy, dz = initial_guess
-
-    n = len(points)
-    # alpha_rock = 0.8  # todo seems very sensitive to alpha
     if losses is None:
         losses = list()
-    for i in count(0, step=1):
-        if i >= max_iter:
-            print("best line max iter reached", i)
+
+    for epoch in count(1, step=1):
+        if epoch > max_iter:
+            # print("best line max iter reached", epoch)
             break
 
-        loss = 0
-        dx0, dy0, dz0, ddx, ddy, ddz = 0, 0, 0, 0, 0, 0
-        for x, y, z in points:
-            t = get_optimal_t((x, y, z), (x0, y0, z0, dx, dy, dz))
-            loss += (
-                (x - (x0 + t * dx)) ** 2
-                + (y - (y0 + t * dy)) ** 2
-                + (z - (z0 + t * dz)) ** 2
-            )
+        t = get_optimal_t(Hp, R0, Rv)
+        loss = calc_loss(Hp, R0, Rv, t)
 
-            # partial derivatives
-            dx0 += 2 * (x0 - x + dx * t) / n
-            dy0 += 2 * (y0 - y + dy * t) / n
-            dz0 += 2 * (z0 - z + dz * t) / n
-            ddx += 2 * ((x0 - x) * t + dx) / n
-            ddy += 2 * ((y0 - y) * t + dy) / n
-            ddz += 2 * ((z0 - z) * t + dz) / n
-
-        if loss < 1e-10:
-            print("converged loss, absolute", i)
-            losses.append(loss)
-            break
-
-        if len(losses) > 0 and np.isclose(loss, losses[-1], rtol=1e-10):
-            print("converged loss, relative", i)
-            break
-        losses.append(loss)
+        dR0 = 2 * np.mean(R0 - Hp + Rv * t, axis=0)
+        dRv = 2 * np.mean(((R0 - Hp) * t + Rv), axis=0)
 
         # update parameters
-        x0 -= alpha_rock * dx0
-        y0 -= alpha_rock * dy0
-        z0 -= alpha_rock * dz0
-        dx -= alpha_rock * ddx
-        dy -= alpha_rock * ddy
-        dz -= alpha_rock * ddz
+        R0 -= alpha_rock * dR0
+        Rv -= alpha_rock * dRv
 
-        # normalize velocity parameters (to prevent overflows)
-        norm = np.linalg.norm([dx, dy, dz])
-        dz /= norm
-        dy /= norm
-        dx /= norm
+        losses.append(loss)
 
-        # shift starting point closest to the origin
-        t = get_optimal_t((0, 0, 0), (x0, y0, z0, dx, dy, dz))
-        x0 += t * dx
-        y0 += t * dy
-        z0 += t * dz
+        if losses[-1] < EPS:
+            # print(f"converged loss {losses[-1]}, absolute", epoch)
+            break
 
-        # print(x0, y0, z0, dx, dy, dz)
+        if len(losses) > 1 and np.isclose(losses[-2], losses[-1], rtol=EPS):
+            # print(f"converged loss {losses[-2]} {losses[-1]}, , relative", epoch)
+            break
 
-    print("loss best line", loss)
-    print("parameters", x0, y0, z0, dx, dy, dz)
+    # print("loss best line", losses[-1])
+    # print("parameters", R0, Rv)
 
-    total_iterations += i
+    total_iterations += epoch
 
-    return x0, y0, z0, dx, dy, dz, losses, total_iterations
+    return R0, Rv, losses, total_iterations
 
 
 if __name__ == "__main__":
@@ -229,15 +213,42 @@ if __name__ == "__main__":
 
     # assert part2(SAMPLE) == 47
 
-    # alphas = np.linspace(0.1, 0.6, 6)
+    # alphas = np.linspace(0.9, 0.99, 9)
     # results = list()
     # for alpha in alphas:
     #     print(alpha)
-    #     result = part2(SAMPLE, alpha_rock=alpha)
+    #     result = part2(
+    #         SAMPLE,
+    #         alpha_rock=0.6,
+    #         alpha_hail=alpha,
+    #     )
     #     results.append(result)
     #
     # for alpha, result in zip(alphas, results):
-    #     print(alpha, result, result[4]/result[5])
+    #     print(alpha, result)
 
-    # print(part2(SAMPLE))
-    print(part2(CONTENT, alpha_rock=0.3))
+    initial0 = (-100, 100)
+    initialv = (-100, 100)
+    # initial0 = [2.65E+14, -2.65E+14]
+    # initialv = [2.65E+14, -2.65E+14]
+    i = 0
+    smallest_loss = 1e10
+    for x0, y0, z0 in product(initial0, repeat=3):
+        R0 = np.array([x0, y0, z0], dtype=np.float64).reshape(1, 3)
+        for xv, yv, zv in product(initialv, repeat=3):
+            print(i, x0, y0, z0, "+", xv, yv, zv)
+            Rv = np.array([xv, yv, zv], dtype=np.float64).reshape(1, 3)
+            R0, Rv, rock_params, loss, total_iterations = part2(
+                SAMPLE, alpha_rock=0.5, alpha_hail=0.9, R0=R0, Rv=Rv
+            )
+            # R0, Rv, rock_params, loss, total_iterations = part2(
+            #     CONTENT, alpha_rock=0.5, alpha_hail=0.9, R0=R0, Rv=Rv
+            # )
+            if loss < smallest_loss:
+                smallest_loss = loss
+            print(R0, Rv, rock_params, f"{loss=}", total_iterations)
+            i += 1
+
+    print(smallest_loss)
+    # print(part2(SAMPLE, alpha_rock=0.5, alpha_hail=0.9))
+    # print(part2(CONTENT, alpha_rock=0.5, alpha_hail=0.9))
