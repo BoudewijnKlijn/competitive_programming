@@ -227,28 +227,31 @@ if __name__ == "__main__":
     # for alpha, result in zip(alphas, results):
     #     print(alpha, result)
 
-    initial0 = (-100, 100)
-    initialv = (-100, 100)
-    # initial0 = [2.65E+14, -2.65E+14]
-    # initialv = [2.65E+14, -2.65E+14]
-    i = 0
-    smallest_loss = 1e10
-    for x0, y0, z0 in product(initial0, repeat=3):
-        R0 = np.array([x0, y0, z0], dtype=np.float64).reshape(1, 3)
-        for xv, yv, zv in product(initialv, repeat=3):
-            print(i, x0, y0, z0, "+", xv, yv, zv)
-            Rv = np.array([xv, yv, zv], dtype=np.float64).reshape(1, 3)
-            R0, Rv, rock_params, loss, total_iterations = part2(
-                SAMPLE, alpha_rock=0.5, alpha_hail=0.9, R0=R0, Rv=Rv
-            )
-            # R0, Rv, rock_params, loss, total_iterations = part2(
-            #     CONTENT, alpha_rock=0.5, alpha_hail=0.9, R0=R0, Rv=Rv
-            # )
-            if loss < smallest_loss:
-                smallest_loss = loss
-            print(R0, Rv, rock_params, f"{loss=}", total_iterations)
-            i += 1
+    # initial0 = (-100, 100)
+    # initialv = (-100, 100)
+    # # initial0 = [2.65E+14, -2.65E+14]
+    # # initialv = [2.65E+14, -2.65E+14]
+    # i = 0
+    # smallest_loss = 1e10
+    # for x0, y0, z0 in product(initial0, repeat=3):
+    #     R0 = np.array([x0, y0, z0], dtype=np.float64).reshape(1, 3)
+    #     for xv, yv, zv in product(initialv, repeat=3):
+    #         print(i, x0, y0, z0, "+", xv, yv, zv)
+    #         Rv = np.array([xv, yv, zv], dtype=np.float64).reshape(1, 3)
+    #         R0, Rv, rock_params, loss, total_iterations = part2(
+    #             SAMPLE, alpha_rock=0.5, alpha_hail=0.9, R0=R0, Rv=Rv
+    #         )
+    #         # R0, Rv, rock_params, loss, total_iterations = part2(
+    #         #     CONTENT, alpha_rock=0.5, alpha_hail=0.9, R0=R0, Rv=Rv
+    #         # )
+    #         if loss < smallest_loss:
+    #             smallest_loss = loss
+    #         print(R0, Rv, rock_params, f"{loss=}", total_iterations)
+    #         i += 1
+    #
+    # print(smallest_loss)
 
-    print(smallest_loss)
-    # print(part2(SAMPLE, alpha_rock=0.5, alpha_hail=0.9))
+    R0 = np.array([10.0, 10, 10], dtype=np.float64).reshape(1, 3)
+    Rv = np.array([10.0, 10, 10], dtype=np.float64).reshape(1, 3)
+    print(part2(SAMPLE, alpha_rock=0.5, alpha_hail=0.9, R0=R0, Rv=Rv))
     # print(part2(CONTENT, alpha_rock=0.5, alpha_hail=0.9))
