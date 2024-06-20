@@ -61,6 +61,15 @@ def part2(content, alpha_rock=0.5, alpha_hail=0.5, R0=None, Rv=None, Ht=None):
     This approach has ideas from the previous two approaches, but should work better because:
     - the points remain in the hailstone trajectories, instead of solving for t in 3 dimensions separately.
     - all three dimensions are used instead of fixing one.
+
+    Notes:
+    - optimizing/changing the learning rates/initial values didn't solve the problem.
+    - Adam optimizer doesn't work well, because the parameters are large, and the adam updates small
+    - batch size solved it. Trying to solve the problem with all 300 hailstone lines at once didn't work. We
+    only need a few hailstone lines to solve the rock line, and by getting a new batch, the solution doesn't get stuck on a
+    local optimum.
+    - When I got a low loss, I manually cast the hailtimes to integers and used the same times for
+    the rock line.
     """
     hailstones = list()
     for line in content.split("\n"):
