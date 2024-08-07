@@ -1,5 +1,4 @@
 from collections import Counter
-from typing import List
 
 
 class Solution:
@@ -9,7 +8,7 @@ class Solution:
         ans = 0
         mult = 1
         i = 0
-        for i, (_, v) in enumerate(c.most_common()):
+        for _, v in c.most_common():
             ans += v * mult
             i += 1
             if i % 8 == 0:
