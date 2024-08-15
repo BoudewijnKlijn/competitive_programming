@@ -1,11 +1,9 @@
 import heapq
 import timeit
-import tracemalloc
 from collections import Counter, deque
+from functools import partial
 from itertools import combinations, repeat
 from typing import List
-
-import numpy as np
 
 
 class Solution:
@@ -18,8 +16,7 @@ class Solution:
         Rows have lowest left. Columns have lowest at bottom.
         With generators I can prevent big memory usage.
         As well as with a frontier (only check distances of frontier cells)."""
-        # return self.dict_deque(nums, k)
-        return self.generator_counter(nums, k)
+        return self.binary_search(nums, k)
 
     @staticmethod
     def naive(nums, k):
@@ -34,17 +31,18 @@ class Solution:
 
     @staticmethod
     def generator_sorted(nums, k):
-        """Memory limit exceeded. Similar speed as naive.
+        """Memory limit exceeded. Slightly slower than naive.
         18/19 passed."""
         nums.sort()
         return sorted(b - a for a, b in combinations(nums, 2))[k - 1]
 
     @staticmethod
     def generator_counter(nums, k):
-        """Time limit exceeded.
-        18/19 passed.
+        """Should have lower memory because diffs stored in Counter.
         Slightly slower than naive.
-        Should have lower memory because diffs stored in Counter."""
+        18/19 passed. Time limit exceeded.
+        !! Apparently this is a solution from the editorial, but it has time limit exceeded when using Python.
+        """
         nums.sort()
         c = Counter(b - a for a, b in combinations(nums, 2))
         for diff, count in sorted(c.items()):
@@ -53,11 +51,54 @@ class Solution:
             k -= count
 
     @staticmethod
+    def binary_search(nums, k):
+        """Adjust distance with binary search.
+        For each distance determine how many pairs have that distance or less.
+        If number of pairs is less than k, then we increase the distance.
+        If number of pairs is more than k, then we decrease the distance.
+        19/19 passed."""
+        nums.sort()
+        max_num = nums[-1]
+        counts = Counter(nums)
+        # sort dict, such that we can loop over keys instead of nums
+        counts = dict(sorted(counts.items()))
+        # cumulative number of values less than or equal to value
+        lte_counts = [0] * (max_num + 1)
+        total = 0
+        for value in range(max_num + 1):
+            total += counts.get(value, 0)
+            lte_counts[value] = total
+
+        # assuming some distance, how many pairs have that distance or less
+        def count_within_distance(distance):
+            """Calculate number of pairs with distance or less."""
+            combinations = 0
+            for num, count in counts.items():
+                larger_values_within_distance = (
+                    lte_counts[min(max_num, num + distance)] - lte_counts[num]
+                )
+                combinations_with_self = count * (count - 1) // 2
+                combinations += (
+                    combinations_with_self + larger_values_within_distance * count
+                )
+            return combinations
+
+        # adjust distance with binary search
+        left = 0
+        right = max_num - nums[0]
+        while left < right:
+            mid = (left + right) // 2
+            if count_within_distance(mid) < k:
+                left = mid + 1
+            else:
+                right = mid
+        return left
+
+    @staticmethod
     def frontier_heapq(nums, k):
-        """Time limit exceeded instead of Memory limit exceeded.
-        Still slow but uses less memory.
-        Only stores differences of numbers that are at frontier
-        Using insert order as secondary key makes it slower."""
+        """Only stores differences of numbers that are at frontier: uses less memory.
+        Using insert order as secondary key makes it slower.
+        17/19 passed. Time limit exceeded."""
         nums.sort()
         diff = [
             # (nc - nr, -k, r, c)   # delta, insert_order, r, c
@@ -97,15 +138,33 @@ class Solution:
             return min(diff[0][0], q[0][0])
 
     @staticmethod
-    def generator_heapq(nums, k):
-        """Slowwww"""
+    def heapq_merge(nums, k):
+        """Similar idea as frontier, but using a builtin method.
+        Similar speed as frontier.
+        16/19 passed. Time limit exceeded."""
+
+        def row(r):
+            for c in range(r + 1, len(nums)):
+                yield nums[c] - nums[r]
+
         nums.sort()
-        return heapq.nsmallest(k, (b - a for a, b in combinations(nums, 2)))[-1]
+        diff = heapq.merge(*(row(start) for start in range(len(nums) - 1)))
+        for _ in range(k - 1):
+            next(diff)
+        return next(diff)
+
+    # @staticmethod
+    # def generator_heapq(nums, k):
+    #     """Slowwww"""
+    #     nums.sort()
+    #     return heapq.nsmallest(k, (b - a for a, b in combinations(nums, 2)))[-1]
 
     @staticmethod
     def frontier_dict(nums, k):
         """Use dict with deques instead of heapq.
-        Still using frontier, so low memory usage, but faster than heapq."""
+        Still using frontier, so low memory usage.
+        Faster than heapq, but not fast enough.
+        17/19 passed. Time limit exceeded."""
         nums.sort()
 
         diffs = dict()
@@ -120,12 +179,10 @@ class Solution:
         furthest_col_in_row = [r + 1 for r in range(len(nums) - 1)]  # frontier
         while k > 1:
             k -= 1
-            try:
-                r, c = diffs[minimum].popleft()
-            except IndexError:
+            if len(diffs[minimum]) == 0:
                 del diffs[minimum]
                 minimum = min(diffs)
-                r, c = diffs[minimum].popleft()
+            r, c = diffs[minimum].popleft()
 
             furthest_col_in_row[r] = c + 1
 
@@ -161,107 +218,69 @@ def file_to_list_int(filename):
 import pandas as pd
 from tabulate import tabulate
 
-s = Solution()
+solution = Solution()
 stats = pd.DataFrame()
 params = [
-    ([1, 3, 1], 1),
-    ([1, 1, 1], 2),
-    ([1, 6, 1], 3),
-    ([9, 10, 7, 10, 6, 1, 5, 4, 9, 8], 18),
-    ([38, 33, 57, 65, 13, 2, 86, 75, 4, 56], 26),
+    ([1, 3, 1], 1, 0),
+    ([1, 1, 1], 2, 0),
+    ([1, 6, 1], 3, 5),
+    ([9, 10, 7, 10, 6, 1, 5, 4, 9, 8], 18, 2),
+    ([38, 33, 57, 65, 13, 2, 86, 75, 4, 56], 26, 36),
     *[
-        (file_to_list_int(file), k)
-        for file, k in zip(
-            [
-                "nums_0719_0.txt",
-                "nums_0719_1.txt",
-                "nums_0719_2.txt",
-            ],
+        (file_to_list_int(file), k, ans)
+        for k, (file, ans) in zip(
             repeat(25_000_000),
+            [
+                ("leetcode_0719_nums0.txt", 1),
+                ("leetcode_0719_nums1.txt", 292051),
+                ("leetcode_0719_nums2.txt", 3),
+            ],
         )
     ],
 ]
-answers = [
-    0,
-    0,
-    5,
-    2,
-    36,
-    1,
-    292051,
-    3,
-]
-# assert len(params) == len(answers)
 funcs = [func for func in dir(Solution) if not func.startswith("__")]
-track_memory = False  # tracking memory usage makes frontier extremely slow
-for f in funcs:
-    print(f"\nRunning {f}")
-    if f == "smallestDistancePair":
+for func in funcs:
+    print(f"\nRunning {func}")
+    if func == "smallestDistancePair":
         continue
 
     runtimes = []
-    memories = []
-    for i, (p, a) in enumerate(zip(params, answers)):
+    for i, (nums, k, a) in enumerate(params):
         print(f"{i}", end=", ")
-
-        if track_memory:
-            tracemalloc.start()
-
-        method = getattr(s, f)
-        ans = method(*p)
-        assert ans == a, f"{f}: {ans} != {a}"
-        runtime = timeit.timeit("method(*p)", globals=globals(), number=1)
-
+        method = getattr(solution, func)
+        test_func = partial(method, nums, k)
+        runtime = timeit.timeit(test_func, globals=globals(), number=1)
         runtimes.append(runtime)
-        if track_memory:
-            peak = tracemalloc.get_traced_memory()[1]
-            tracemalloc.stop()
-            memories.append(peak)
-        else:
-            memories.append(np.nan)
+        if runtime < 1e-3:
+            ans = test_func()
+            assert ans == a, f"{func}: {ans} != {a}"
 
-    stats = pd.concat(
-        (stats, pd.Series(data=runtimes, name=f), pd.Series(data=memories, name=f)),
-        axis=1,
-    )
+    stats = pd.concat((stats, pd.Series(data=runtimes, name=func)), axis=1)
 
 print(tabulate(stats, headers="keys", tablefmt="psql", showindex=False, floatfmt=".6f"))
 
 # Results
-# +--------------+--------------+------------+------------+--------------------+--------------------+-----------+---------+
-# |   dict_deque |   dict_deque |   frontier |   frontier |   generator_sorted |   generator_sorted |     naive |   naive |
-# |--------------+--------------+------------+------------+--------------------+--------------------+-----------+---------|
-# |     0.000007 |          nan |   0.000006 |        nan |           0.000004 |                nan |  0.000003 |     nan |
-# |     0.000007 |          nan |   0.000006 |        nan |           0.000002 |                nan |  0.000003 |     nan |
-# |     0.000007 |          nan |   0.000017 |        nan |           0.000002 |                nan |  0.000002 |     nan |
-# |     0.000013 |          nan |   0.000016 |        nan |           0.000005 |                nan |  0.000007 |     nan |
-# |     0.000023 |          nan |   0.000018 |        nan |           0.000005 |                nan |  0.000007 |     nan |
-# |     8.998981 |          nan |  11.373660 |        nan |           3.219218 |                nan |  2.964407 |     nan |
-# |    13.146834 |          nan |  25.976955 |        nan |          11.210449 |                nan | 11.167494 |     nan |
-# |     9.018310 |          nan |  11.517480 |        nan |           3.247321 |                nan |  3.079813 |     nan |
-# +--------------+--------------+------------+------------+--------------------+--------------------+-----------+---------+
-
-# +---------------------+---------------------+--------------------+--------------------+-----------+---------+
-# |   generator_counter |   generator_counter |   generator_sorted |   generator_sorted |     naive |   naive |
-# |---------------------+---------------------+--------------------+--------------------+-----------+---------|
-# |            0.000010 |                 nan |           0.000003 |                nan |  0.000003 |     nan |
-# |            0.000006 |                 nan |           0.000002 |                nan |  0.000002 |     nan |
-# |            0.000006 |                 nan |           0.000002 |                nan |  0.000002 |     nan |
-# |            0.000009 |                 nan |           0.000009 |                nan |  0.000006 |     nan |
-# |            0.000013 |                 nan |           0.000007 |                nan |  0.000007 |     nan |
-# |            3.643955 |                 nan |           3.097330 |                nan |  2.980563 |     nan |
-# |           12.408472 |                 nan |          11.173836 |                nan | 11.356485 |     nan |
-# |            3.629347 |                 nan |           3.217870 |                nan |  3.171647 |     nan |
-# +---------------------+---------------------+--------------------+--------------------+-----------+---------+
-# +-------------------+-------------------+
-# |   generator_heapq |   generator_heapq |
-# |-------------------+-------------------|
-# |          0.000006 |               nan |
-# |          0.000007 |               nan |
-# |          0.000005 |               nan |
-# |          0.000024 |               nan |
-# |          0.000015 |               nan |
-# |         22.367247 |               nan |
-# |        164.830065 |               nan |
-# |         29.500780 |               nan |
-# +-------------------+-------------------+
+# +-----------------+-----------------+------------------+---------------------+--------------------+---------------+-----------+
+# |   binary_search |   frontier_dict |   frontier_heapq |   generator_counter |   generator_sorted |   heapq_merge |     naive |
+# |-----------------+-----------------+------------------+---------------------+--------------------+---------------+-----------|
+# |        0.000053 |        0.000017 |         0.000010 |            0.000050 |           0.000006 |      0.000027 |  0.000006 |
+# |        0.000008 |        0.000011 |         0.000008 |            0.000006 |           0.000003 |      0.000013 |  0.000003 |
+# |        0.000011 |        0.000009 |         0.000007 |            0.000006 |           0.000003 |      0.000012 |  0.000002 |
+# |        0.000015 |        0.000017 |         0.000018 |            0.000010 |           0.000007 |      0.000027 |  0.000008 |
+# |        0.000028 |        0.000031 |         0.000018 |            0.000016 |           0.000007 |      0.000025 |  0.000008 |
+# |        0.000655 |        9.547940 |        11.592176 |            3.821516 |           3.318446 |     17.119955 |  2.893914 |
+# |        0.168112 |       13.774853 |        26.867289 |           15.396069 |          12.049748 |     23.595636 | 12.281599 |
+# |        0.000840 |        9.897670 |        11.681771 |            3.719117 |           3.341385 |     16.820555 |  3.243417 |
+# +-----------------+-----------------+------------------+---------------------+--------------------+---------------+-----------+
+# +-------------------+
+# |   generator_heapq |
+# |-------------------+
+# |          0.000006 |
+# |          0.000007 |
+# |          0.000005 |
+# |          0.000024 |
+# |          0.000015 |
+# |         22.367247 |
+# |        164.830065 |
+# |         29.500780 |
+# +-------------------+
