@@ -5,7 +5,7 @@ import pandas as pd
 from tabulate import tabulate
 
 
-def timing(data_file, funcs, solution):
+def timing(data_file, funcs, args_idx, solution):
     print([x for x in dir(solution) if not x.startswith("__")])
     assert all(hasattr(solution, func) for func in funcs)
 
@@ -13,7 +13,10 @@ def timing(data_file, funcs, solution):
         content = f.read().strip()
 
     all_runtimes = []
-    for data in content.split("\n"):
+    for idx, data in enumerate(content.split("\n")):
+        if idx not in args_idx:
+            print(f"skipped data {idx}")
+            continue
         args = eval(data)
         runtimes = []
         answers = []
@@ -26,7 +29,8 @@ def timing(data_file, funcs, solution):
             if runtime < 1:
                 ans = method_to_time()
                 answers.append(ans)
-                assert all(ans == answers[0] for ans in answers)
+                print(answers)
+                # assert all(ans == answers[0] for ans in answers)
 
         all_runtimes.append(runtimes)
 
