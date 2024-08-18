@@ -9,7 +9,8 @@ if __name__ == "__main__":
     from timing import timing
 
     timing(
-        data_file="leetcode_XXXX_data.txt",
-        funcs=[],
         solution=Solution(),
+        funcs=["TODO"],
+        data_file="leetcode_XXXX_data.txt",
+        data_lines=None,
     )

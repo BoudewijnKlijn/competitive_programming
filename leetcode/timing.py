@@ -5,7 +5,14 @@ import pandas as pd
 from tabulate import tabulate
 
 
-def timing(data_file, funcs, args_idx, solution):
+def time_and_result(func, *args, **kwargs):
+    start_time = timeit.default_timer()
+    result = func(*args, **kwargs)
+    end_time = timeit.default_timer()
+    return end_time - start_time, result
+
+
+def timing(solution, funcs, data_file, data_lines=None):
     print([x for x in dir(solution) if not x.startswith("__")])
     assert all(hasattr(solution, func) for func in funcs)
 
@@ -14,23 +21,20 @@ def timing(data_file, funcs, args_idx, solution):
 
     all_runtimes = []
     for idx, data in enumerate(content.split("\n")):
-        if idx not in args_idx:
-            print(f"skipped data {idx}")
+        if data_lines and idx not in data_lines:
+            print(f"Skipped data line: {idx}")
             continue
-        args = eval(data)
+        input_data, expected = data.split("->")
+        expected = eval(expected.strip())
+        args = eval(input_data.strip())
         runtimes = []
-        answers = []
         for func in funcs:
             method = getattr(solution, func)
-            method_to_time = partial(method, args)
-            runtime = timeit.timeit(method_to_time, number=1)
+            # method_to_time = partial(method, args)
+            # runtime = timeit.timeit(method_to_time, number=1)
+            runtime, result = time_and_result(method, args)
             runtimes.append(runtime)
-
-            if runtime < 1:
-                ans = method_to_time()
-                answers.append(ans)
-                print(answers)
-                # assert all(ans == answers[0] for ans in answers)
+            assert expected == result, f"{expected} != {result}"
 
         all_runtimes.append(runtimes)
 
