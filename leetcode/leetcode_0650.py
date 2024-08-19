@@ -31,7 +31,7 @@ class Solution:
             return n
         for p in self.primes:
             if n % p == 0:
-                return self.minSteps(p) + self.minSteps(n // p)
+                return p + self.minSteps(n // p)
 
 
 primes = get_primes_up_to_n(1000)
