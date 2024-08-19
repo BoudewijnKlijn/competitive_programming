@@ -24,7 +24,8 @@ class Solution:
 
     def minSteps(self, n: int) -> int:
         """If n is prime, the only way to get to that number is copying and pasting n times.
-        If n is a power of 2, then we can copy and paste each time."""
+        If n is a power of 2, then we can copy and paste each time.
+        After adding elif parts for n == 2 and n == 3, I saw the general solution."""
         if n == 1:
             return 0
         elif n in self.primes:
