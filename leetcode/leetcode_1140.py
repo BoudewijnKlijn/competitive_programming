@@ -3,9 +3,13 @@ from typing import List
 
 class Solution:
     def stoneGameII(self, piles: List[int]) -> int:
-        """Dynamic programming with memoization."""
+        """Recursion with memoization.
+        Suffix sum optimization idea from editorial."""
         N = len(piles)
         mem = {}
+        suffix_sum = [sum(piles)]
+        for stones in piles:
+            suffix_sum.append(suffix_sum[-1] - stones)
 
         def inner(used=0, M=1, alice_turn=True):
             if (used, M, alice_turn) in mem:
@@ -13,7 +17,7 @@ class Solution:
 
             if N - used <= M:
                 if alice_turn:
-                    ans = sum(piles[used:])
+                    ans = suffix_sum[used]
                 else:
                     ans = 0
                 mem[(used, M, alice_turn)] = ans
@@ -21,11 +25,18 @@ class Solution:
 
             ans = 0 if alice_turn else float("inf")
             for x in range(1, 2 * M + 1):
+
+                if used + x > N:
+                    # early stopping and prevent index error
+                    break
+
                 inner_result = inner(
                     used=used + x, M=max(M, x), alice_turn=not alice_turn
                 )
                 if alice_turn:
-                    ans = max(ans, sum(piles[used : used + x]) + inner_result)
+                    ans = max(
+                        ans, suffix_sum[used] - suffix_sum[used + x] + inner_result
+                    )
                 else:
                     ans = min(ans, inner_result)
 
