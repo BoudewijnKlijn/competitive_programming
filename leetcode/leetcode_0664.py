@@ -14,6 +14,9 @@ class Solution:
         I can split the input string on a character, and then solve the created "islands".
         The "islands" can be solved independently and are subproblems of the original problem, but can be
         solved in the same way.
+        The islands idea is not entirely correct. Somtimes multiple island can be solved together,
+        which yields a better result. E.g. "adcacda" can be solved in 4 steps, but the islands splitting
+        approach thinks it needs 5 steps.
         """
         # simplify string: remove identical characters next to each other
         simple = s[0]
@@ -30,9 +33,9 @@ class Solution:
             c = Counter(s)
             assert len(c) > 1, "counter should always have more than one key."
 
-            ans = float("inf")
+            ans = 100
             for split_char in c.keys():
-                ans = min(ans, 1 + sum((inner(split) for split in s.split(split_char))))
+                ans = min(ans, 1 + sum(inner(split) for split in s.split(split_char)))
 
             mem[s] = ans
             return ans
@@ -47,5 +50,5 @@ if __name__ == "__main__":
         solution=Solution(),
         funcs=["strangePrinter"],
         data_file="leetcode_0664_data.txt",
-        data_lines=[0, 1, 2, 3],
+        data_lines=[0, 1, 2, 3, 4],
     )

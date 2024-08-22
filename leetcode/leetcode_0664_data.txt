@@ -1,4 +1,6 @@
 "aaabbb"->2
 "aba"->2
 "abcabc"->5
+"aaaaa"->1
+"adcacda"->4
 "dddccbdbababaddcbcaabdbdddcccddbbaabddb"->15
