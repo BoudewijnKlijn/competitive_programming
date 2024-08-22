@@ -12,7 +12,7 @@ def time_and_result(func, *args, **kwargs):
     return end_time - start_time, result
 
 
-def timing(solution, funcs, data_file, data_lines=None):
+def timing(solution, funcs, data_file, data_lines=None, repeat=1):
     print([x for x in dir(solution) if not x.startswith("__")])
     assert all(hasattr(solution, func) for func in funcs)
 
@@ -30,8 +30,11 @@ def timing(solution, funcs, data_file, data_lines=None):
         runtimes = []
         for func in funcs:
             method = getattr(solution, func)
-            # method_to_time = partial(method, args)
-            # runtime = timeit.timeit(method_to_time, number=1)
+            if repeat > 1:
+                method_to_time = partial(method, args)
+                runtime = timeit.timeit(method_to_time, number=repeat)
+                runtimes.append(runtime)
+                continue
             runtime, result = time_and_result(method, args)
             runtimes.append(runtime)
             assert expected == result, f"{expected} != {result}"
