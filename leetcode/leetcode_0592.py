@@ -39,7 +39,7 @@ def combine_factors(
     num2_factors += denom1_factors
     num = factors_to_int(num1_factors) + factors_to_int(num2_factors)
     num_factors = get_prime_factors(num)
-    return num_factors, denom_factors, num
+    return num_factors, denom_factors
 
 
 def reduce_factors(num_factors, denom_factors):
@@ -57,17 +57,13 @@ class Solution:
         Then simpifying is easy."""
         fractions = re.findall(r"[+-]?\d+/\d+", expression)
 
-        for i, fraction in enumerate(fractions):
-            # initialize with the first fraction
-            if i == 0:
-                prev_num, prev_denom = map(int, fraction.split("/"))
-                prev_num_factors = get_prime_factors(prev_num)
-                prev_denom_factors = get_prime_factors(prev_denom)
-                continue
-
+        # initialize with 0/1
+        prev_num_factors = Counter([0])
+        prev_denom_factors = Counter([1])
+        for fraction in fractions:
             # combine two fractions
             numerator, denominator = map(int, fraction.split("/"))
-            prev_num_factors, prev_denom_factors, prev_num = combine_factors(
+            prev_num_factors, prev_denom_factors = combine_factors(
                 prev_num_factors,
                 get_prime_factors(numerator),
                 prev_denom_factors,
