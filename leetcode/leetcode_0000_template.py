@@ -13,4 +13,5 @@ if __name__ == "__main__":
         funcs=["TODO"],
         data_file="leetcode_XXXX_data.txt",
         data_lines=None,
+        check_result=True,
     )
