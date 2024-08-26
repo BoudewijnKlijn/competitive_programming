@@ -12,6 +12,9 @@ def time_and_result(func, *args, **kwargs):
     return end_time - start_time, result
 
 
+null = None
+
+
 def timing(solution, funcs, data_file, data_lines=None, repeat=1, check_result=True):
     print([x for x in dir(solution) if not x.startswith("__")])
     assert all(hasattr(solution, func) for func in funcs)
