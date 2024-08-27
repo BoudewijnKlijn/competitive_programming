@@ -33,11 +33,17 @@ def timing(solution, funcs, data_file, data_lines=None, repeat=1, check_result=T
         runtimes = []
         for func in funcs:
             method = getattr(solution, func)
-            runtime, result = time_and_result(method, args)
+            try:
+                runtime, result = time_and_result(method, args)
+            except:
+                runtime, result = time_and_result(method, *args)
             if check_result:
                 assert expected == result, f"{expected} != {result}"
             if repeat > 1:
-                method_to_time = partial(method, args)
+                try:
+                    method_to_time = partial(method, args)
+                except:
+                    method_to_time = partial(method, *args)
                 runtime = timeit.timeit(method_to_time, number=repeat)
             runtimes.append(runtime)
 
