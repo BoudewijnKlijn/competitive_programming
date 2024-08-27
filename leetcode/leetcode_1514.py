@@ -20,22 +20,22 @@ class Solution:
             neighbors[b].update({a: p})
 
         edges_visited = set()
-        ans = 0
-        queue = [(-1, None, start_node)]
+        queue = [(-1, start_node)]
         heapq.heapify(queue)
         while queue:
-            neg_max_p, _, pos = heapq.heappop(queue)
+            neg_max_p, pos = heapq.heappop(queue)
             if pos == end_node:
-                ans = min(ans, neg_max_p)
+                # early stopping
+                return round(-1 * neg_max_p, 5)
             for neighbor, prob in neighbors[pos].items():
-                key = min(pos, neighbor), max(pos, neighbor)
+                key = tuple(sorted((pos, neighbor)))
                 if key in edges_visited:
                     continue
 
-                heapq.heappush(queue, (neg_max_p * prob, pos, neighbor))
+                heapq.heappush(queue, (neg_max_p * prob, neighbor))
                 edges_visited.add(key)
 
-        return round(-1 * ans, 5)
+        return 0
 
 
 if __name__ == "__main__":
@@ -46,4 +46,5 @@ if __name__ == "__main__":
         funcs=["maxProbability"],
         data_file="leetcode_1514_data.txt",
         data_lines=None,
+        repeat=10,
     )

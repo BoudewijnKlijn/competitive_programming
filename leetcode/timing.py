@@ -42,9 +42,10 @@ def timing(solution, funcs, data_file, data_lines=None, repeat=1, check_result=T
             if repeat > 1:
                 try:
                     method_to_time = partial(method, args)
+                    runtime = timeit.timeit(method_to_time, number=repeat)
                 except:
                     method_to_time = partial(method, *args)
-                runtime = timeit.timeit(method_to_time, number=repeat)
+                    runtime = timeit.timeit(method_to_time, number=repeat)
             runtimes.append(runtime)
 
         all_runtimes.append(runtimes)
