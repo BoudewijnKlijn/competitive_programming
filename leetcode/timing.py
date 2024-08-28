@@ -15,7 +15,9 @@ def time_and_result(func, *args, **kwargs):
 null = None
 
 
-def timing(solution, funcs, data_file, data_lines=None, repeat=1, check_result=True):
+def timing(
+    solution, funcs, data_file, exclude_data_lines=None, repeat=1, check_result=True
+):
     print([x for x in dir(solution) if not x.startswith("__")])
     assert all(hasattr(solution, func) for func in funcs)
 
@@ -24,7 +26,7 @@ def timing(solution, funcs, data_file, data_lines=None, repeat=1, check_result=T
 
     all_runtimes = []
     for idx, data in enumerate(content.split("\n")):
-        if data_lines and idx not in data_lines:
+        if exclude_data_lines and idx in exclude_data_lines:
             print(f"Skipped data line: {idx}")
             continue
         input_data, expected = data.split("->")
