@@ -1,8 +1,46 @@
+from collections import deque
 from typing import List
 
 
 class Solution:
     def removeStones(self, stones: List[List[int]]) -> int:
+        return self.create_sets(stones)
+
+    def create_sets(self, stones: List[List[int]]) -> int:
+        """With information from editorial that you can always remove all but one cells from a set.
+        Answer = number of stones minus number of sets.
+        Create sets by joining all neighbors in the rows and columns.
+        And repeat for neighbors of neighbors, etc."""
+        MAX = 10_001
+
+        # create sets for items in the same row or column
+        rows = [set() for _ in range(MAX)]
+        cols = [set() for _ in range(MAX)]
+        for i, (x, y) in enumerate(stones):
+            rows[x].add(i)
+            cols[y].add(i)
+
+        unvisited = set(range(len(stones)))
+        n_sets = 0
+        while unvisited:
+            idx = unvisited.pop()
+            queue = deque([idx])
+            while queue:
+                idx = queue.pop()
+                x, y = stones[idx]
+                for neighbor in rows[x]:
+                    if neighbor in unvisited:
+                        queue.append(neighbor)
+                        unvisited.remove(neighbor)
+                for neighbor in cols[y]:
+                    if neighbor in unvisited:
+                        queue.append(neighbor)
+                        unvisited.remove(neighbor)
+            n_sets += 1
+
+        return len(stones) - n_sets
+
+    def iteratively_remove(self, stones: List[List[int]]) -> int:
         """Order of removal matters.
         If we remove a stone, we potentially break a link between two other stones.
         Best to remove stones that don't link other stones."""
@@ -81,7 +119,7 @@ if __name__ == "__main__":
 
     timing(
         solution=Solution(),
-        funcs=["removeStones"],
+        funcs=["iteratively_remove", "create_sets"],
         data_file="leetcode_0947_data.txt",
         exclude_data_lines=None,
         check_result=True,
