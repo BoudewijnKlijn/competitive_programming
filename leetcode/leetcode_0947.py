@@ -1,0 +1,88 @@
+from typing import List
+
+
+class Solution:
+    def removeStones(self, stones: List[List[int]]) -> int:
+        """Order of removal matters.
+        If we remove a stone, we potentially break a link between two other stones.
+        Best to remove stones that don't link other stones."""
+        MAX = 10_001
+
+        # create sets for items in the same row or column
+        rows = [set() for _ in range(MAX)]
+        cols = [set() for _ in range(MAX)]
+        for i, (x, y) in enumerate(stones):
+            rows[x].add(i)
+            cols[y].add(i)
+
+        # determine for each stone how many neighbors in row/col/total
+        n_neighbors_row = [0 for _ in range(len(stones))]
+        n_neighbors_col = [0 for _ in range(len(stones))]
+        n_neighbors = [0 for _ in range(len(stones))]
+        for i, (x, y) in enumerate(stones):
+            n_neighbors_row[i] += len(rows[x]) - 1
+            n_neighbors_col[i] += len(cols[y]) - 1
+            n_neighbors[i] = n_neighbors_row[i] + n_neighbors_col[i]
+
+        # remove stones iteratively
+        ans = 0
+        while any(n for n in n_neighbors):
+            # remove stones with the least amount of neighbors iteratively
+            # it's always safe to remove a stone with zero neighbors in one dimension
+            # if that's not possible remove neighbor with least total neighbors
+            min_index = self.choose_remove_index(
+                n_neighbors_row, n_neighbors_col, n_neighbors
+            )
+
+            # remove stone with min neighbors
+            x, y = stones[min_index]
+            # the stone to be removed shares the row/column with other stones
+            # after removing, their n_neighbors is decreased by 1
+            # for each stone in the row set, decrease their n_neighbors by 1
+            for neighbor_idx in rows[x]:
+                n_neighbors[neighbor_idx] -= 1
+                n_neighbors_row[neighbor_idx] -= 1
+            # for each stone in the col set, decrease their n_neighbors by 1
+            for neighbor_idx in cols[y]:
+                n_neighbors[neighbor_idx] -= 1
+                n_neighbors_col[neighbor_idx] -= 1
+
+            # remove the stone from row/col sets and set neighbors to zero
+            rows[x].remove(min_index)
+            cols[y].remove(min_index)
+            n_neighbors[min_index] = 0
+            n_neighbors_row[min_index] = 0
+            n_neighbors_col[min_index] = 0
+
+            # increase removed stone count
+            ans += 1
+
+        return ans
+
+    def choose_remove_index(self, n_neighbors_row, n_neighbors_col, n_neighbors):
+        for i, (nr, nc, n) in enumerate(
+            zip(n_neighbors_row, n_neighbors_col, n_neighbors)
+        ):
+            if n == 0:
+                continue
+            if nr == 0:
+                return i
+            if nc == 0:
+                return i
+        return self.argmin(n_neighbors)
+
+    def argmin(self, array):
+        filtered_array = [(i, x) for i, x in enumerate(array) if x > 0]
+        return min(filtered_array, key=lambda x: x[1])[0]
+
+
+if __name__ == "__main__":
+    from timing import timing
+
+    timing(
+        solution=Solution(),
+        funcs=["removeStones"],
+        data_file="leetcode_0947_data.txt",
+        exclude_data_lines=None,
+        check_result=True,
+    )

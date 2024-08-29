@@ -12,6 +12,6 @@ if __name__ == "__main__":
         solution=Solution(),
         funcs=["TODO"],
         data_file="leetcode_XXXX_data.txt",
-        data_lines=None,
+        exclude_data_lines=None,
         check_result=True,
     )
