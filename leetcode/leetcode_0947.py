@@ -2,9 +2,58 @@ from collections import deque
 from typing import List
 
 
+class DisjointSet:
+    def __init__(self, size):
+        self.root = list(range(size))
+        self.rank = [1] * size
+
+    def find(self, node):
+        """Find root of node.
+        Optimized with path compression"""
+        root = self.root[node]
+        if root == node:
+            return root
+        self.root[node] = self.find(root)
+        return self.root[node]
+
+    def union(self, a, b):
+        """Combine.
+        Optimized with union by rank"""
+        roota = self.find(a)
+        rootb = self.find(b)
+        if roota != rootb:
+            if self.rank[a] > self.rank[b]:
+                self.root[rootb] = roota
+            elif self.rank[b] > self.rank[a]:
+                self.root[roota] = rootb
+            else:
+                self.root[rootb] = roota
+                self.rank[a] += 1
+
+
 class Solution:
     def removeStones(self, stones: List[List[int]]) -> int:
-        return self.create_sets(stones)
+        # return self.create_sets(stones)
+        return self.disjoint_sets(stones)
+
+    def disjoint_sets(self, stones: List[List[int]]) -> int:
+        # create sets for items in the same row or column
+        MAX = 10_001
+        rows = [set() for _ in range(MAX)]
+        cols = [set() for _ in range(MAX)]
+        for i, (x, y) in enumerate(stones):
+            rows[x].add(i)
+            cols[y].add(i)
+
+        disjointset = DisjointSet(len(stones))
+        for set_ in rows + cols:
+            if set_:
+                a = set_.pop()
+                while set_:
+                    b = set_.pop()
+                    disjointset.union(a, b)
+        unique = set(disjointset.find(x) for x in range(len(stones)))
+        return len(stones) - len(unique)
 
     def create_sets(self, stones: List[List[int]]) -> int:
         """With information from editorial that you can always remove all but one cells from a set.
@@ -119,7 +168,7 @@ if __name__ == "__main__":
 
     timing(
         solution=Solution(),
-        funcs=["iteratively_remove", "create_sets"],
+        funcs=["iteratively_remove", "create_sets", "disjoint_sets"],
         data_file="leetcode_0947_data.txt",
         exclude_data_lines=None,
         check_result=True,

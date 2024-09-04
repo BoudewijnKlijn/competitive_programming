@@ -45,6 +45,4 @@ if __name__ == "__main__":
         solution=Solution(),
         funcs=["maxProbability"],
         data_file="leetcode_1514_data.txt",
-        data_lines=None,
-        repeat=10,
     )
