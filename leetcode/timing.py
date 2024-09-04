@@ -1,3 +1,4 @@
+import ast
 import timeit
 from functools import partial
 
@@ -5,9 +6,9 @@ import pandas as pd
 from tabulate import tabulate
 
 
-def time_and_result(func, *args, **kwargs):
+def time_and_result(func, *args):
     start_time = timeit.default_timer()
-    result = func(*args, **kwargs)
+    result = func(*args)
     end_time = timeit.default_timer()
     return end_time - start_time, result
 
@@ -30,24 +31,23 @@ def timing(
             print(f"Skipped data line: {idx}")
             continue
         input_data, expected = data.split("->")
-        expected = eval(expected.strip())
-        args = eval(input_data.strip())
+        expected = ast.literal_eval(expected.strip())
+        args = ast.literal_eval(input_data.strip())
         runtimes = []
         for func in funcs:
             method = getattr(solution, func)
-            try:
-                runtime, result = time_and_result(method, args)
-            except:
+            if isinstance(args, tuple):
                 runtime, result = time_and_result(method, *args)
+            else:
+                runtime, result = time_and_result(method, args)
             if check_result:
                 assert expected == result, f"{expected} != {result}"
             if repeat > 1:
-                try:
-                    method_to_time = partial(method, args)
-                    runtime = timeit.timeit(method_to_time, number=repeat)
-                except:
+                if isinstance(args, tuple):
                     method_to_time = partial(method, *args)
-                    runtime = timeit.timeit(method_to_time, number=repeat)
+                else:
+                    method_to_time = partial(method, args)
+                runtime = timeit.timeit(method_to_time, number=repeat)
             runtimes.append(runtime)
 
         all_runtimes.append(runtimes)
