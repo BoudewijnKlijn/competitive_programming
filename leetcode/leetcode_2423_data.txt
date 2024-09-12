@@ -1,0 +1,5 @@
+"abcc"->True
+"aazz"->False
+"bac"->True
+"abbcc"->True
+"zz"->True
