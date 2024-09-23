@@ -1,0 +1,4 @@
+"leetscode",["leet","code","leetcode"]->1
+"sayhelloworld",["hello","world"]->3
+"octncmdbgnxapjoqlofuzypthlytkmchayflwky",["m","its","imaby","pa","ijmnvj","k","mhka","n","y","nc","wq","p","mjqqa","ht","dfoa","yqa","kk","pixq","ixsdln","rh","dwl","dbgnxa","kmpfz","nhxjm","wg","wky","oct","og","uhin","zxb","qz","tpf","hlrc","j","l","tew","xbn","a","uzypt","uvln","mchay","onnbi","hlytk","pjoqlo","dxsjr","u","uj"]->2
+"cmmcxfdepqalvjqphhzjjomjwtmlkidxdhhhlhbxe",["e","lhbx","k","lxtv","hhz","j","n","deqfw","onxcv","dnq","dxy","z","py","sg","nycr","mcxfde","tmudaz","y","q","i","igo","msqki","p","ls","qmzng","errfl","hcnwcb","rbvov","h","ljvdp","erucpm","dxa","lvjqp","tbiic","jomjwt","mlkidx","dtu","qw","zn","o","dhhh"]->3
