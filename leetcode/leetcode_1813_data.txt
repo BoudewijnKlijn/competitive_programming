@@ -1,0 +1,2 @@
+"Hello Jane","Hello my name is Jane"->True
+"B","ByI BMyQIqce b bARkkMaABi vlR RLHhqjNzCN oXvyK zRXR q ff B yHS OD KkvJA P JdWksnH"->False
