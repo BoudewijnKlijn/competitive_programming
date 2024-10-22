@@ -1,0 +1,4 @@
+"ababccc"->5
+"aba"->2
+"aa"->1
+"wwwzfvedwfvhsww"->11
