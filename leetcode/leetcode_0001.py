@@ -3,7 +3,10 @@ from typing import List
 
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
-        """Simultaneously create hashmap and check if complement is present."""
+        """Simultaneously create hashmap and check if complement is present.
+        Runtime 0ms
+        Beats 100.00%
+        """
         hashmap = dict()
         for i, num in enumerate(nums):
             complement = target - num
