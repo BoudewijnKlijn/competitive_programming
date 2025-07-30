@@ -57,8 +57,15 @@ def part1(contents):
 def draw_grid(grid, path, obstacle_tile):
     R, C = get_grid_dimensions(grid)
     tmp_grid = deepcopy(grid)
-    for r, c, *_ in path:
-        tmp_grid[r][c] = "X"
+    for r, c, dr, dc in path:
+        if (dr, dc) == (-1, 0):
+            tmp_grid[r][c] = "^"
+        elif (dr, dc) == (1, 0):
+            tmp_grid[r][c] = "v"
+        elif (dr, dc) == (0, -1):
+            tmp_grid[r][c] = "<"
+        elif (dr, dc) == (0, 1):
+            tmp_grid[r][c] = ">"
     tmp_grid[obstacle_tile[0]][obstacle_tile[1]] = "O"
     for r in range(R):
         for c in range(C):
@@ -93,21 +100,23 @@ def part2(contents):
 
     # insert obstacle in the path
     # run simulation and see if we encounter a previously encountered position + direction
-    reverse_original_path = original_path[::-1]
     ans = 0
-    # start at 2nd last position, because we need to insert obstacle at the last position
     for i, (start_tile, obstacle_tile) in enumerate(
-        zip(reverse_original_path[1:], reverse_original_path[:-1]),
-        start=1,
+        zip(original_path, original_path[1:]),
     ):
-        print(i, len(original_path))
         r, c, dr, dc = start_tile
         obstacle_positions_new = obstacle_positions.copy()
         obstacle_positions_new.add(tuple(obstacle_tile[:2]))
-        current_path = original_path.copy()[:-i]
+        current_path = original_path.copy()[: i + 1]
         current_path_positions = set(
             current_path
         )  # list grows large. set is faster to check
+
+        # obstacle cannot be placed on tile that has already been travelled
+        # this was the error!
+        already_travelled = obstacle_tile[:2] in {(r, c) for r, c, *_ in current_path}
+        if already_travelled:
+            continue
 
         # align the direction generator with the direction of the last tile
         while (dr, dc) != next(direction):
@@ -132,10 +141,9 @@ def part2(contents):
 
         if is_cycle:
             ans += 1
-            print("cycle YES")
 
-            draw_grid(grid, current_path, obstacle_tile)
-            print()
+            # draw_grid(grid, current_path, obstacle_tile)
+            # print()
     return ans
 
 
@@ -162,5 +170,5 @@ if __name__ == "__main__":
 
     assert part2(sample) == 6
 
-    # ans2 = part2(contents)
-    # print(ans2)
+    ans2 = part2(contents)
+    print(ans2)
