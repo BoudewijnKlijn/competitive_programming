@@ -1,12 +1,10 @@
 import os
-from math import prod
 
 
 def solve():
-    # n = int(input())
     n, k = map(int, input().split())
     a = list(map(int, input().split()))
-    cutoff = a[k]
+    cutoff = a[k - 1]
     ans = 0
     for score in a:
         if score >= cutoff and score > 0:
