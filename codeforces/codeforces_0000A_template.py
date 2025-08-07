@@ -2,6 +2,8 @@ import os
 
 
 def solve():
+    # n = int(input())
+    # arr = list(map(int, input().split()))
     pass
     # print(ans)
 
