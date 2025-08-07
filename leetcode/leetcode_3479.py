@@ -6,80 +6,167 @@ class Solution:
         return self.tree_like(fruits, baskets)
 
     def tree_like(self, fruits: List[int], baskets: List[int]) -> int:
-        """Create tree like structure for the baskets.
-        The head is the first basket.
-        The second basket becomes the left node of the head if less than or equal to head
-            and right node if larger than value of head.
-        If the right node has a value, always go to the right node, before adding new nodes.
-        The third basket becomes the right node of the right node,
-            or the left or right node of the left node. Etc.
-        Then fruits are allocated to baskets.
-        Once basket is found, its left node takes its place and the right node is appended
-            to the ultimate right ... right node of the left node.
-
-        Can add binary search, which helps for large values, but not for testcase 737 where all values are identical.
+        """Create tree like structure for a stack of skipped baskets.
         Time Limit Exceeded
-        737 / 740 testcases passed"""
+        739 / 740 testcases passed"""
 
-        class Node:
-            def __init__(self, value):
-                self.value = value
-                self.left = None
-                self.right = None
+        class TreeStack:
+            """Tree like structure which holds skipped baskets.
+            Structure maintains order and navigates faster to larger baskets.
+            Creation:
+                - If right node exists, always move to right node (to maintain order).
+                - Otherwise, compare value of baskets. If larger, make right node, otherwise go left.
+            Lookup (filling baskets):
+                - If basket is large enough, take it.
+                - If not, go to right node, if possible.
+            """
 
-        # create structure
-        root = Node(baskets[0])
-        for basket in baskets[1:]:
-            node = root
-            while True:
-                # if right exists, go right, to maintain order
-                if node.right is not None:
-                    node = node.right
-                    continue
+            def __init__(self):
+                self.reset()
 
-                if basket <= node.value:
-                    if node.left is None:
-                        node.left = Node(basket)
-                        break
-                    else:
-                        node = node.left
-                else:
-                    node.right = Node(basket)
-                    break
+            def reset(self):
+                self.root_id = None
+                self.values = list()
+                self.left = list()
+                self.right = list()
+                self.parent = list()
+                self.n = 0
 
-        # check fruits and update structure
-        ans = 0
-        for fruit in fruits:
-            parent = None
-            node = root
-            placed = False
-            while node is not None:
-                if fruit > node.value:
+            def __str__(self):
+                return f"{self.root_id=}, {self.values=}, {self.left=}, {self.right=}, {self.parent=}"
+
+            def add(self, new_value):
+                """Add new basket to structure."""
+                self.n += 1
+                new_idx = len(self.values)
+                self.values.append(new_value)
+                self.left.append(None)
+                self.right.append(None)
+
+                if self.root_id is None:
+                    self.root_id = new_idx
+                    self.parent.append(None)
+                    return
+
+                node = self.root_id
+                while True:
                     parent = node
-                    node = node.right
-                    continue
+                    # if possible move right to maintain correct order
+                    if self.right[node] is not None:
+                        # move right, keep iterating.
+                        node = self.right[node]
+                        continue
 
-                # found basket which is large enough
-                placed = True
-                # update structure
-                # left node always takes place of node, if it exists.
-                # connect right node to rightmost node of left.
-                # this way order is maintained and also skip to large numbers quickly.
-                replacement = node.left
-                if replacement is None:
-                    replacement = node.right
-                else:
-                    tmp = node.right
-                    node = replacement
-                    while node.right is not None:
-                        node = node.right
-                    node.right = tmp
+                    if new_value <= self.values[node]:
+                        if self.left[node] is None:
+                            # create new left node. stop iteration.
+                            self.left[node] = new_idx
+                            self.parent.append(parent)
+                            break
+                        else:
+                            # move left, keep iterating.
+                            node = self.left[node]
+                    else:
+                        # create new right node. stop iteration.
+                        self.right[node] = new_idx
+                        self.parent.append(parent)
+                        break
 
-                if parent is None:
-                    root = replacement
+                return
+
+            def remove(self, remove_idx):
+                """Remove basket from structure."""
+                self.n -= 1
+                if self.n == 0:
+                    self.reset()
+                    return
+
+                parent_idx = self.parent[remove_idx]
+                # determine if removed basket is a left or right child.
+                if parent_idx is not None:
+                    is_left_child = True
+                    if self.right[parent_idx] == remove_idx:
+                        is_left_child = False
+
+                replacement_idx = None
+                if self.left[remove_idx] is not None:
+                    replacement_idx = self.left[remove_idx]
+
+                    if self.right[remove_idx] is not None:
+                        # connect the right node of node that will be removed, to
+                        #   the rightmost node of the replacement node
+                        # we know it must be larger than everything from left node
+                        # follow the right nodes until no right node
+                        idx = self.left[remove_idx]
+                        while self.right[idx] is not None:
+                            idx = self.right[idx]
+                        self.right[idx] = self.right[remove_idx]
+                        self.parent[self.right[remove_idx]] = idx
+
+                elif self.right[remove_idx] is not None:
+                    replacement_idx = self.right[remove_idx]
+
+                if replacement_idx is not None:
+                    # set new parent for replacement (remove_idx was previous parent)
+                    self.parent[replacement_idx] = parent_idx
+
+                    # set new child for parent (remove_idx was previous child)
+                    if parent_idx is not None:
+                        if is_left_child:
+                            self.left[parent_idx] = replacement_idx
+                        else:
+                            self.right[parent_idx] = replacement_idx
+                    else:
+                        # no parent, set new root id
+                        self.root_id = replacement_idx
+
                 else:
-                    parent.right = replacement
-                break
+                    # no replacement. remove child from parent.
+                    if parent_idx is not None:
+                        if is_left_child:
+                            self.left[parent_idx] = None
+                        else:
+                            self.right[parent_idx] = None
+                return
+
+            def find(self, fruit_value) -> bool:
+                """Find a basket to place the fruit.
+                Return whether successfull.
+                Remove basket if fruit was placed."""
+                if self.root_id is None:
+                    # structure is empty.
+                    return False
+
+                idx = self.root_id
+                # TODO: add binary search
+                while True:
+                    if fruit_value <= self.values[idx]:
+                        # found basket which is large enough.
+                        # remove basket from structure.
+                        self.remove(idx)
+                        return True
+                    elif self.right[idx] is not None:
+                        # find a larger basket, if possible (move to the right).
+                        idx = self.right[idx]
+                    else:
+                        # basket is not large enough and no larger baskets in structure.
+                        return False
+
+        queue = TreeStack()
+        ans = 0
+        basket_i = 0
+        n = len(baskets)
+        for fruit in fruits:
+            # first check the baskets in the queue.
+            placed = queue.find(fruit)
+            # if no match then continue with never seen baskets
+            while not placed and basket_i < n:
+                basket = baskets[basket_i]
+                if fruit <= basket:
+                    placed = True
+                else:
+                    queue.add(basket)
+                basket_i += 1
 
             if not placed:
                 ans += 1
@@ -156,10 +243,10 @@ if __name__ == "__main__":
         funcs=[
             # "numOfUnplacedFruits",
             # "brute_force",
-            "smarter_baskets",
+            # "smarter_baskets",
             "tree_like",
         ],
         data_file="leetcode_3479_data.txt",
-        exclude_data_lines=[5],
+        exclude_data_lines=[6],
         check_result=True,
     )
