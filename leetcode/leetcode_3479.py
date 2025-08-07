@@ -17,19 +17,20 @@ class Solution:
                 - If right node exists, always move to right node (to maintain order).
                 - Otherwise, compare value of baskets. If larger, make right node, otherwise go left.
             Lookup (filling baskets):
+                - (start at the root)
                 - If basket is large enough, take it.
-                - If not, go to right node, if possible.
+                - If not, go to right node, if it exists. repeat.
+                - binary search TODO
+            Basket removal:
+                - TODO
             """
 
-            def __init__(self):
-                self.reset()
-
-            def reset(self):
+            def __init__(self, n):
                 self.root_id = None
-                self.values = list()
-                self.left = list()
-                self.right = list()
-                self.parent = list()
+                self.values = [None] * n
+                self.left = [None] * n
+                self.right = [None] * n
+                self.parent = [None] * n
                 self.n = 0
 
             def __str__(self):
@@ -37,20 +38,17 @@ class Solution:
 
             def add(self, new_value):
                 """Add new basket to structure."""
+                new_idx = self.n
                 self.n += 1
-                new_idx = len(self.values)
-                self.values.append(new_value)
-                self.left.append(None)
-                self.right.append(None)
+                self.values[new_idx] = new_value
 
                 if self.root_id is None:
                     self.root_id = new_idx
-                    self.parent.append(None)
                     return
 
                 node = self.root_id
                 while True:
-                    parent = node
+                    parent_idx = node
                     # if possible move right to maintain correct order
                     if self.right[node] is not None:
                         # move right, keep iterating.
@@ -61,7 +59,7 @@ class Solution:
                         if self.left[node] is None:
                             # create new left node. stop iteration.
                             self.left[node] = new_idx
-                            self.parent.append(parent)
+                            self.parent[new_idx] = parent_idx
                             break
                         else:
                             # move left, keep iterating.
@@ -69,18 +67,13 @@ class Solution:
                     else:
                         # create new right node. stop iteration.
                         self.right[node] = new_idx
-                        self.parent.append(parent)
+                        self.parent[new_idx] = parent_idx
                         break
 
                 return
 
             def remove(self, remove_idx):
                 """Remove basket from structure."""
-                self.n -= 1
-                if self.n == 0:
-                    self.reset()
-                    return
-
                 parent_idx = self.parent[remove_idx]
                 # determine if removed basket is a left or right child.
                 if parent_idx is not None:
@@ -127,6 +120,8 @@ class Solution:
                             self.left[parent_idx] = None
                         else:
                             self.right[parent_idx] = None
+                    else:
+                        self.root_id = None
                 return
 
             def find(self, fruit_value) -> bool:
@@ -139,6 +134,8 @@ class Solution:
 
                 idx = self.root_id
                 # TODO: add binary search
+                # for binary search, the increasing order in top level always right node needs to be maintained
+                # which is not the case now. after removing a node, more nodes need to be reconnected.
                 while True:
                     if fruit_value <= self.values[idx]:
                         # found basket which is large enough.
@@ -152,10 +149,10 @@ class Solution:
                         # basket is not large enough and no larger baskets in structure.
                         return False
 
-        queue = TreeStack()
+        n = len(baskets)
+        queue = TreeStack(n)
         ans = 0
         basket_i = 0
-        n = len(baskets)
         for fruit in fruits:
             # first check the baskets in the queue.
             placed = queue.find(fruit)
@@ -167,7 +164,6 @@ class Solution:
                 else:
                     queue.add(basket)
                 basket_i += 1
-
             if not placed:
                 ans += 1
         return ans
