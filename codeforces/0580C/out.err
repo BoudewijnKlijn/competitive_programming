@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "C:\Users\Admin\Desktop\codeforces\0580C\s.py", line 105, in <module>
-    cat_present_destination = a_array[destination-1]
-IndexError: tuple index out of range
