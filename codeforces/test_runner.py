@@ -54,5 +54,5 @@ def run_tests(solve, tests_dir, multiple_tests):
 def main(solve, file_path, multiple_tests):
     filename = os.path.basename(file_path)
     problem_id = filename.replace("codeforces_", "").replace(".py", "")
-    tests_dir = os.path.join(os.path.dirname(file_path), f"tests_{problem_id}")
+    tests_dir = os.path.join(os.path.dirname(file_path), "tests", problem_id)
     run_tests(solve, tests_dir, multiple_tests)
