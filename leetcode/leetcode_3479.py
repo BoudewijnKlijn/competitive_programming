@@ -20,33 +20,35 @@ class Solution:
                 - (start at the root)
                 - If basket is large enough, take it.
                 - If not, go to right node, if it exists. repeat.
-                - binary search TODO
+                - binary search:
+                    - maintain list with indices which appear in chain that only goes right
+                    - only baskets in that main chain are able to be used for fruit
             Basket removal:
                 - TODO
             """
 
-            def __init__(self, n):
+            def __init__(self, baskets):
                 self.root_id = None
-                self.values = [None] * n
+                self.values = baskets
+                n = len(baskets)
                 self.left = [None] * n
                 self.right = [None] * n
                 self.parent = [None] * n
-                self.n = 0
 
             def __str__(self):
                 return f"{self.root_id=}, {self.values=}, {self.left=}, {self.right=}, {self.parent=}"
 
-            def add(self, new_value):
+            def add(self, new_idx, start_from=None):
                 """Add new basket to structure."""
-                new_idx = self.n
-                self.n += 1
-                self.values[new_idx] = new_value
+                new_value = self.values[new_idx]
 
                 if self.root_id is None:
                     self.root_id = new_idx
                     return
 
                 node = self.root_id
+                if start_from is not None:
+                    node = start_from
                 while True:
                     parent_idx = node
                     # if possible move right to maintain correct order
@@ -150,7 +152,7 @@ class Solution:
                         return False
 
         n = len(baskets)
-        queue = TreeStack(n)
+        queue = TreeStack(baskets)
         ans = 0
         basket_i = 0
         for fruit in fruits:
@@ -162,7 +164,7 @@ class Solution:
                 if fruit <= basket:
                     placed = True
                 else:
-                    queue.add(basket)
+                    queue.add(basket_i)
                 basket_i += 1
             if not placed:
                 ans += 1
