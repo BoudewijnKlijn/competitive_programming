@@ -1,0 +1,5 @@
+"abacaba",3->2
+"abacaba",4->1
+"abcbabcd",2->4
+"baba",3->2
+"aab",2->2
