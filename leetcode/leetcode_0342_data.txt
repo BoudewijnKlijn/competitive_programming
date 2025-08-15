@@ -1,0 +1,11 @@
+16->True
+5->False
+1->True
+480065652->False
+2016788821->False
+1794490490->False
+582110246->False
+652110198->False
+65536->True
+262144->True
+1048576->True
