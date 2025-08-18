@@ -11,8 +11,8 @@ class Solution:
         """Try all combinations.
         Cards have 4*3*2*1 = 24 options.
         Operators (4) can be repeated in 3 positions, so 4**3 = 64 options.
-        Order of operations is 3*2*1 = 6 options.
-        Total = 24 * 64 * 6 = 9216 options.
+        Order of operations is 3*2*1 = 6 (5) options. (Two behave the same, so could eliminate 1)
+        Total = 24 * 64 * 6 = 9216 options (or 7680).
         Ugly solution."""
         card_options = permutations(cards, len(cards))
         operators = [add, mul, sub, truediv]
@@ -32,7 +32,7 @@ class Solution:
                             ),
                             card_option[3],
                         )
-                    case (0, 2, 1):
+                    case (0, 2, 1) | (1, 2, 0):
                         result = operator_option[1](
                             operator_option[0](card_option[0], card_option[1]),
                             operator_option[2](card_option[2], card_option[3]),
@@ -44,11 +44,6 @@ class Solution:
                                 operator_option[1](card_option[1], card_option[2]),
                             ),
                             card_option[3],
-                        )
-                    case (1, 2, 0):
-                        result = operator_option[1](
-                            operator_option[0](card_option[0], card_option[1]),
-                            operator_option[2](card_option[2], card_option[3]),
                         )
                     case (2, 0, 1):
                         result = operator_option[0](
