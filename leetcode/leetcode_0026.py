@@ -12,15 +12,3 @@ class Solution:
             nums[write_idx] = num
             write_idx += 1
         return write_idx
-
-
-if __name__ == "__main__":
-    from timing import timing
-
-    timing(
-        solution=Solution(),
-        funcs=["TODO"],
-        data_file="leetcode_XXXX_data.txt",
-        exclude_data_lines=None,
-        check_result=True,
-    )
