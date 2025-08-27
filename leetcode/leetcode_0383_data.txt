@@ -1,0 +1,3 @@
+"a","b"->False
+"aa","ab"->False
+"aa","aab"->True

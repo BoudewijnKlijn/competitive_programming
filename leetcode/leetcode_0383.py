@@ -1,5 +1,15 @@
+from collections import Counter
+
+
 class Solution:
-    pass
+    def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        """Ransomnote can be constructed if all letters appear at least as often in magazine."""
+        count_ransom = Counter(ransomNote)
+        count_magazine = Counter(magazine)
+        for letter, count in count_ransom.items():
+            if count_magazine[letter] < count:
+                return False
+        return True
 
 
 if __name__ == "__main__":
@@ -7,7 +17,7 @@ if __name__ == "__main__":
 
     from timing import timing
 
-    PROBLEM = "TODO"
+    PROBLEM = "0383"
     data_file = os.path.join(os.path.dirname(__file__), f"leetcode_{PROBLEM}_data.txt")
 
     # # generate testcases
@@ -22,7 +32,7 @@ if __name__ == "__main__":
 
     timing(
         solution=Solution(),
-        funcs=["TODO"],
+        funcs=["canConstruct"],
         data_file=data_file,
         exclude_data_lines=None,
         check_result=True,

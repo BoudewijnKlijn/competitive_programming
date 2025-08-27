@@ -1,0 +1,3 @@
+"egg","add"->True
+"foo","bar"->False
+"paper","title"->True

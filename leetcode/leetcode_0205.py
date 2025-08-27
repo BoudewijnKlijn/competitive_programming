@@ -1,5 +1,25 @@
+from collections import Counter
+
+
 class Solution:
-    pass
+    def isIsomorphic(self, s: str, t: str) -> bool:
+        if len(s) != len(t):
+            return False
+
+        mapping = dict()
+        for ss, tt in zip(s, t):
+            if tt in mapping:
+                # must map to the character it mapped before
+                if mapping[tt] != ss:
+                    return False
+            else:
+                # store mapping for unseen character
+                mapping[tt] = ss
+
+        # only one on one mapping, not multiple to one
+        if any(int(v) > 1 for v in Counter(mapping.values()).values()):
+            return False
+        return True
 
 
 if __name__ == "__main__":
@@ -7,7 +27,7 @@ if __name__ == "__main__":
 
     from timing import timing
 
-    PROBLEM = "TODO"
+    PROBLEM = "0205"
     data_file = os.path.join(os.path.dirname(__file__), f"leetcode_{PROBLEM}_data.txt")
 
     # # generate testcases
@@ -22,7 +42,7 @@ if __name__ == "__main__":
 
     timing(
         solution=Solution(),
-        funcs=["TODO"],
+        funcs=["isIsomorphic"],
         data_file=data_file,
         exclude_data_lines=None,
         check_result=True,
