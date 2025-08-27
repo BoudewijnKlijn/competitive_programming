@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
         output = my_strategy.solve(input_data)
 
-        logger.info(f"Start calculating score.")
+        logger.info("Start calculating score.")
         score = calculate_score(output)
         logger.info("Saving output.")
         save_output(output, file_name, score, 'diede')

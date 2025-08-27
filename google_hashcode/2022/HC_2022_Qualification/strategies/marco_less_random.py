@@ -4,7 +4,6 @@ from random import randint
 from HC_2022_Qualification.problem_data import ProblemData, Contributor
 from HC_2022_Qualification.solution import Solution
 from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
-from HC_2022_Qualification.strategies.baseline_strategy import BaselineStrategy
 
 
 class MarcoLessRandomStrategy(BaseStrategy):

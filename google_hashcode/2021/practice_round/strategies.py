@@ -1,6 +1,6 @@
 import numpy as np
 
-from assignment import Pizza, Assignment, read_assignment
+from assignment import read_assignment
 from vqd.score import calculate_score
 
 from itertools import combinations

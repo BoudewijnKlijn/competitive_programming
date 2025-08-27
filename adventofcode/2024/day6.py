@@ -1,9 +1,5 @@
-import re
-import time
-from collections import Counter, deque
 from copy import deepcopy
 from itertools import cycle
-from math import prod
 
 
 def parse(contents):

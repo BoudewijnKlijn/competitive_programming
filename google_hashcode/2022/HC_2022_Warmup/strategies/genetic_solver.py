@@ -9,7 +9,6 @@ from tqdm import tqdm
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.pizza_demands import PizzaDemands
 from HC_2022_Warmup.strategies import RandomIngredients
-from valcon.scorer import Scorer
 from valcon.strategies.strategy import Strategy
 
 

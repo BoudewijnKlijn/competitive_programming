@@ -14,7 +14,7 @@ class RandomStrategyMultiCore(MultiCoreStrategy):
     def solve(self, input: InputData) -> OutputData:
         results = []
 
-        print(f'Making solutions (1 job)')
+        print('Making solutions (1 job)')
         for _ in range(self.tries):
             seed = self.random.randint(0, 100_000_000)
             strategy = self._strategy(seed=seed)

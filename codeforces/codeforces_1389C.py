@@ -7,7 +7,6 @@ With that in mind we can construct those numbers and see which one gives the lon
 """
 
 import os
-import sys
 from collections import Counter
 
 

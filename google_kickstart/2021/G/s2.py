@@ -1,4 +1,3 @@
-import itertools
 import sys
 import os
 from itertools import product

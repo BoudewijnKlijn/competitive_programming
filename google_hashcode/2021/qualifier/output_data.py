@@ -27,8 +27,8 @@ class OutputData:
 
     @classmethod
     def read(cls, filename: str, input_data: InputData):
-        print(f'Warning this will not yet fill in duration 0 / missing street lights that were permanent red')
-        print(f'Will also not add missing intersections')
+        print('Warning this will not yet fill in duration 0 / missing street lights that were permanent red')
+        print('Will also not add missing intersections')
         with open(filename, 'r') as file:
             lines = file.readlines()
 

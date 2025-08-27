@@ -1,5 +1,3 @@
-import timeit
-import math
 import re
 
 

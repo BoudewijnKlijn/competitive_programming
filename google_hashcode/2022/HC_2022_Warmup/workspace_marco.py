@@ -1,18 +1,14 @@
 import os
 import time
 import glob
-from random import randint
 
-import mip
 
 from HC_2019_Qualification.workspace_marco import flatten
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
-from HC_2022_Warmup.strategies import RandomIngredients, RandomSetIngredients
-from valcon import Strategy, InputData, OutputData
+from valcon import Strategy, OutputData
 from valcon.scorer import Scorer
-from valcon.strategies.bayesian_strategy import BayesianStrategy
 from valcon.utils import best_score
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))

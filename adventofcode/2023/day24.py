@@ -93,11 +93,11 @@ def part2(content, alpha_rock, alpha_hail, R0, Rv):
     for epoch in count(1, step=1):
 
         if epoch > max_epoch:
-            print(f"EXIT: Max epochs.")
+            print("EXIT: Max epochs.")
             break
 
         if epoch > 1 and np.mean(losses[-n_batches:]) < LOSS_GOAL:
-            print(f"EXIT: Loss converged.")
+            print("EXIT: Loss converged.")
             break
 
         for batch_i in range(n_batches):

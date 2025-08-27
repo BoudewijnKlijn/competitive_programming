@@ -1,7 +1,6 @@
 import glob
 import os
 import time
-from copy import copy
 
 import numpy as np
 from dataclasses import dataclass
@@ -11,7 +10,7 @@ from HC_2018_Qualification.city_data import CityData, Ride
 from HC_2018_Qualification.location import Location
 from HC_2018_Qualification.ride_scorer import RideScore, get_distance
 
-from valcon import Strategy, InputData, OutputData
+from valcon import Strategy
 from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))

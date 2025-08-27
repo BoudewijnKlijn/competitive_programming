@@ -1,5 +1,4 @@
 from itertools import chain
-from typing import List
 
 
 class Solution:

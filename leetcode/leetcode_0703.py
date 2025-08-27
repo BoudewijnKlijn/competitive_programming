@@ -1,4 +1,4 @@
-from bisect import bisect_left, insort
+from bisect import insort
 from typing import List
 
 

@@ -1,4 +1,3 @@
-import timeit
 import re
 from itertools import product
 from collections import defaultdict

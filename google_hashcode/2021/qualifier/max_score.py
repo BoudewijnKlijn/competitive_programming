@@ -5,7 +5,7 @@ if __name__ == "__main__":
     THIS_PATH = os.path.abspath(os.path.dirname(__file__))
     directory = os.path.join(THIS_PATH, 'inputs')
 
-    print(f'Optimal scores')
+    print('Optimal scores')
     for file_name in [
         'a.txt',  # instant
         'b.txt',  # 26s

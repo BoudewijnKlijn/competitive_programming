@@ -1,10 +1,4 @@
-import re
-import time
-from collections import Counter, deque
-from copy import deepcopy
-from itertools import combinations, cycle
-from math import prod
-from operator import add, mul
+from itertools import combinations
 
 
 def parse(contents):

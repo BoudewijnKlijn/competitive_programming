@@ -38,11 +38,11 @@ def verify_end_start(index_1,index_2):
 	return ending(chain[index_1])==starting(chain[index_2])
 	
 def unique_poly_set(position, value):
-	return not value in chain_poly_set[:position]
+	return value not in chain_poly_set[:position]
 
 def search(needle, exclude_set, bool_start):
 	for haystack_set in range(0,6):
-		if not haystack_set in exclude_set:
+		if haystack_set not in exclude_set:
 			for trial_num in poly[haystack_set]:
 				if(bool_start==1):
 					if(starting(needle)==ending(trial_num)):

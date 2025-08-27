@@ -12,7 +12,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 from HC_2019_Qualification.Pictures import Pictures
 from HC_2019_Qualification.scorer_2019_q import Scorer2019Q
 from HC_2019_Qualification.slide import Slide
-from HC_2019_Qualification.slides import Slides
 
 start_time = time.time()
 

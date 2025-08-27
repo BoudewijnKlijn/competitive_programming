@@ -1,5 +1,4 @@
 import timeit
-from operator import contains
 from typing import List
 
 

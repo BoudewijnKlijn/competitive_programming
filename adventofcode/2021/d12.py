@@ -1,13 +1,7 @@
-from dataclasses import dataclass
 import re
-from typing import List, Tuple, Union, Dict, Set
+from typing import List, Tuple, Dict, Set
 from collections import defaultdict
-from itertools import cycle
-from collections import Counter
-import numpy as np
 from functools import reduce
-from queue import Queue
-from copy import deepcopy
 
 
 def load_data(filename: str) -> str:

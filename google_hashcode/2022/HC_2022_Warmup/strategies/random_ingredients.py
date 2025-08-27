@@ -1,6 +1,6 @@
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.pizza_demands import PizzaDemands
-from valcon import Strategy, InputData, OutputData
+from valcon import Strategy
 from valcon.utils import flatten
 
 

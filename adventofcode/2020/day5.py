@@ -1,5 +1,4 @@
 import timeit
-import re
 
 
 def load_data():

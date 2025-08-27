@@ -1,4 +1,3 @@
-from collections import Counter
 
 
 def is_safe(levels):

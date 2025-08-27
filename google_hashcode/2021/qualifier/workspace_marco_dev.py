@@ -1,4 +1,3 @@
-import math
 import os
 import statistics
 from datetime import datetime
@@ -10,16 +9,11 @@ from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
 from qualifier.simulatorV5.simulator_v5 import SimulatorV5
-from qualifier.strategies.BusyFirst import BusyFirst
-from qualifier.strategies.CarsFirst import CarsFirst
 from qualifier.strategies.Plan import Plan
 from qualifier.strategies.PlanV2 import PlanV2
-from qualifier.strategies.PlanV3 import PlanV3
 from qualifier.strategies.PlanV4 import PlanV4
-from qualifier.strategies.RandomPeriods import RandomPeriods
 from qualifier.strategies.evolution_strategy_v2 import EvolutionStrategyV2
 from qualifier.strategies.smart_random import SmartRandom
-from qualifier.strategies.start_first_green import StartFirstGreen
 from qualifier.submit import zip_submission
 from qualifier.util import save_output
 
@@ -148,7 +142,7 @@ if __name__ == '__main__':
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)
 
-        print(f'Running solution trough simulator...')
+        print('Running solution trough simulator...')
         sim = SimulatorV4(input_data, verbose=0)
         score, evaluation = sim.run(output)
 
@@ -202,7 +196,7 @@ Score:  {score}         (Still to gain ~{potential_score - score} points)
             axs[1].set_xlabel('generation')
             axs[1].set_ylabel('score')
             axs[1].legend()
-            axs[1].set_title(f'last 3 generations')
+            axs[1].set_title('last 3 generations')
             fig.suptitle(f'Problem: {file_name} Strategy: {my_strategy.name} score: {score}')
             fig.show()
             fig.savefig(os.path.join(THIS_PATH, 'outputs', 'history', f'{file_name}.{score}.png'))

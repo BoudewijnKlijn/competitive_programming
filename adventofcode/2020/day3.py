@@ -1,4 +1,3 @@
-import timeit
 
 
 def load_data():

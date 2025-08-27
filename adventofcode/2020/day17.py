@@ -1,4 +1,3 @@
-import timeit
 from itertools import product
 from functools import reduce
 

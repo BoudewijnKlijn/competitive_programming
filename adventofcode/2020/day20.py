@@ -1,8 +1,6 @@
-import timeit
 import re
 from itertools import product
 from collections import defaultdict
-from collections import Counter
 
 
 def load_data():

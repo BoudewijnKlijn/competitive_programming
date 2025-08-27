@@ -1,6 +1,4 @@
-import re
-from collections import Counter, deque
-from math import prod
+from collections import deque
 
 
 def is_ordered_correctly(update, ordering_rules_set):

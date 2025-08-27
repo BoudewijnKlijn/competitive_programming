@@ -1,5 +1,4 @@
 from functools import cmp_to_key
-from itertools import cycle
 from typing import List
 
 

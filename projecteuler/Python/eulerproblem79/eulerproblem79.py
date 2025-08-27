@@ -18,10 +18,10 @@ for i in range(0,50):
 		for pos2 in range(0,3):
 			value2 = int(mylist[i][pos2])
 			if(pos1>pos2):
-				if not(value2 in before_x_comes[value1]):
+				if value2 not in before_x_comes[value1]:
 					before_x_comes[value1] = before_x_comes[value1] + [value2]
 			if(pos1<pos2):
-				if not(value2 in after_x_comes[value1]):
+				if value2 not in after_x_comes[value1]:
 					after_x_comes[value1] = after_x_comes[value1] + [value2]
 					
 for i in range(0,10):

@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from qualifier.input_data import InputData, Street, Car
+from qualifier.input_data import InputData, Car
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
 from qualifier.strategy import Strategy

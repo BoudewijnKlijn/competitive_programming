@@ -1,23 +1,12 @@
-import time
 import os
-from collections import defaultdict
-import numpy as np
-import pandas as pd
 
-from qualifier.calculate_score import calculate_score
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule
-from qualifier.strategy import Strategy
-from qualifier.strategies.RandomPeriods import RandomPeriods
-from qualifier.strategies.FixedPeriods import FixedPeriods
 from qualifier.util import save_output
 from qualifier.simulatorV4.simulator_v4 import SimulatorV4
-from qualifier.simulatorV2.simulator_v2 import SimulatorV2
-from qualifier.simulator.simulatorv1 import SimulatorV1
 from qualifier.strategies.PlanV4 import PlanV4
 
-from qualifier.zero_delay_schedule import get_zero_delay_schedule
 
 THIS_PATH = os.path.realpath(__file__)
 

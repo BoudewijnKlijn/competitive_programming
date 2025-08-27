@@ -14,7 +14,7 @@ for solution in range(2,26):
 		for index_existing in range(0,len(solution_list[existing_solution])):
 			new = [first_digit] + solution_list[existing_solution][index_existing]
 			new.sort()
-			if not (new in solution_list[solution]):
+			if new not in solution_list[solution]:
 				solution_list[solution].append(new)
 	print(" ",len(solution_list[solution])-1)
 	y.append(len(solution_list[solution])-1)

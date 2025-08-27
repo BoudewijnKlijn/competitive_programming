@@ -1,5 +1,4 @@
 import os
-import sys
 
 
 def is_solvable_v3(n, a, b):

@@ -8,7 +8,7 @@ answer = 0
 for num in range(0,1000000):
 	chain = []
 	sum = num
-	while not num in chain:
+	while num not in chain:
 		chain.append(num)
 		sum = 0
 		for digit in str(num):

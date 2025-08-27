@@ -1,5 +1,4 @@
 import os
-import time
 import timeit
 from operator import attrgetter
 

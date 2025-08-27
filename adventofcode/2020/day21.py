@@ -1,4 +1,3 @@
-import timeit
 import re
 from functools import reduce
 

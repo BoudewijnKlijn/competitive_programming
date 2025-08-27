@@ -1,5 +1,4 @@
 from abc import abstractmethod, ABC
-from typing import Iterable
 
 from valcon import OutputData, InputData
 

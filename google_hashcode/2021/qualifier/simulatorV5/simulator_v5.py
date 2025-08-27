@@ -1,5 +1,4 @@
 from collections import deque
-import numpy as np
 
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData

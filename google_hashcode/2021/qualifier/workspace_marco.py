@@ -136,7 +136,7 @@ if __name__ == '__main__':
         print(f'Solving with strategy {my_strategy.name}...')
         output = my_strategy.solve(input_data)
 
-        print(f'Running solution trough simulator...')
+        print('Running solution trough simulator...')
         score, _ = SimulatorV4(input_data, verbose=0).run(output)
 
         # print(f'---- {file_name} ----')
@@ -182,7 +182,7 @@ Score:  {score}         (Still to gain ~{potential_score - score} points)
             axs[1].set_xlabel('generation')
             axs[1].set_ylabel('score')
             axs[1].legend()
-            axs[1].set_title(f'last 3 generations')
+            axs[1].set_title('last 3 generations')
             fig.suptitle(f'Problem: {file_name} Strategy: {my_strategy.name} score: {score}')
             fig.show()
             fig.savefig(os.path.join(THIS_PATH, 'outputs', 'history', f'{file_name}.{score}.png'))

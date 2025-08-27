@@ -1,6 +1,4 @@
-import re
 from collections import Counter
-from math import prod
 
 # all 8 directions
 directions = [

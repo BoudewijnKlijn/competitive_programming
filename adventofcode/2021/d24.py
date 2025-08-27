@@ -2,8 +2,6 @@ import re
 from itertools import product
 from typing import List
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 from queue import PriorityQueue
 from copy import deepcopy
 from collections import Counter
@@ -28,7 +26,7 @@ class StringAlu:
         self.z = '0'
         self.w = '0'
         self.commands = commands
-        self.inputs = [f'INP_' + str(i).zfill(2) for i in range(14)] if inputs is None else inputs
+        self.inputs = ['INP_' + str(i).zfill(2) for i in range(14)] if inputs is None else inputs
         self.x_w_evaluations = x_w_evaluations
         self.equations = list()
 

@@ -1,18 +1,15 @@
 import glob
-import math
 import os
 import time
-from copy import copy, deepcopy
+from copy import deepcopy
 from random import randint
 
-import numpy as np
-from dataclasses import dataclass
 
 from HC_2022_Qualification.problem_data import ProblemData, Contributor, Project, Role
 from HC_2022_Qualification.score import Score
 from HC_2022_Qualification.solution import Solution
 from HC_2022_Qualification.strategies.base_strategy import BaseStrategy
-from valcon.utils import best_score, generate_file_name, get_problem_name, flatten
+from valcon.utils import best_score, generate_file_name, get_problem_name
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -140,7 +137,7 @@ class ProbabilityStrategy(BaseStrategy):
         if score_function:
             scores = [score_function(thing) for thing in list_of_things]
 
-        assert scores, f'Need either a list of scores or a score function to get a score for each thing'
+        assert scores, 'Need either a list of scores or a score function to get a score for each thing'
 
         sum_scores = sum(scores)
 
@@ -151,7 +148,7 @@ class ProbabilityStrategy(BaseStrategy):
         normalized_scores = [x / sum_scores for x in scores]
 
         probable = self.rng.choice(list_of_things, p=normalized_scores)
-        assert probable is not None, f'by now we sould always have a probable best'
+        assert probable is not None, 'by now we sould always have a probable best'
         return probable
 
     def solve(self, input_data: ProblemData) -> Solution:

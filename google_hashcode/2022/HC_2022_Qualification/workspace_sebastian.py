@@ -2,7 +2,6 @@ import glob
 import os
 import time
 from copy import deepcopy
-import random
 
 from HC_2022_Qualification.problem_data import ProblemData, Contributor
 from HC_2022_Qualification.score import Score

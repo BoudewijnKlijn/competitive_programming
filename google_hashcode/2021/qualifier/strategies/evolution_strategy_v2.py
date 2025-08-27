@@ -6,7 +6,6 @@ from typing import List, Tuple, Callable
 from qualifier.input_data import InputData
 from qualifier.output_data import OutputData
 from qualifier.schedule import Schedule, EvaluatedSchedule
-from qualifier.strategies.smart_random import SmartRandom
 from qualifier.strategy import Strategy
 
 from multiprocessing import Pool
@@ -249,7 +248,7 @@ Extra mutations: {extra_mutations} ({extra_mutations / input_data.n_intersection
 
                 schedules[intersection].street_duration_tuples = tuple(as_list)
         else:
-            raise ValueError(f'Woeps dont know what to mutate')
+            raise ValueError('Woeps dont know what to mutate')
 
         return schedules
 

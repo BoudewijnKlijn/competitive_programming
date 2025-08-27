@@ -1,6 +1,5 @@
 from collections import Counter
 
-import operator
 from valcon import InputData
 from valcon.scorer import Scorer
 from HC_2019_Qualification.slides import Slides
@@ -8,8 +7,7 @@ import itertools
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 import scipy.sparse as ss
-import pandas as pd
-from typing import List, Tuple, Dict, Set, Optional
+from typing import List, Tuple
 
 
 class Scorer2019Q(Scorer):

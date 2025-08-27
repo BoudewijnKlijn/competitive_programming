@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 import re
-from typing import List, Tuple, Union
+from typing import List, Tuple
 from collections import defaultdict
 from itertools import cycle
 

@@ -1,6 +1,6 @@
 from qualifier.output_data import OutputData
-from qualifier.input_data import InputData, Street, Car, Intersection
-from typing import Dict, List, Optional
+from qualifier.input_data import InputData, Car
+from typing import Dict, List
 from qualifier.schedule import Schedule
 
 

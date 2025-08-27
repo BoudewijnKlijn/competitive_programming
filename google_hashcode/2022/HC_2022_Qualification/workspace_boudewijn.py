@@ -4,9 +4,7 @@ import time
 
 from HC_2022_Qualification.problem_data import ProblemData
 from HC_2022_Qualification.score import Score
-from HC_2022_Qualification.strategies.baseline_strategy_v2 import BaselineStrategy
 from HC_2022_Qualification.strategies.random_strategy_v2 import RandomStrategy
-from HC_2022_Qualification.strategies.valuable_projects import ValuableProjectStrategy
 from valcon.utils import best_score, get_problem_name, generate_file_name
 
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))

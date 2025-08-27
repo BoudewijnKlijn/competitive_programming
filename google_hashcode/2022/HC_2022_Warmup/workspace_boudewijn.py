@@ -1,20 +1,13 @@
 import os
-import time
 
 import numpy as np
-from typing import List, Tuple, Dict, Any, Optional, Iterable
+from typing import Iterable
 
-import pandas as pd
-from matplotlib import pyplot as plt
-import seaborn as sns
 
 from HC_2022_Warmup.perfect_pizza import PerfectPizza
 from HC_2022_Warmup.perfect_pizza_score import PerfectPizzaScore
 from HC_2022_Warmup.pizza_demands import PizzaDemands
-from HC_2022_Warmup.strategies.random_ingredients import RandomIngredients
-from HC_2022_Warmup.strategies.try_all import TryAll
 from HC_2022_Warmup.strategies.default import Default
-from HC_2022_Warmup.strategies.random_clients import RandomClients
 from HC_2022_Warmup.strategies.random_probabilities import RandomClientProbability
 from valcon import Strategy
 

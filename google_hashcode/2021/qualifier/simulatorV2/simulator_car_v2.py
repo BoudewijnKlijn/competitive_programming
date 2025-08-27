@@ -1,6 +1,5 @@
 from typing import List
 
-from qualifier.simulatorV2.simulator_street_v2 import SimulatorStreetV2
 
 
 class SimulatorCarV2:

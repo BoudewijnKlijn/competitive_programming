@@ -192,7 +192,7 @@ Extra mutations: {extra_mutations}""")
             self.random.shuffle(as_list)
             schedules[intersection].street_duration_tuples = tuple(as_list)
         else:
-            raise ValueError(f'Woeps dont know what to mutate')
+            raise ValueError('Woeps dont know what to mutate')
 
         return schedules
 

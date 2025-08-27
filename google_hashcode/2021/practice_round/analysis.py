@@ -1,7 +1,5 @@
-import numpy as np
 
-from assignment import Pizza, Assignment, read_assignment
-from vqd.score import score
+from assignment import read_assignment
 
 assignment = read_assignment("b_little_bit_of_everything.in")
 

@@ -3,10 +3,7 @@ from datetime import datetime
 import random
 
 from qualifier.input_data import InputData
-from qualifier.strategies.PlanV2 import PlanV2
 from qualifier.simulatorV5.simulator_v5 import SimulatorV5
-from qualifier.strategies.Plan import Plan
-from qualifier.strategies.PlanV3 import PlanV3
 from qualifier.strategies.PlanV4 import PlanV4
 from qualifier.strategies.random_strategy_multi_core import RandomStrategyMultiCore
 from qualifier.util import save_output
