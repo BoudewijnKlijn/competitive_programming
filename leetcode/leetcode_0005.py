@@ -1,5 +1,3 @@
-
-
 class Solution:
     def longestPalindrome(self, s: str) -> str:
         return self.move_outward(s)
@@ -39,13 +37,44 @@ class Solution:
         return True
 
 
+# +---------------------------+----------------+
+# |   bruteforce_fixed_length |   move_outward |
+# |---------------------------+----------------|
+# |                  0.000012 |       0.000006 |
+# |                 18.779449 |       0.002178 |
+# |                 25.949317 |       0.002644 |
+# |                 30.062799 |       0.002891 |
+# +---------------------------+----------------+
+
+
 if __name__ == "__main__":
+    import os
+
     from timing import timing
+
+    PROBLEM = "0005"
+    data_file = os.path.join(os.path.dirname(__file__), f"leetcode_{PROBLEM}_data.txt")
+
+    # generate testcases
+    import sys
+
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    from generic.helper import InputString, generate_testcases
+
+    arr1 = InputString(
+        n_min_max=(1000, 10000), characters=list("abcdefghijklmnopqrstuvwxyz")
+    )
+    # vars = generate_testcases(
+    #     structure=(arr1,), n=3, data_file=data_file, solver=Solution().move_outward
+    # )
 
     timing(
         solution=Solution(),
-        funcs=["longestPalindrome"],
-        data_file="leetcode_0005_data.txt",
+        funcs=[
+            # "bruteforce_fixed_length",
+            "move_outward",
+        ],
+        data_file=data_file,
         exclude_data_lines=None,
         check_result=True,
     )
