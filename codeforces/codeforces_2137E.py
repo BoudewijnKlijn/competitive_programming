@@ -1,44 +1,42 @@
 import os
 from collections import Counter
+from math import prod
 
 
 def solve():
-    """If there is a single occurence of a number and all numbers below it (from zero) are also single,
-    then that numbers and the singles below it, remain unchanged.
-    If multiple occurences than they become mex value, and there will be multiple of them in the next pass as well.
-    If the smaller numbers occur multiple times, then they become the mex value, which will be higher,
-    and in multiple instances, together with other numbers in the second pass, if there is a second pass.
-    """
     n, k = list(map(int, input().split()))
     a = list(map(int, input().split()))
-    counts = Counter(a)
 
-    # loop over sorted keys. as long as value from 0 onwards only occur once, they dont change.
-    key = 0
-    constant_sum = 0
-    increase_key = True
-    single_single_keys = 0
-    while True:
-        if key not in counts:
-            break
-        if increase_key and counts[key] == 1:
-            single_single_keys += 1
-            constant_sum += key
-        else:
-            increase_key = False
+    def inner(counts_a):
+        # get first value that is not present in a
+        replace_val = 0
+        while replace_val in counts_a:
+            replace_val += 1
 
-        key += 1
+        # build new counter.
+        # all values more than replace_val or occur more than once get replaced by replace_val
+        new_a = dict()
+        n_added = 0
+        for key in range(replace_val):
+            if key in counts_a and counts_a[key] == 1:
+                new_a[key] = 1
+                n_added += 1
+        new_a[replace_val] = n - n_added
+        return new_a
 
-    replace_val = key
+    # run solver a few times. a loop will establish or all values are the same.
+    history = list()
+    counts_a = Counter(a)
+    while k > 0 and len(history) < 3:
+        counts_a = inner(counts_a)
+        history.append(sum(map(prod, counts_a.items())))
+        k -= 1
 
-    # all values which are higher than key, become key in the first pass
-    # then in the next pass they all become key+1 in the next pass. then key thereafter etc.
-    ans = constant_sum
-    if k % 2 == 1:
-        ans += replace_val * (n - single_single_keys)
+    # return answer based on whether k == 0 or odd or even.
+    if k == 0 or k % 2 == 0:
+        print(history[-1])
     else:
-        ans += (replace_val + 1) * (n - single_single_keys)
-    print(ans)
+        print(history[-2])
 
 
 if __name__ == "__main__":
