@@ -9,7 +9,7 @@ def solve():
 
 
 if __name__ == "__main__":
-    MULTIPLE_TESTS = False
+    MULTIPLE_TESTS = True
 
     if not os.path.exists("LOCAL"):
         t = 1
