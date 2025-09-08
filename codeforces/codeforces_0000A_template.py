@@ -11,7 +11,7 @@ def solve():
 if __name__ == "__main__":
     MULTIPLE_TESTS = True
 
-    if not os.path.exists("LOCAL"):
+    if not os.path.exists(os.path.join("codeforces", "LOCAL")):
         t = 1
         if MULTIPLE_TESTS:
             t = int(input())
