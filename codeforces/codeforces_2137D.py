@@ -1,45 +1,47 @@
+import heapq
 import os
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 
 
 def solve():
-    """Its possible if counts correspond with keys and sum of counts equals n or k%v==0."""
+    """It's possible if b value occurs a multiple of b times."""
     n = int(input())
     b = list(map(int, input().split()))
-    counts = Counter(b)
-    for k, v in counts.items():
-        div, mod = divmod(v, k)
-        if v < k or mod != 0:
+
+    # two purposes:
+    # - get indices of each value
+    # - use len to get number of values
+    pos = defaultdict(list)
+    for i in range(n):
+        pos[b[i]].append(i)
+
+    # b must occur a multiple of b times. otherwise not possible
+    # insert correct values
+    #   some b_value may occur more often than value itself, e.g. b=1.
+    #   then have to insert several values
+    ans = [0] * n
+    replace_val = 1
+    for b_value, idxs in pos.items():
+        if len(idxs) < b_value or len(idxs) % b_value != 0:
             print(-1)
             return
 
-    if sum(counts.values()) != n:
-        print(-1)
-        return
+        i = 1
+        for idx in idxs:
+            ans[idx] = replace_val
+            if i == b_value:
+                # once b_value number of items have been inserted, insert another value
+                replace_val += 1
+                i = 0
+            i += 1
 
-    # possible, i think
-    # get all values the correct number of times and store at correct k.
-    # might be a mix of multiple numbers, therefore list
-    values = defaultdict(list)
-    val = 1
-    for k, v in counts.items():
-        vv = v
-        while vv > 0:
-            values[k].extend([val] * k)
-            vv -= k
-            val += 1
-
-    # use mapping to construct output. pop from values
-    ans = list()
-    for bb in b:
-        ans.append(values[bb].pop())
     print(*ans)
 
 
 if __name__ == "__main__":
     MULTIPLE_TESTS = True
 
-    if not os.path.exists("LOCAL"):
+    if not os.path.exists(os.path.join("codeforces", "LOCAL")):
         t = 1
         if MULTIPLE_TESTS:
             t = int(input())
