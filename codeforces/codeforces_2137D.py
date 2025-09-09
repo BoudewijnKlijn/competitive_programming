@@ -1,17 +1,21 @@
 import heapq
 import os
+import sys
 from collections import Counter, defaultdict, deque
 
 
 def solve():
     """It's possible if b value occurs a multiple of b times."""
-    n = int(input())
-    b = list(map(int, input().split()))
+    input = sys.stdin.readline
+    n = int(input().strip())
+    b = list(map(int, input().strip().split()))
 
     # two purposes:
     # - get indices of each value
     # - use len to get number of values
-    pos = defaultdict(list)
+    unique = set(b)
+    pos = [[] for _ in range(200_001)]
+    # pos = defaultdict(list)
     for i in range(n):
         pos[b[i]].append(i)
 
@@ -21,7 +25,9 @@ def solve():
     #   then have to insert several values
     ans = [0] * n
     replace_val = 1
-    for b_value, idxs in pos.items():
+    # for b_value, idxs in pos.items():
+    for b_value in unique:
+        idxs = pos[b_value]
         if len(idxs) < b_value or len(idxs) % b_value != 0:
             print(-1)
             return
