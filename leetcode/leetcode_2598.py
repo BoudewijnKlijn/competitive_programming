@@ -66,6 +66,24 @@ class Solution:
         return ans
 
 
+# +---------------+----------+-----------+-----------+
+# |   not_so_fast |   faster |   faster2 |   faster3 |
+# |---------------+----------+-----------+-----------|
+# |      0.000092 | 0.000007 |  0.000003 |  0.000004 |
+# |      0.000007 | 0.000003 |  0.000002 |  0.000002 |
+# |      0.013102 | 0.037242 |  0.032039 |  0.032779 |
+# |      0.014898 | 0.011547 |  0.010339 |  0.004912 |
+# |      0.008955 | 0.007968 |  0.006320 |  0.002791 |
+# |      0.024777 | 0.019832 |  0.018112 |  0.008951 |
+# |      0.025373 | 0.020136 |  0.018349 |  0.009603 |
+# |      0.022919 | 0.019007 |  0.016403 |  0.007189 |
+# |      0.006215 | 0.004533 |  0.004241 |  0.001800 |
+# |      0.018481 | 0.013092 |  0.011314 |  0.005009 |
+# |      0.009661 | 0.006954 |  0.006607 |  0.003102 |
+# |      0.007102 | 0.005178 |  0.004674 |  0.002053 |
+# |      0.014312 | 0.009742 |  0.009017 |  0.003829 |
+# +---------------+----------+-----------+-----------+
+
 if __name__ == "__main__":
     import os
 
@@ -80,9 +98,19 @@ if __name__ == "__main__":
     # sys.path.append(os.path.dirname(os.path.dirname(__file__)))
     # from generic.helper import InputInteger, InputList, generate_testcases
 
-    # arr1 = InputList(n_min_max=(2, 100_000), val_min_max=(0, 10_000))
-    # int1 = InputInteger(val_min_max=(0, 10_000))
-    # vars = generate_testcases(structure=(arr1,), n=1, data_file=data_file, solver=None)
+    # arr1 = InputList(
+    #     n_min_max=(1, 100_000), val_min_max=(-1_000_000_000, 1_000_000_000)
+    # )
+    # int1 = InputInteger(val_min_max=(0, 100))
+    # vars = generate_testcases(
+    #     structure=(
+    #         arr1,
+    #         int1,
+    #     ),
+    #     n=10,
+    #     data_file=data_file,
+    #     solver=Solution().faster3,
+    # )
 
     timing(
         solution=Solution(),
